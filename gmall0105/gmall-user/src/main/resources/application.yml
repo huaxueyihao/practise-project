@@ -1,0 +1,17 @@
+#服务端口
+server:
+  port: 8080
+
+#jdbc
+spring:
+  datasource:
+    username: root
+    password: mysql
+    url: jdbc:mysql://localhost:3306
+
+
+#mybatis
+mybatis:
+  mapper-locations: classpath:mapper/*Mapper.xml
+  configuration:
+    map-underscore-io-camel-core: true
