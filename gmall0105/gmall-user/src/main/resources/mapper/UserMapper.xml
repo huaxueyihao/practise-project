@@ -20,4 +20,9 @@
 <!--        <association property="grade" column="gid" select="com.qbd.mapper.GradeMappers.findbyid">-->
 <!--        </association>-->
 <!--    </resultMap>-->
+
+
+        <select id="selectAllUser"  resultType="com.gardenia.gmall.user.bean.UmsMember">
+            select t.* from ums_member t
+        </select>
 </mapper>
