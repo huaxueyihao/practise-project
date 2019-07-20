@@ -1,8 +1,8 @@
 package com.gardenia.gmall.user.service.impl;
 
-import com.gardenia.gmall.user.bean.UmsMemberReceiveAddress;
+import com.gardenia.gmall.api.bean.UmsMemberReceiveAddress;
+import com.gardenia.gmall.api.service.UmsMemberReceiveAddressService;
 import com.gardenia.gmall.user.mapper.UmsMemberReceiveAddressMapper;
-import com.gardenia.gmall.user.service.UmsMemberReceiveAddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;

@@ -1,6 +1,4 @@
-package com.gardenia.gmall.user.bean;
-
-import lombok.Data;
+package com.gardenia.gmall.api.bean;
 
 import javax.persistence.*;
 import java.io.Serializable;

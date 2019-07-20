@@ -15,3 +15,7 @@ mybatis:
   mapper-locations: classpath:mapper/*Mapper.xml
   configuration:
     map-underscore-io-camel-core: true
+
+logging:
+  level:
+    root: info

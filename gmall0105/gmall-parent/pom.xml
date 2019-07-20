@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.21.RELEASE</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.gmall.study</groupId>
+    <artifactId>gmall-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+
+    <properties>
+        <fastjosn.version>1.2.47</fastjosn.version>
+        <dubbo.version>2/6/4</dubbo.version>
+        <zkclient.version>0.3</zkclient.version>
+        <spring.dubbo.version>1.0.7</spring.dubbo.version>
+        <spring.mybatis.version>2.0.1</spring.mybatis.version>
+        <nethtml.version>1.9.12</nethtml.version>
+        <xmlapis.version>2.0.2</xmlapis.version>
+        <bitkext.version>1.7</bitkext.version>
+        <httpClient.version>4.5.8</httpClient.version>
+        <commons.lang3.version>3.8.1</commons.lang3.version>
+        <tk.mybatis.version>2.1.5</tk.mybatis.version>
+        <tk.mapper.version>4.0.3</tk.mapper.version>
+        <jedis.version>2.9.0</jedis.version>
+        <jest.version>5.3.3</jest.version>
+        <jna.version>4.2.2</jna.version>
+        <commons-beanutils.version>2.9.3</commons-beanutils.version>
+        <commons-codec.version>1.11</commons-codec.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjosn.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>dubbo</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.101tec</groupId>
+                <artifactId>zkclient</artifactId>
+                <version>${zkclient.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.gitee.reger</groupId>
+                <artifactId>spring-boot-starter-dubbo</artifactId>
+                <version>${spring.dubbo.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${spring.mybatis.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>net.sourceforge.nekohtml</groupId>
+                <artifactId>nekohtml</artifactId>
+                <version>${nethtml.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>xml-apis</groupId>
+                <artifactId>xml-apis</artifactId>
+                <version>${xmlapis.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-ext</artifactId>
+                <version>${bitkext.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons.lang3.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>tk.mybatis</groupId>
+                <artifactId>mapper-spring-boot-starter</artifactId>
+                <version>${tk.mybatis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>tk.mybatis</groupId>
+                <artifactId>mapper</artifactId>
+                <version>${tk.mapper.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.searchbox</groupId>
+                <artifactId>jest</artifactId>
+                <version>${jest.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna</artifactId>
+                <version>${jna.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons-beanutils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+
+        </dependencies>
+
+
+
+    </dependencyManagement>
+
+</project>

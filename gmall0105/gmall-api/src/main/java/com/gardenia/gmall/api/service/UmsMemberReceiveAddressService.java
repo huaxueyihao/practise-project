@@ -1,6 +1,7 @@
-package com.gardenia.gmall.user.service;
+package com.gardenia.gmall.api.service;
 
-import com.gardenia.gmall.user.bean.UmsMemberReceiveAddress;
+
+import com.gardenia.gmall.api.bean.UmsMemberReceiveAddress;
 
 import java.util.List;
 

@@ -1,10 +1,9 @@
 package com.gardenia.gmall.user.controller;
 
-import com.gardenia.gmall.user.bean.UmsMember;
-import com.gardenia.gmall.user.bean.UmsMemberReceiveAddress;
-import com.gardenia.gmall.user.mapper.UmsMemberReceiveAddressMapper;
-import com.gardenia.gmall.user.service.UmsMemberReceiveAddressService;
-import com.gardenia.gmall.user.service.UserService;
+import com.gardenia.gmall.api.bean.UmsMember;
+import com.gardenia.gmall.api.bean.UmsMemberReceiveAddress;
+import com.gardenia.gmall.api.service.UmsMemberReceiveAddressService;
+import com.gardenia.gmall.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
