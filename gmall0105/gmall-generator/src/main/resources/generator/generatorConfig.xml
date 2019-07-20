@@ -12,9 +12,9 @@
         <property name="endingDelimiter" value="`"/>
 
         <!-- 配置 tk.mybatis 插件 -->
-<!--        <plugin type="tk.mybatis.mapper.generator.MapperPlugin">-->
-<!--            <property name="mappers" value="tk.mybatis.tk.mybatis.mapper.GardeniaMapper"/>-->
-<!--        </plugin>-->
+        <plugin type="tk.mybatis.mapper.generator.MapperPlugin">
+            <property name="mappers" value="tk.mybatis.mapper.MapperSupport"/>
+        </plugin>
 
         <!-- 配置数据库连接 -->
         <jdbcConnection
@@ -25,14 +25,14 @@
         </jdbcConnection>
 
         <!-- 配置实体类存放路径 -->
-        <javaModelGenerator targetPackage="com.gmall.study.domain" targetProject="src/main/java"/>
+        <javaModelGenerator targetPackage="com.gardenia.gmall.user.bean" targetProject="src/main/java"/>
 
         <!-- 配置 XML 存放路径 -->
         <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources"/>
 
         <!-- 配置 DAO 存放路径 -->
         <javaClientGenerator
-                targetPackage="com.gmall.study.mapper"
+                targetPackage="com.gardenia.gmall.user.mapper"
                 targetProject="src/main/java"
                 type="XMLMAPPER"/>
 

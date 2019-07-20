@@ -1,14 +1,10 @@
 package com.gardenia.gmall.user.bean;
 
-import lombok.Data;
-
-import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
+import javax.persistence.*;
 
-@Table(name = "ums_member")
-public class UmsMember implements Serializable {
-    private static final long serialVersionUID = 3424810229519688225L;
+@Table(name = "gmall_study..ums_member")
+public class UmsMember {
     /**
      * 主键id
      */
