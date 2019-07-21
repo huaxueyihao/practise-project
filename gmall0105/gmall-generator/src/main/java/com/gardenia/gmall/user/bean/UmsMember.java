@@ -3,7 +3,7 @@ package com.gardenia.gmall.user.bean;
 import java.util.Date;
 import javax.persistence.*;
 
-@Table(name = "gmall_study..ums_member")
+@Table(name = "ums_member")
 public class UmsMember {
     /**
      * 主键id

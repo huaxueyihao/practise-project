@@ -13,7 +13,7 @@
 
         <!-- 配置 tk.mybatis 插件 -->
         <plugin type="tk.mybatis.mapper.generator.MapperPlugin">
-            <property name="mappers" value="tk.mybatis.mapper.MapperSupport"/>
+            <property name="mappers" value="com.tk.mybatis.mapper.MapperSupport"/>
         </plugin>
 
         <!-- 配置数据库连接 -->
@@ -25,19 +25,19 @@
         </jdbcConnection>
 
         <!-- 配置实体类存放路径 -->
-        <javaModelGenerator targetPackage="com.gardenia.gmall.user.bean" targetProject="src/main/java"/>
+        <javaModelGenerator targetPackage="com.gardenia.gmall.api.bean" targetProject="src/main/java"/>
 
         <!-- 配置 XML 存放路径 -->
         <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources"/>
 
         <!-- 配置 DAO 存放路径 -->
         <javaClientGenerator
-                targetPackage="com.gardenia.gmall.user.mapper"
+                targetPackage="com.gardenia.gmall.api.mapper"
                 targetProject="src/main/java"
                 type="XMLMAPPER"/>
 
         <!-- 配置需要生成的表，% 代表所有 -->
-        <table catalog="gmall_study" tableName="%">
+        <table catalog="" tableName="%">
             <!-- mysql 配置 -->
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>

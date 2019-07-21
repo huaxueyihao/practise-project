@@ -2,7 +2,7 @@ package com.gardenia.gmall.user.bean;
 
 import javax.persistence.*;
 
-@Table(name = "gmall_study..ums_member_receive_address")
+@Table(name = "ums_member_receive_address")
 public class UmsMemberReceiveAddress {
     /**
      * 主键id
