@@ -10,17 +10,21 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>gmall-web-util</artifactId>
-
+    <artifactId>gmall-user-service</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.gmall.study</groupId>
-            <artifactId>gmall-common-util</artifactId>
+            <artifactId>gmall-service-util</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.gmall.study</groupId>
+            <artifactId>gmall-api</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
     </dependencies>
-
-
 
 </project>

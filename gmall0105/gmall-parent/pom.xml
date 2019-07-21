@@ -19,22 +19,24 @@
 
     <properties>
         <fastjosn.version>1.2.47</fastjosn.version>
-        <dubbo.version>2/6/4</dubbo.version>
-        <zkclient.version>0.3</zkclient.version>
-        <spring.dubbo.version>1.0.7</spring.dubbo.version>
+        <dubbo.version>2.6.0</dubbo.version>
+        <zkclient.version>0.10</zkclient.version>
+        <spring.dubbo.version>1.0.10</spring.dubbo.version>
         <spring.mybatis.version>2.0.1</spring.mybatis.version>
-        <nethtml.version>1.9.12</nethtml.version>
-        <xmlapis.version>2.0.2</xmlapis.version>
+        <nethtml.version>1.9.20</nethtml.version>
+        <xmlapis.version>1.4.01</xmlapis.version>
         <bitkext.version>1.7</bitkext.version>
-        <httpClient.version>4.5.8</httpClient.version>
+        <httpClient.version>4.5.5</httpClient.version>
         <commons.lang3.version>3.8.1</commons.lang3.version>
         <tk.mybatis.version>2.1.5</tk.mybatis.version>
         <tk.mapper.version>4.0.3</tk.mapper.version>
         <jedis.version>2.9.0</jedis.version>
         <jest.version>5.3.3</jest.version>
-        <jna.version>4.2.2</jna.version>
-        <commons-beanutils.version>2.9.3</commons-beanutils.version>
+        <jna.version>4.5.1</jna.version>
+        <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-codec.version>1.11</commons-codec.version>
+        <esoterisoftware.kryo.version>2.24.0</esoterisoftware.kryo.version>
+        <kryo.version>0.42</kryo.version>
     </properties>
 
     <dependencyManagement>
@@ -141,6 +143,18 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${commons-codec.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.esotericsoftware.kryo</groupId>
+                <artifactId>kryo</artifactId>
+                <version>${esoterisoftware.kryo.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>de.javakaffee</groupId>
+                <artifactId>kryo-serializers</artifactId>
+                <version>${kryo.version}</version>
             </dependency>
 
         </dependencies>

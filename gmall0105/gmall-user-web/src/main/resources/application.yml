@@ -1,0 +1,20 @@
+#服务端口
+server:
+  port: 8080
+
+#dubbo 配置
+spring:
+  dubbo:
+    application: gmall-user-web
+    protocol:
+      name: dubbo
+    registry:
+      protocol: zookeeper
+      address: 172.16.144.130:2181
+    base-package: com.gardenia.gmall
+    consumer:
+      timeout: 600000
+
+logging:
+  level:
+    root: debug
