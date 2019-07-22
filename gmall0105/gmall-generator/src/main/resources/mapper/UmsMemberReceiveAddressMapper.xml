@@ -1,49 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.gardenia.gmall.user.mapper.UmsMemberReceiveAddressMapper">
-  <resultMap id="BaseResultMap" type="com.gardenia.gmall.user.bean.UmsMemberReceiveAddress">
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gardenia.gmall.api.mapper.UmsMemberReceiveAddressMapper" >
+  <resultMap id="BaseResultMap" type="com.gardenia.gmall.api.bean.UmsMemberReceiveAddress" >
     <!--
       WARNING - @mbg.generated
     -->
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="member_id" jdbcType="BIGINT" property="memberId" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="phone" jdbcType="VARCHAR" property="phone" />
-    <result column="post_code" jdbcType="VARCHAR" property="postCode" />
-    <result column="province" jdbcType="VARCHAR" property="province" />
-    <result column="city" jdbcType="VARCHAR" property="city" />
-    <result column="detail_address" jdbcType="VARCHAR" property="detailAddress" />
-    <result column="area_code" jdbcType="VARCHAR" property="areaCode" />
-    <result column="default_status" jdbcType="SMALLINT" property="defaultStatus" />
-  </resultMap>
-  <resultMap id="BaseResultMap" type="com.gardenia.gmall.user.bean.UmsMemberReceiveAddress">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="member_id" jdbcType="BIGINT" property="memberId" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="phone" jdbcType="VARCHAR" property="phone" />
-    <result column="post_code" jdbcType="VARCHAR" property="postCode" />
-    <result column="province" jdbcType="VARCHAR" property="province" />
-    <result column="city" jdbcType="VARCHAR" property="city" />
-    <result column="detail_address" jdbcType="VARCHAR" property="detailAddress" />
-    <result column="area_code" jdbcType="VARCHAR" property="areaCode" />
-    <result column="default_status" jdbcType="SMALLINT" property="defaultStatus" />
-  </resultMap>
-  <resultMap id="BaseResultMap" type="com.gardenia.gmall.user.bean.UmsMemberReceiveAddress">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="member_id" jdbcType="BIGINT" property="memberId" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="phone" jdbcType="VARCHAR" property="phone" />
-    <result column="post_code" jdbcType="VARCHAR" property="postCode" />
-    <result column="province" jdbcType="VARCHAR" property="province" />
-    <result column="city" jdbcType="VARCHAR" property="city" />
-    <result column="detail_address" jdbcType="VARCHAR" property="detailAddress" />
-    <result column="area_code" jdbcType="VARCHAR" property="areaCode" />
-    <result column="default_status" jdbcType="SMALLINT" property="defaultStatus" />
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="member_id" property="memberId" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="post_code" property="postCode" jdbcType="VARCHAR" />
+    <result column="province" property="province" jdbcType="VARCHAR" />
+    <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="detail_address" property="detailAddress" jdbcType="VARCHAR" />
+    <result column="area_code" property="areaCode" jdbcType="VARCHAR" />
+    <result column="default_status" property="defaultStatus" jdbcType="SMALLINT" />
   </resultMap>
 </mapper>

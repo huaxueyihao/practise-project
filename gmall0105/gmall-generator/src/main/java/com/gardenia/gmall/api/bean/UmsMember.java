@@ -1,4 +1,4 @@
-package com.gardenia.gmall.user.bean;
+package com.gardenia.gmall.api.bean;
 
 import java.util.Date;
 import javax.persistence.*;
