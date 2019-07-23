@@ -5,9 +5,7 @@ import com.gardenia.gmall.api.bean.PmsBaseAttrInfo;
 import com.gardenia.gmall.api.bean.PmsBaseAttrValue;
 import com.gardenia.gmall.api.service.PmsBaseAttrService;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,6 +28,20 @@ public class BaseAttrController {
     public PmsBaseAttrValue getSpuAttr(@PathVariable Long attrNameId, @PathVariable Long spuId){
 
         return pmsBaseAttrService.getBaseAttrValue(attrNameId,spuId);
+    }
+
+    @PutMapping("saveAttrInfo")
+    @ResponseBody
+    public int saveAttrInfo(@RequestBody PmsBaseAttrInfo pmsBaseAttrInfo){
+
+        return pmsBaseAttrService.saveAttrInfo(pmsBaseAttrInfo);
+    }
+
+    @PutMapping("saveAttrValue")
+    @ResponseBody
+    public int saveAttrValue(@RequestBody PmsBaseAttrInfo pmsBaseAttrInfo){
+
+        return pmsBaseAttrService.saveAttrValue(pmsBaseAttrInfo);
     }
 
 }

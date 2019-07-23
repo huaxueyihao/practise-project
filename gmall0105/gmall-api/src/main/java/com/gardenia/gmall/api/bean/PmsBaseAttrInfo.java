@@ -1,10 +1,13 @@
 package com.gardenia.gmall.api.bean;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Table(name = "pms_base_attr_info")
-public class PmsBaseAttrInfo {
+public class PmsBaseAttrInfo implements Serializable {
+    private static final long serialVersionUID = -3722630211120964007L;
     /**
      * 主键id
      */
@@ -29,6 +32,7 @@ public class PmsBaseAttrInfo {
      */
     private Integer status;
 
+
     /**
      * 创建日期
      */
@@ -40,6 +44,9 @@ public class PmsBaseAttrInfo {
      */
     @Column(name = "update_time")
     private Date updateTime;
+
+    @Transient
+    private List<PmsBaseAttrValue> attrValueList;
 
     /**
      * 获取主键id
@@ -147,5 +154,13 @@ public class PmsBaseAttrInfo {
      */
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public List<PmsBaseAttrValue> getAttrValueList() {
+        return attrValueList;
+    }
+
+    public void setAttrValueList(List<PmsBaseAttrValue> attrValueList) {
+        this.attrValueList = attrValueList;
     }
 }

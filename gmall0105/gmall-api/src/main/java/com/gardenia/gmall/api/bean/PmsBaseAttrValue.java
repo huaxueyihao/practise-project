@@ -1,10 +1,12 @@
 package com.gardenia.gmall.api.bean;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Table(name = "pms_base_attr_value")
-public class PmsBaseAttrValue {
+public class PmsBaseAttrValue implements Serializable {
+    private static final long serialVersionUID = 5771733138028206250L;
     /**
      * 主键id
      */

@@ -8,11 +8,15 @@ import java.util.List;
 
 public interface PmsBaseAttrService {
 
-    List<PmsBaseAttrInfo> getBaseAttrInfoList(Long catalogId);
+        List<PmsBaseAttrInfo> getBaseAttrInfoList(Long catalogId);
 
 
-    PmsBaseAttrValue getBaseAttrValue(Long attrNameId,Long productId);
+        PmsBaseAttrValue getBaseAttrValue(Long attrNameId,Long productId);
 
+
+        int saveAttrValue(PmsBaseAttrInfo pmsBaseAttrInfo);
+
+        int saveAttrInfo(PmsBaseAttrInfo pmsBaseAttrInfo);
 
 
 }
