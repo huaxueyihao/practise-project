@@ -6,10 +6,19 @@ import org.junit.Before;
 import org.junit.Test;
 import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class UnsafeCasTest {
+
+    /**
+     * 将一个线程进行挂起是通过park方法实现的，调用 park后，线程将一直阻塞直到超时或者中断等条件出现。
+     * unpark可以终止一个挂起的线程，使其恢复正常。
+     * Java对线程的挂起操作被封装在 LockSupport类中，
+     * LockSupport类中有各种版本pack方法，其底层实现最终还是使用Unsafe.park()方法和Unsafe.unpark()方法
+     *
+     */
 
     @Before
     public void setUp(){
@@ -17,16 +26,18 @@ public class UnsafeCasTest {
     }
 
     @Test
-    public void test(){
+    public void test() throws NoSuchFieldException {
 
-        AtomicInteger atomicInteger = new AtomicInteger(1);
+        Rectangle rectangle = new Rectangle();
+        rectangle.setHeight(10);
 
-        boolean flag = atomicInteger.compareAndSet(1, 1);
-        log.info("flag={},atomicInteger=[{}]",flag,atomicInteger.get());
+        Unsafe unsafe = UnsafeWrapper.getUnsafe();
+        Field height = Rectangle.class.getDeclaredField("height");
+        long hOffset = unsafe.objectFieldOffset(height);
+        boolean flag = unsafe.compareAndSwapInt(rectangle, hOffset, 10, 3);
 
-//        Unsafe unsafe = UnsafeWrapper.getUnsafe();
-
-//        unsafe.compareAndSwapObject(this,atomicInteger)
+        int h = unsafe.getInt(rectangle, hOffset);
+        log.info("flag=[{}],Rectangle.height=[{}]",flag,h);
 
     }
 
