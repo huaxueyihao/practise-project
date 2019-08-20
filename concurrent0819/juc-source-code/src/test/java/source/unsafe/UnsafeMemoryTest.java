@@ -2,7 +2,6 @@ package source.unsafe;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.PropertyConfigurator;
 import org.junit.Before;
 import org.junit.Test;
 import sun.misc.Unsafe;
