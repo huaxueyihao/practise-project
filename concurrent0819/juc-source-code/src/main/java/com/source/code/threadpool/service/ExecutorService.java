@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 
-public interface ExecutorService {
+public interface ExecutorService  extends Executor{
 
     void shutdown();
 

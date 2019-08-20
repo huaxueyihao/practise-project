@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public interface Futrue<V> {
+public interface Future<V> {
 
     boolean cancel(boolean mayInterruptIfRunning);
 

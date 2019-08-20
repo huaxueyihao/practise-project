@@ -1,13 +1,7 @@
-package com.source.code.threadpool.service.impl;
-
-import com.source.code.threadpool.service.Executors;
-import com.source.code.threadpool.service.RunnableFuture;
+package com.source.code.threadpool.service;
 
 //import java.util.concurrent.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.LockSupport;
 
 
@@ -49,6 +43,16 @@ public class FutureTask<V> implements RunnableFuture<V> {
 
     public FutureTask(Runnable runnable, V result) {
         this.callable = Executors.callable(runnable, result);
+        this.state = NEW;
+    }
+
+    public FutureTask(Callable callable) {
+        this.callable = callable;
+        this.state = NEW;
+    }
+
+    public FutureTask(Runnable runnable) {
+        this.callable = Executors.callable(runnable,null);
         this.state = NEW;
     }
 
@@ -130,7 +134,18 @@ public class FutureTask<V> implements RunnableFuture<V> {
         if (s <= COMPLETING) {
             s = awaitDone(false, 0L);
         }
-        return null;
+        return report(s);
+    }
+
+    private V report(int s) throws ExecutionException {
+        Object x = outcome;
+        if (s == NORMAL) {
+            return (V) x;
+        }
+        if (s >= CANCELLED) {
+            throw new CancellationException();
+        }
+        throw new ExecutionException((Throwable) x);
     }
 
     private int awaitDone(boolean timed, long nanos) throws InterruptedException {
@@ -192,7 +207,14 @@ public class FutureTask<V> implements RunnableFuture<V> {
 
     @Override
     public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        return null;
+        if (unit == null) {
+            throw new NullPointerException();
+        }
+        int s = state;
+        if (s <= COMPLETING && (s = awaitDone(true, unit.toNanos(timeout))) <= COMPLETING) {
+            throw new TimeoutException();
+        }
+        return report(s);
     }
 
     static final class WaitNode {

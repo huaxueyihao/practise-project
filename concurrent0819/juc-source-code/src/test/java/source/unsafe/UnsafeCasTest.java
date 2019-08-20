@@ -29,12 +29,13 @@ public class UnsafeCasTest {
     public void test() throws NoSuchFieldException {
 
         Rectangle rectangle = new Rectangle();
-        rectangle.setHeight(10);
+        rectangle.setHeight(10);// 初始的内存值
 
         Unsafe unsafe = UnsafeWrapper.getUnsafe();
         Field height = Rectangle.class.getDeclaredField("height");
         long hOffset = unsafe.objectFieldOffset(height);
-        boolean flag = unsafe.compareAndSwapInt(rectangle, hOffset, 10, 3);
+        // 9是希望内存的值，3是要更新的值
+        boolean flag = unsafe.compareAndSwapInt(rectangle, hOffset, 9, 3);
 
         int h = unsafe.getInt(rectangle, hOffset);
         log.info("flag=[{}],Rectangle.height=[{}]",flag,h);
