@@ -6,7 +6,7 @@
     
 ### 类结构
     
-    ![Aaron Swartz](https://raw.githubusercontent.com/huaxueyihao/practise-project/master/concurrent0819/juc-source-code/src/main/resources/md/images/LinkedBlockingQueue.png)
+    ![Aaron Swartz](raw.githubusercontent.com/huaxueyihao/practise-project/master/concurrent0819/juc-source-code/src/main/resources/md/images/LinkedBlockingQueue.png)
                           
     
     
