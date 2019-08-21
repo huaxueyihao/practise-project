@@ -13,7 +13,6 @@ public abstract class AbstractExecutorService implements ExecutorService {
         return new FutureTask<T>(runnable, value);
     }
 
-//    java.util.concurrent.AbstractExecutorService
 
     protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
         return new FutureTask<T>(callable);

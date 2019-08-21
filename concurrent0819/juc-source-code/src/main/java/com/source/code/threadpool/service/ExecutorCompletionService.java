@@ -48,30 +48,31 @@ public class ExecutorCompletionService<V> implements CompletionService<V> {
             throw new NullPointerException();
         }
         RunnableFuture<V> f = newTaskFor(task, result);
-
-
-
-        return null;
+        executor.execute(new QueueingFuture(f));
+        return f;
     }
 
     private RunnableFuture<V> newTaskFor(Runnable task, V result) {
-
-        return null;
+        if (aes == null) {
+            return new FutureTask<V>(task, result);
+        } else {
+            return aes.newTaskFor(task, result);
+        }
     }
 
     @Override
     public Future<V> take() throws InterruptedException {
-        return null;
+        return completionQueue.take();
     }
 
     @Override
     public Future<V> poll() {
-        return null;
+        return completionQueue.poll();
     }
 
     @Override
     public Future<V> poll(long timeout, TimeUnit unit) throws InterruptedException {
-        return null;
+        return completionQueue.poll(timeout, unit);
     }
 
 
