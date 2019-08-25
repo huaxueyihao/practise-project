@@ -1,4 +1,4 @@
-package com.gardenia.activemq.study;
+package com.gardenia.activemq.study.basic;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
@@ -24,6 +24,7 @@ public class JmsProduce {
         Queue queue = session.createQueue(QUEUE_NAME);//
         // 5.创建消息的生产者
         MessageProducer messageProducer = session.createProducer(queue);
+        messageProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
         // 6.循环创建多条消息
         for (int i = 0; i < 3; i++) {
             // 7.创建消息
@@ -37,6 +38,7 @@ public class JmsProduce {
         session.close();
         connection.close();
 
+        System.out.println("发布完成");
 
 
     }
