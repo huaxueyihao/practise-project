@@ -52,7 +52,6 @@
         </property>
     </bean>
 
-
     <!--    配置监听程序-->
     <bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
         <property name="connectionFactory" ref="jmsFactory"></property>
