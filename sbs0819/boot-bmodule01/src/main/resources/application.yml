@@ -49,13 +49,13 @@ mybatis:
 ############### Mybatis end ################
 
 ############### Log Begin################
-logging:
-  level:
-    root: WARN
-    mybatis.mapper: TRACE
-    org:
-      hibernate: DEBUG
-  config: classpath:logback-boot.xml
+#logging:
+#  level:
+#    root: WARN
+#    mybatis.mapper: TRACE
+#    org:
+#      hibernate: DEBUG
+#  config: classpath:logback-boot.xml
 ############### Log End ################
 
 
