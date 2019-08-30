@@ -11,6 +11,9 @@ public class JSONResponse {
 
     private String msg;
 
+    private long count;
+
     private Object data;
+
 
 }

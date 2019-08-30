@@ -22,6 +22,9 @@
 
         <h2.version>1.4.199</h2.version>
         <mybatis.spring.version>2.1.0</mybatis.spring.version>
+        <tk.mybatis.version>2.1.5</tk.mybatis.version>
+        <tk.mapper.version>4.0.3</tk.mapper.version>
+        <pagerhelper.version>5.1.8</pagerhelper.version>
     </properties>
 
     <dependencyManagement>
@@ -51,10 +54,26 @@
             </dependency>
 
             <!--            spring mybatis-->
+<!--            <dependency>-->
+<!--                <groupId>org.mybatis.spring.boot</groupId>-->
+<!--                <artifactId>mybatis-spring-boot-starter</artifactId>-->
+<!--                <version>${mybatis.spring.version}</version>-->
+<!--            </dependency>-->
             <dependency>
-                <groupId>org.mybatis.spring.boot</groupId>
-                <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>${mybatis.spring.version}</version>
+                <groupId>tk.mybatis</groupId>
+                <artifactId>mapper-spring-boot-starter</artifactId>
+                <version>${tk.mybatis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>tk.mybatis</groupId>
+                <artifactId>mapper</artifactId>
+                <version>${tk.mapper.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper</artifactId>
+                <version>${pagerhelper.version}</version>
             </dependency>
 
 
