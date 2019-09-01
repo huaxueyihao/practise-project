@@ -15,4 +15,8 @@ public interface SysUserService {
     SysUser detail(Long id);
 
     void update(SysUser sysUser);
+
+    void remove(Long id);
+
+    void batchRemove(Long[] ids);
 }

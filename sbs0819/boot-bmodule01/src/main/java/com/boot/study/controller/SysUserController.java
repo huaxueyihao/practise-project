@@ -49,9 +49,23 @@ public class SysUserController extends BaseController {
         return success(null);
     }
 
+    @GetMapping("/remove/{id}")
+    @ResponseBody
+    public JSONResponse remove(@PathVariable Long id){
+        sysUserService.remove(id);
+        return success(null);
+    }
+
+    @PostMapping("/batchRemove")
+    @ResponseBody
+    public JSONResponse batchRemove(@RequestBody Long[] ids){
+        sysUserService.batchRemove(ids);
+        return success(null);
+    }
+
     @GetMapping("/detail/{id}")
     @ResponseBody
-    public JSONResponse updateUser(@PathVariable Long id){
+    public JSONResponse detail(@PathVariable Long id){
         SysUser sysUser = sysUserService.detail(id);
         return success(sysUser);
     }

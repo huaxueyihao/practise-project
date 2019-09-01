@@ -11,7 +11,6 @@ import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 @Service
 public class SysUserServiceImpl implements SysUserService {
@@ -61,5 +60,19 @@ public class SysUserServiceImpl implements SysUserService {
         entity.setPassword(sysUser.getPassword());
         entity.setSex(sysUser.getSex());
         sysUserMapper.updateByPrimaryKey(entity);
+    }
+
+    @Override
+    public void remove(Long id) {
+        sysUserMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public void batchRemove(Long[] ids) {
+        Optional.of(ids).ifPresent(idList->{
+            for (Long id : idList) {
+                sysUserMapper.deleteByPrimaryKey(id);
+            }
+        });
     }
 }

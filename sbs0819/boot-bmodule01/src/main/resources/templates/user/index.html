@@ -1,14 +1,26 @@
 <div>
-    <table class="layui-hide" id="userList" lay-filter="userToolFilter"></table>
+    <table class="layui-hide" id="userTable" lay-filter="userToolFilter"></table>
     <script type="text/html" id="barDemo">
-        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+<!--        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a> -->
         <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
         <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+
+    <script type="text/html" id="sexTpl">
+        {{#  if(d.sex == 0){ }}
+        男
+        {{#  } else if(d.sex == 1){ }}
+        女
+        {{#  } else { }}
+            神秘
+        {{# } }}
     </script>
 </div>
 <!--<script src="//res.layui.com/layui/dist/layui.js?t=1566370370424"></script>-->
 <script>
-    layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider'], function () {
+    layui.config({
+        base: '/lib/'
+    }).use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider', 'utilTool'], function () {
         var laydate = layui.laydate //日期
             , laypage = layui.laypage //分页
             , layer = layui.layer //弹层
@@ -18,10 +30,11 @@
             , element = layui.element //元素操作
             , slider = layui.slider //滑块
             , $ = layui.jquery
+            , utilTool = layui.utilTool
 
         table.render({
-            elem: '#userList'
-            , height: 420
+            elem: '#userTable'
+            , height: 560
             , url: '/user/pageList/' //数据接口
             , title: '用户表'
             , page: true //开启分页
@@ -32,7 +45,7 @@
                 , {field: 'id', title: 'ID', width: 120, sort: true, fixed: 'left', totalRowText: '合计：'}
                 , {field: 'userName', title: '用户名', width: 120},
                 {field: 'password', title: '密码', width: 120}
-                , {field: 'sex', title: '性别', width: 120, sort: true}
+                , {field: 'sex', title: '性别', width: 120, sort: true,templet: '#sexTpl'}
                 , {field: 'age', title: '年龄', width: 120, sort: true, totalRow: true}
                 , {fixed: 'right', width: 165, align: 'center', toolbar: '#barDemo'}
             ]]
@@ -40,8 +53,7 @@
 
 
         table.on('toolbar(userToolFilter)', function (obj) {
-            var checkStatus = table.checkStatus(obj.config.id)
-                , data = checkStatus.data; //获取选中的数据
+            var checkStatus = table.checkStatus(obj.config.id), data = checkStatus.data; //获取选中的数据
             switch (obj.event) {
                 case 'add':
                     layer.open({
@@ -54,36 +66,23 @@
                         content: ["/user/addUser?classId=" + data.id, 'yes'],
                         btn: ['提交', '取消'],
                         yes: function (index, layero) {
-                            console.log(index, layero);
-                            var body = top.layer.getChildFrame('body', index);
-                            var iframeWin = window[layero.find('iframe')[0]['name']];
                             var submit = layero.find('iframe').contents().find('#btn_save');
-
-                            //保存按钮单击事件
-                            iframeWin.layui.form.on('submit(btn_save)', function (data) {
-                                var field = data.field; //获取表单数据
-                                console.log(field);
-                                $.ajax({
-                                    url: '/user/add',
-                                    method: 'post',
-                                    data: JSON.stringify(data.field),
-                                    contentType: 'application/json',
-                                    dataType: 'JSON',
-                                    success: function (res) {
-                                        if (res.code = '0') {
-                                            // parent.closeIframe(res.msg);
-                                            layer.close(index); //关闭弹层
-                                        } else
-                                            alert(res.msg);
-                                    },
-                                    error: function (data) {
-
-                                    }
-                                });
-
+                            utilTool.formSubmit(index,layero,'btn_save','/user/add',function(res){
+                                if(res.code == '0'){
+                                    layer.close(index);
+                                    table.reload('userTable', {
+                                        page: {
+                                            curr: 1 //重新从第 1 页开始
+                                        }
+                                        ,where: {
+                                            key: {
+                                                id: $('#userTable').val()
+                                            }
+                                        }
+                                    }, 'data');
+                                }
                             });
                             submit.click();
-
                         }
                     });
                     break;
@@ -100,7 +99,37 @@
                     if (data.length === 0) {
                         layer.msg('请选择一行');
                     } else {
-                        layer.msg('删除');
+                        // layer.msg('删除');
+                        var ids = [];
+                        for (var i = 0 ; i < data.length ; i++){
+                            ids.push(data[i]['id']);
+                        }
+                        $.ajax({
+                            url: '/user/batchRemove',
+                            method: 'post',
+                            contentType: 'application/json',
+                            data: JSON.stringify(ids),
+                            dataType: 'JSON',
+                            success: function(res){
+                                if(res.code == '0'){
+                                    table.reload('userTable', {
+                                        page: {
+                                            curr: 1 //重新从第 1 页开始
+                                        }
+                                        ,where: {
+                                            key: {
+                                                id: $('#userTable').val()
+                                            }
+                                        }
+                                    }, 'data');
+                                }
+                            },
+                            error: function(data){
+
+                            }
+                        });
+
+
                     }
                     break;
             }
@@ -117,7 +146,30 @@
             } else if (layEvent === 'del') {
                 layer.confirm('真的删除行么', function (index) {
                     // obj.del(); //删除对应行（tr）的DOM结构
-                    layer.close(index);
+                    $.ajax({
+                        url: '/user/remove/'+data.id,
+                        method: 'get',
+                        dataType: 'JSON',
+                        success: function(res){
+                            if(res.code == '0'){
+                                layer.close(index);
+                                table.reload('userTable', {
+                                    page: {
+                                        curr: 1 //重新从第 1 页开始
+                                    }
+                                    ,where: {
+                                        key: {
+                                            id: $('#userTable').val()
+                                        }
+                                    }
+                                }, 'data');
+                            }
+                        },
+                        error: function(data){
+
+                        }
+                    });
+
                     //向服务端发送删除指令
                 });
             } else if (layEvent === 'edit') {
@@ -137,35 +189,22 @@
 
                     },
                     yes: function (index, layero) {
-                        console.log(index);
-                        console.log(layero);
-
-                        var iframeWin = window[layero.find('iframe')[0]['name']];
-                        var submit = layero.find('iframe').contents().find('#btn_save');
-                        console.log(iframeWin);
-                        //保存按钮单击事件
-                        iframeWin.layui.form.on('submit(btn_save)', function (data) {
-                            var field = data.field; //获取表单数据
-                            console.log(field);
-                            $.ajax({
-                                url: '/user/update',
-                                method: 'post',
-                                data: JSON.stringify(data.field),
-                                contentType: 'application/json',
-                                dataType: 'JSON',
-                                success: function (res) {
-                                    if (res.code = '0') {
-                                        // parent.closeIframe(res.msg);
-                                        layer.close(index); //关闭弹层
-                                    } else
-                                        alert(res.msg);
-                                },
-                                error: function (data) {
-                                }
-                            });
-
+                        utilTool.formSubmit(index,layero,'btn_save','/user/update',function(res){
+                            if(res.code == '0'){
+                                layer.close(index);
+                                table.reload('userTable', {
+                                    page: {
+                                        curr: 1 //重新从第 1 页开始
+                                    }
+                                    ,where: {
+                                        key: {
+                                            id: $('#userTable').val()
+                                        }
+                                    }
+                                }, 'data');
+                            }
                         });
-                        submit.click();
+                        //保存按钮单击事件
                     }
                 });
 
