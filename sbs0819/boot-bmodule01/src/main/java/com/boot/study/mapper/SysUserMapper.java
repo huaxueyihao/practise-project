@@ -2,8 +2,6 @@ package com.boot.study.mapper;
 
 import com.boot.study.common.MyMapperSuppurt;
 import com.boot.study.model.SysUser;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 public interface SysUserMapper extends MyMapperSuppurt<SysUser> {
 

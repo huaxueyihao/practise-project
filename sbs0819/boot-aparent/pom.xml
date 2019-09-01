@@ -25,6 +25,7 @@
         <tk.mybatis.version>2.1.5</tk.mybatis.version>
         <tk.mapper.version>4.0.3</tk.mapper.version>
         <pagerhelper.version>5.1.8</pagerhelper.version>
+        <commons.lang3.version>3.8.1</commons.lang3.version>
     </properties>
 
     <dependencyManagement>
@@ -74,6 +75,13 @@
                 <groupId>com.github.pagehelper</groupId>
                 <artifactId>pagehelper</artifactId>
                 <version>${pagerhelper.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons.lang3.version}</version>
             </dependency>
 
 
