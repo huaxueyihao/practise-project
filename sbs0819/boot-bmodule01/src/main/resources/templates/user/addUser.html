@@ -8,6 +8,7 @@
 </head>
 <body class="layui-layout-body">
 <form class="layui-form" action="" lay-filter="example">
+    <input type="hidden" name="id" id="userId">
     <div class="layui-form" lay-filter="layuiadmin-form-useradmin" id="layuiadmin-form-useradmin"
          style="padding: 20px 0 0 0;">
         <div class="layui-form-item">
@@ -51,9 +52,41 @@
     layui.use(['form', 'layedit'], function () {
         var form = layui.form;
         var layer = layui.layer;
+        var $ = layui.jquery;
 
+
+        var userId = $("#userId").val();
+        console.log('userId=' + userId);
+        if (userId) {
+            console.log('userId=' + userId);
+            $.ajax({
+                url: '/user/detail/' + userId,
+                method: 'get',
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.code = '0') {
+                        // parent.closeIframe(res.msg);
+                        console.log(res);
+                        form.val('example', {
+                            "userName": res.data.userName
+                            , "password": res.data.password
+                            , "sex": res.data.sex
+                            , "age": res.data.age
+                        })
+
+                    } else
+                        alert(res.msg);
+                },
+                error: function (data) {
+
+                }
+            });
+
+        }
 
     });
+
+
 </script>
 </body>
 </html>

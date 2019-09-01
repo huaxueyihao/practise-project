@@ -63,12 +63,11 @@
                             iframeWin.layui.form.on('submit(btn_save)', function (data) {
                                 var field = data.field; //获取表单数据
                                 console.log(field);
-
                                 $.ajax({
                                     url: '/user/add',
                                     method: 'post',
                                     data: JSON.stringify(data.field),
-                                    contentType:'application/json',
+                                    contentType: 'application/json',
                                     dataType: 'JSON',
                                     success: function (res) {
                                         if (res.code = '0') {
@@ -132,29 +131,41 @@
                     scrollbar: true,
                     content: ["/user/addUser?classId=" + data.id, 'yes'],
                     btn: ['提交', '取消'],
-                    success:function(layero,index){
-                        console.log('------------');
-                        console.log(index);
-                        console.log(layero);
-                        console.log('------------');
+                    success: function (layero, index) {
                         var body = top.layer.getChildFrame('body', index);
-                        var iframeWin = window[layero.find('iframe')[0]['name']];
-                        // var submit = layero.find('iframe').contents().find('#btn_save');
-                        var formtest = iframeWin.layui.form;
-                        console.log('-----1-------');
-                        console.log(formtest);
-                        console.log('--------1----');
+                        body.contents().find("#userId").val(data.id);
+
                     },
                     yes: function (index, layero) {
-                        console.log(index, layero);
-                        var body = top.layer.getChildFrame('body', index);
+                        console.log(index);
+                        console.log(layero);
+
                         var iframeWin = window[layero.find('iframe')[0]['name']];
                         var submit = layero.find('iframe').contents().find('#btn_save');
-                        console.log('4354');
-                        console.log(iframeWin.layui.form);
-                        console.log('4343434');
-                        submit.click();
+                        console.log(iframeWin);
+                        //保存按钮单击事件
+                        iframeWin.layui.form.on('submit(btn_save)', function (data) {
+                            var field = data.field; //获取表单数据
+                            console.log(field);
+                            $.ajax({
+                                url: '/user/update',
+                                method: 'post',
+                                data: JSON.stringify(data.field),
+                                contentType: 'application/json',
+                                dataType: 'JSON',
+                                success: function (res) {
+                                    if (res.code = '0') {
+                                        // parent.closeIframe(res.msg);
+                                        layer.close(index); //关闭弹层
+                                    } else
+                                        alert(res.msg);
+                                },
+                                error: function (data) {
+                                }
+                            });
 
+                        });
+                        submit.click();
                     }
                 });
 

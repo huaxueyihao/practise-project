@@ -49,7 +49,7 @@ public class SysUserController extends BaseController {
         return success(null);
     }
 
-    @PostMapping("/detail/{id}")
+    @GetMapping("/detail/{id}")
     @ResponseBody
     public JSONResponse updateUser(@PathVariable Long id){
         SysUser sysUser = sysUserService.detail(id);
