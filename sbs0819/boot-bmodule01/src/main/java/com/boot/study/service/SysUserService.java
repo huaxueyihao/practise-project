@@ -9,4 +9,10 @@ public interface SysUserService {
     List<SysUser> getAllUser();
 
     PageResult<SysUser> pageList(Integer page, Integer limit);
+
+    void addUser(SysUser sysUser);
+
+    SysUser detail(Long id);
+
+    void update(SysUser sysUser);
 }

@@ -30,6 +30,8 @@ public class SysUserServiceImpl implements SysUserService {
         PageResult<SysUser> pageResult = new PageResult<>();
         Example example = new Example(SysUser.class);
         Example.Criteria criteria = example.createCriteria();
+
+
         int count = sysUserMapper.selectCountByExample(example);
         if (count > 0) {
             int offset = (page - 1) * limit;
@@ -39,5 +41,25 @@ public class SysUserServiceImpl implements SysUserService {
             pageResult.setCount(count);
         }
         return pageResult;
+    }
+
+    @Override
+    public void addUser(SysUser sysUser) {
+        sysUserMapper.insert(sysUser);
+    }
+
+    @Override
+    public SysUser detail(Long id) {
+        return sysUserMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public void update(SysUser sysUser) {
+        SysUser entity = sysUserMapper.selectByPrimaryKey(sysUser.getId());
+        entity.setUserName(sysUser.getUserName());
+        entity.setAge(sysUser.getAge());
+        entity.setPassword(sysUser.getPassword());
+        entity.setSex(sysUser.getSex());
+        sysUserMapper.updateByPrimaryKey(entity);
     }
 }

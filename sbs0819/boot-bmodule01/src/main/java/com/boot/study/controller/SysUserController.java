@@ -7,10 +7,7 @@ import com.boot.study.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,6 +24,11 @@ public class SysUserController extends BaseController {
         return "user/index";
     }
 
+    @RequestMapping({"/addUser"})
+    public String addUserPage(Model model) {
+        return "user/addUser";
+    }
+
     @GetMapping("/getAllUser")
     @ResponseBody
     public List<SysUser> getAllUser() {
@@ -38,6 +40,27 @@ public class SysUserController extends BaseController {
     public JSONResponse pageList(@RequestParam("page") Integer page, @RequestParam("limit") Integer limit) {
         PageResult<SysUser> pageResult = sysUserService.pageList(page, limit);
         return success(pageResult);
+    }
+
+    @PostMapping("/add")
+    @ResponseBody
+    public JSONResponse addUser(@RequestBody SysUser sysUser){
+        sysUserService.addUser(sysUser);
+        return success(null);
+    }
+
+    @PostMapping("/detail/{id}")
+    @ResponseBody
+    public JSONResponse updateUser(@PathVariable Long id){
+        SysUser sysUser = sysUserService.detail(id);
+        return success(sysUser);
+    }
+
+    @PostMapping("/update")
+    @ResponseBody
+    public JSONResponse updateUser(@RequestBody SysUser sysUser){
+        sysUserService.update(sysUser);
+        return success(null);
     }
 
 
