@@ -23,7 +23,7 @@ public class SysMenu implements Serializable {
     private String menuName;
 
     @Column(name = "parent_id")
-    private String parentId;
+    private Long parentId;
 
     @Column(name = "little_icon")
     private String littleIcon;

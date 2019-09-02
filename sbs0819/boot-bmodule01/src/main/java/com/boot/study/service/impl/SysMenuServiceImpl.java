@@ -1,10 +1,12 @@
 package com.boot.study.service.impl;
 
 import com.boot.study.common.PageResult;
+import com.boot.study.common.TreeDto;
 import com.boot.study.mapper.SysMenuMapper;
 import com.boot.study.model.SysMenu;
 import com.boot.study.model.SysUser;
 import com.boot.study.service.SysMenuService;
+import com.boot.study.util.TreeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import tk.mybatis.mapper.entity.Example;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 public class SysMenuServiceImpl implements SysMenuService {
@@ -27,7 +30,7 @@ public class SysMenuServiceImpl implements SysMenuService {
         Example example = new Example(SysMenu.class);
         Example.Criteria criteria = example.createCriteria();
         if (StringUtils.isNotBlank(menuName)) {
-            criteria.andLike("menuName", "%'"+menuName+"'%");
+            criteria.andLike("menuName", "%'" + menuName + "'%");
         }
         int count = sysMenuMapper.selectCountByExample(example);
         if (count > 0) {
@@ -63,5 +66,26 @@ public class SysMenuServiceImpl implements SysMenuService {
     @Override
     public void batchRemove(Long[] ids) {
 
+    }
+
+    @Override
+    public List<TreeDto> menuTree(Long parentId) {
+        if (parentId == null || parentId < 0) {
+            parentId = 0L;
+        }
+        List<SysMenu> menuList = sysMenuMapper.selectByParentId(parentId);
+        List<TreeDto> rootList = TreeUtil.convert(menuList);
+        recusive(rootList);
+
+        return rootList;
+    }
+
+    private void recusive(List<TreeDto> rootList) {
+        if (rootList.size() > 0) {
+            rootList.forEach(treeDto -> {
+                treeDto.setChildren(TreeUtil.convert(sysMenuMapper.selectByParentId(treeDto.getId())));
+                recusive(treeDto.getChildren());
+            });
+        }
     }
 }

@@ -1,8 +1,11 @@
 package com.boot.study.service;
 
 import com.boot.study.common.PageResult;
+import com.boot.study.common.TreeDto;
 import com.boot.study.model.SysMenu;
 import com.boot.study.model.SysUser;
+
+import java.util.List;
 
 public interface SysMenuService {
 
@@ -17,4 +20,6 @@ public interface SysMenuService {
     void remove(Long id);
 
     void batchRemove(Long[] ids);
+
+    List<TreeDto> menuTree(Long parentId);
 }

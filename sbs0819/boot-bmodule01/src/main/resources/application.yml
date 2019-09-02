@@ -44,8 +44,8 @@ spring:
 
 ############### Mybatis Begin ################
 mybatis:
-  config-location: classpath:mybatis-config.xml
   mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.boot.study.model
   configuration:
     map-underscore-io-camel-core: true
 ############### Mybatis end ################

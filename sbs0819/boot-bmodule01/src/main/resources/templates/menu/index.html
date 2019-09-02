@@ -1,69 +1,58 @@
-<div class="layui-fluid">
-    <div class="layui-card">
-        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
-            <div class="layui-form-item">
-                <div class="layui-inline">
-                    <label class="layui-form-label">菜单名</label>
-                    <div class="layui-input-inline">
-                        <input type="text" id="menuName" name="menuName" placeholder="请输入" autocomplete="off"
-                               class="layui-input">
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md4">
+            菜单树
+            <div id="test9" class="demo-tree demo-tree-box" style="width: 200px; height: 300px; overflow: scroll;"></div>
+
+        </div>
+
+        <div class="layui-card right-container layui-col-md8">
+            <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">菜单名</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="menuName" name="menuName" placeholder="请输入" autocomplete="off"
+                                   class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-list" id="menu-search" lay-submit=""
+                                lay-filter="LAY-app-contlist-search">
+                            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                        </button>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-list" id="menu-add" lay-submit=""
+                                lay-filter="">
+                            <i class="layui-icon layui-icon-add-circle layuiadmin-button-btn"></i>
+                        </button>
                     </div>
                 </div>
-                <!--                <div class="layui-inline">-->
-                <!--                    <label class="layui-form-label">作者</label>-->
-                <!--                    <div class="layui-input-inline">-->
-                <!--                        <input type="text" name="author" placeholder="请输入" autocomplete="off" class="layui-input">-->
-                <!--                    </div>-->
-                <!--                </div>-->
-                <!--                <div class="layui-inline">-->
-                <!--                    <label class="layui-form-label">标题</label>-->
-                <!--                    <div class="layui-input-inline">-->
-                <!--                        <input type="text" name="title" placeholder="请输入" autocomplete="off" class="layui-input">-->
-                <!--                    </div>-->
-                <!--                </div>-->
-                <!--                <div class="layui-inline">-->
-                <!--                    <label class="layui-form-label">文章标签</label>-->
-                <!--                    <div class="layui-input-inline">-->
-                <!--                        <select name="label">-->
-                <!--                            <option value="">请选择标签</option>-->
-                <!--                            <option value="0">美食</option>-->
-                <!--                            <option value="1">新闻</option>-->
-                <!--                            <option value="2">八卦</option>-->
-                <!--                            <option value="3">体育</option>-->
-                <!--                            <option value="4">音乐</option>-->
-                <!--                        </select><div class="layui-unselect layui-form-select"><div class="layui-select-title"><input type="text" placeholder="请选择标签" value="" readonly="" class="layui-input layui-unselect"><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit" style=""><dd lay-value="" class="layui-select-tips layui-this">请选择标签</dd><dd lay-value="0" class="">美食</dd><dd lay-value="1" class="">新闻</dd><dd lay-value="2" class="">八卦</dd><dd lay-value="3" class="">体育</dd><dd lay-value="4" class="">音乐</dd></dl></div>-->
-                <!--                    </div>-->
-                <!--                </div>-->
-                <div class="layui-inline">
-                    <button class="layui-btn layuiadmin-btn-list" id="menu-search" lay-submit=""
-                            lay-filter="LAY-app-contlist-search">
-                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
-                    </button>
-                </div>
             </div>
+
+            <div class="layui-card-body">
+                <table class="layui-hide" id="menuTable" lay-filter="menuToolFilter"></table>
+            </div>
+
+
+            <script type="text/html" id="barDemo">
+                <!--        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a> -->
+                <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+            </script>
+
+            <script type="text/html" id="sexTpl">
+                {{#  if(d.sex == 0){ }}
+                男
+                {{#  } else if(d.sex == 1){ }}
+                女
+                {{#  } else { }}
+                神秘
+                {{# } }}
+            </script>
         </div>
 
-        <div class="layui-card-body">
-            <table class="layui-hide" id="menuTable" lay-filter="menuToolFilter"></table>
-
-        </div>
-
-
-        <script type="text/html" id="barDemo">
-            <!--        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a> -->
-            <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-        </script>
-
-        <script type="text/html" id="sexTpl">
-            {{#  if(d.sex == 0){ }}
-            男
-            {{#  } else if(d.sex == 1){ }}
-            女
-            {{#  } else { }}
-            神秘
-            {{# } }}
-        </script>
     </div>
 
 </div>
@@ -72,7 +61,7 @@
 <script>
     layui.config({
         base: '/lib/'
-    }).use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider', 'utilTool'], function () {
+    }).use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider', 'utilTool','tree'], function () {
         var laydate = layui.laydate //日期
             , laypage = layui.laypage //分页
             , layer = layui.layer //弹层
@@ -83,8 +72,92 @@
             , slider = layui.slider //滑块
             , $ = layui.jquery
             , utilTool = layui.utilTool
+            ,tree = layui.tree;
+
+        // 菜单树
+
+        var data1 = [{
+            title: '江西'
+            ,id: 1
+            ,children: [{
+                title: '南昌'
+                ,id: 1000
+                ,children: [{
+                    title: '青山湖区'
+                    ,id: 10001
+                },{
+                    title: '高新区'
+                    ,id: 10002
+                }]
+            },{
+                title: '九江'
+                ,id: 1001
+            },{
+                title: '赣州'
+                ,id: 1002
+            }]
+        },{
+            title: '广西'
+            ,id: 2
+            ,children: [{
+                title: '南宁'
+                ,id: 2000
+            },{
+                title: '桂林'
+                ,id: 2001
+            }]
+        },{
+            title: '陕西'
+            ,id: 3
+            ,children: [{
+                title: '西安'
+                ,id: 3000
+            },{
+                title: '延安'
+                ,id: 3001
+            }]
+        }];
+
+        $.ajax({
+            url: '/menu/menuTree',
+            method: 'get',
+            // contentType: 'application/json',
+            // data: JSON.stringify(ids),
+            dataType: 'JSON',
+            success: function (res) {
+                if (res.code == '0') {
+                    tree.render({
+                        elem: '#test9'
+                        ,data: res.data
+                        ,edit: ['add', 'update', 'del'] //操作节点的图标
+                        ,click: function(obj){
+                            layer.msg(JSON.stringify(obj.data));
+                        }
+                    });
+
+                    // table.reload('menuTable', {
+                    //     page: {
+                    //         curr: 1 //重新从第 1 页开始
+                    //     }
+                    //     , where: {
+                    //         key: {
+                    //             id: $('#menuTable').val()
+                    //         }
+                    //     }
+                    // }, 'data');
+                }
+            },
+            error: function (data) {
+
+            }
+        });
 
 
+
+
+
+
+        // 表格
         table.render({
             elem: '#menuTable'
             , height: 560
@@ -101,6 +174,7 @@
             ]]
         });
 
+        // 查询
         $('#menu-search').click(function () {
             console.log($('#menuName').val());
             table.reload('menuTable', {
@@ -114,6 +188,12 @@
 
         })
 
+        // 打开增加页面
+        $('#menu-add').click(function () {
+            console.log("加载");
+            $("#content").load('/menu/menuPage');
+
+        })
 
         table.on('toolbar(menuToolFilter)', function (obj) {
             var checkStatus = table.checkStatus(obj.config.id), data = checkStatus.data; //获取选中的数据
