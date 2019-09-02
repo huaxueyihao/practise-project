@@ -76,7 +76,6 @@ public class SysMenuServiceImpl implements SysMenuService {
         List<SysMenu> menuList = sysMenuMapper.selectByParentId(parentId);
         List<TreeDto> rootList = TreeUtil.convert(menuList);
         recusive(rootList);
-
         return rootList;
     }
 
