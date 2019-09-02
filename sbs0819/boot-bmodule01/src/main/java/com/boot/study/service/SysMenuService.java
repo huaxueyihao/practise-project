@@ -2,6 +2,7 @@ package com.boot.study.service;
 
 import com.boot.study.common.PageResult;
 import com.boot.study.common.TreeDto;
+import com.boot.study.common.ZTreeDto;
 import com.boot.study.model.SysMenu;
 import com.boot.study.model.SysUser;
 
@@ -22,4 +23,6 @@ public interface SysMenuService {
     void batchRemove(Long[] ids);
 
     List<TreeDto> menuTree(Long parentId);
+
+    List<ZTreeDto> menuZTree(Long parentId);
 }

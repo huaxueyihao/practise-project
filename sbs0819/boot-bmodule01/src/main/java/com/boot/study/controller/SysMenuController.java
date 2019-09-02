@@ -3,6 +3,7 @@ package com.boot.study.controller;
 import com.boot.study.common.JSONResponse;
 import com.boot.study.common.PageResult;
 import com.boot.study.common.TreeDto;
+import com.boot.study.common.ZTreeDto;
 import com.boot.study.model.SysMenu;
 import com.boot.study.model.SysUser;
 import com.boot.study.service.SysMenuService;
@@ -82,10 +83,14 @@ public class SysMenuController extends BaseController {
     @ResponseBody
     public JSONResponse menuTree(@PathVariable(required = false) Long parentId) {
         List<TreeDto> treeDtos = sysMenuService.menuTree(parentId);
-
-
         return success(treeDtos);
     }
 
+    @GetMapping({"/menuZTree", "/menuZTree/{parentId}"})
+    @ResponseBody
+    public List<ZTreeDto> menuZTree(@PathVariable(required = false) Long parentId) {
+        List<ZTreeDto> treeDtos = sysMenuService.menuZTree(parentId);
+        return treeDtos;
+    }
 
 }

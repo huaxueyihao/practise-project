@@ -76,48 +76,6 @@
 
         // 菜单树
 
-        var data1 = [{
-            title: '江西'
-            ,id: 1
-            ,children: [{
-                title: '南昌'
-                ,id: 1000
-                ,children: [{
-                    title: '青山湖区'
-                    ,id: 10001
-                },{
-                    title: '高新区'
-                    ,id: 10002
-                }]
-            },{
-                title: '九江'
-                ,id: 1001
-            },{
-                title: '赣州'
-                ,id: 1002
-            }]
-        },{
-            title: '广西'
-            ,id: 2
-            ,children: [{
-                title: '南宁'
-                ,id: 2000
-            },{
-                title: '桂林'
-                ,id: 2001
-            }]
-        },{
-            title: '陕西'
-            ,id: 3
-            ,children: [{
-                title: '西安'
-                ,id: 3000
-            },{
-                title: '延安'
-                ,id: 3001
-            }]
-        }];
-
         $.ajax({
             url: '/menu/menuTree',
             method: 'get',
@@ -132,19 +90,11 @@
                         ,edit: ['add', 'update', 'del'] //操作节点的图标
                         ,click: function(obj){
                             layer.msg(JSON.stringify(obj.data));
+                        },
+                        operate:function (data) {
+                            console.log(data);
                         }
                     });
-
-                    // table.reload('menuTable', {
-                    //     page: {
-                    //         curr: 1 //重新从第 1 页开始
-                    //     }
-                    //     , where: {
-                    //         key: {
-                    //             id: $('#menuTable').val()
-                    //         }
-                    //     }
-                    // }, 'data');
                 }
             },
             error: function (data) {
@@ -190,8 +140,36 @@
 
         // 打开增加页面
         $('#menu-add').click(function () {
-            console.log("加载");
-            $("#content").load('/menu/menuPage');
+            layer.open({
+                type: 2,
+                title: "增加菜单",
+                area: ['45%', '65%'],
+                shade: 0.7,
+                shadeClose: true,
+                scrollbar: true,
+                resize:true,
+                maxmin: true,
+                zIndex:999,
+                content: ["/menu/menuPage"],
+                btn: ['提交', '取消'],
+                yes: function (index, layero) {
+                    utilTool.formSubmit(index, layero, 'btn_save', '/menu/add', function (res) {
+                        if (res.code == '0') {
+                            layer.close(index);
+                            table.reload('menuTable', {
+                                page: {
+                                    curr: 1 //重新从第 1 页开始
+                                }
+                                , where: {
+                                    key: {
+                                        id: $('#menuTable').val()
+                                    }
+                                }
+                            }, 'data');
+                        }
+                    });
+                }
+            });
 
         })
 

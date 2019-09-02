@@ -2,6 +2,7 @@ package com.boot.study.service.impl;
 
 import com.boot.study.common.PageResult;
 import com.boot.study.common.TreeDto;
+import com.boot.study.common.ZTreeDto;
 import com.boot.study.mapper.SysMenuMapper;
 import com.boot.study.model.SysMenu;
 import com.boot.study.model.SysUser;
@@ -45,7 +46,7 @@ public class SysMenuServiceImpl implements SysMenuService {
 
     @Override
     public void addUser(SysMenu sysMenu) {
-
+        sysMenuMapper.insert(sysMenu);
     }
 
     @Override
@@ -77,6 +78,33 @@ public class SysMenuServiceImpl implements SysMenuService {
         List<TreeDto> rootList = TreeUtil.convert(menuList);
         recusive(rootList);
         return rootList;
+    }
+
+    @Override
+    public List<ZTreeDto> menuZTree(Long parentId) {
+        if (parentId == null || parentId < 0) {
+            parentId = 0L;
+        }
+        List<SysMenu> menuList = sysMenuMapper.selectByParentId(parentId);
+        List<ZTreeDto> rootList = TreeUtil.convertZtree(menuList);
+        recusiveZtree(rootList);
+        return rootList;
+    }
+
+    private void recusiveZtree(List<ZTreeDto> rootList) {
+        if (rootList.size() > 0) {
+            rootList.forEach(treeDto -> {
+                List<SysMenu> sysMenus = sysMenuMapper.selectByParentId(treeDto.getId());
+                if(sysMenus != null && sysMenus.size() > 0){
+                    treeDto.setChildren(TreeUtil.convertZtree(sysMenus));
+                    treeDto.setOpen(true);
+                    recusiveZtree(treeDto.getChildren());
+                }else{
+                    treeDto.setOpen(false);
+                }
+
+            });
+        }
     }
 
     private void recusive(List<TreeDto> rootList) {

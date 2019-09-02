@@ -1,6 +1,7 @@
 package com.boot.study.util;
 
 import com.boot.study.common.TreeDto;
+import com.boot.study.common.ZTreeDto;
 import com.boot.study.model.SysMenu;
 
 import java.util.ArrayList;
@@ -20,4 +21,13 @@ public class TreeUtil {
     }
 
 
+    public static List<ZTreeDto> convertZtree(List<SysMenu> menuList) {
+        if (menuList != null && menuList.size() > 0) {
+            return menuList.stream().map(menu -> {
+                return ZTreeDto.builder().id(menu.getId()).parentId(menu.getParentId()).name(menu.getMenuName()).build();
+            }).collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
 }
