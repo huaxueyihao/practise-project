@@ -5,7 +5,6 @@ import com.boot.study.common.TreeDto;
 import com.boot.study.common.ZTreeDto;
 import com.boot.study.mapper.SysMenuMapper;
 import com.boot.study.model.SysMenu;
-import com.boot.study.model.SysUser;
 import com.boot.study.service.SysMenuService;
 import com.boot.study.util.TreeUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -15,9 +14,8 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Service
 public class SysMenuServiceImpl implements SysMenuService {
@@ -50,13 +48,20 @@ public class SysMenuServiceImpl implements SysMenuService {
     }
 
     @Override
-    public SysUser detail(Long id) {
-        return null;
+    public SysMenu detail(Long id) {
+        return sysMenuMapper.selectByPrimaryKey(id);
     }
 
     @Override
     public void update(SysMenu sysMenu) {
-
+        SysMenu entity = sysMenuMapper.selectByPrimaryKey(sysMenu.getId());
+        if(Objects.nonNull(entity)){
+            entity.setLittleIcon(sysMenu.getLittleIcon());
+            entity.setMenuName(sysMenu.getMenuName());
+            entity.setParentId(sysMenu.getParentId());
+            entity.setRouteUrl(sysMenu.getRouteUrl());
+            sysMenuMapper.updateByPrimaryKey(entity);
+        }
     }
 
     @Override

@@ -66,7 +66,6 @@
                         content: ["/user/addUser?classId=" + data.id, 'yes'],
                         btn: ['提交', '取消'],
                         yes: function (index, layero) {
-                            var submit = layero.find('iframe').contents().find('#btn_save');
                             utilTool.formSubmit(index,layero,'btn_save','/user/add',function(res){
                                 if(res.code == '0'){
                                     layer.close(index);
@@ -82,7 +81,6 @@
                                     }, 'data');
                                 }
                             });
-                            submit.click();
                         }
                     });
                     break;

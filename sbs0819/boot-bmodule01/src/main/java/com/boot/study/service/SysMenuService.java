@@ -4,7 +4,6 @@ import com.boot.study.common.PageResult;
 import com.boot.study.common.TreeDto;
 import com.boot.study.common.ZTreeDto;
 import com.boot.study.model.SysMenu;
-import com.boot.study.model.SysUser;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ public interface SysMenuService {
 
     void addUser(SysMenu sysMenu);
 
-    SysUser detail(Long id);
+    SysMenu detail(Long id);
 
     void update(SysMenu sysMenu);
 

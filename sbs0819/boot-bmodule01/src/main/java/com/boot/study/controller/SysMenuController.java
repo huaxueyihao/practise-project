@@ -67,8 +67,8 @@ public class SysMenuController extends BaseController {
     @GetMapping("/detail/{id}")
     @ResponseBody
     public JSONResponse detail(@PathVariable Long id) {
-        SysUser sysUser = sysMenuService.detail(id);
-        return success(sysUser);
+        SysMenu sysMenu = sysMenuService.detail(id);
+        return success(sysMenu);
     }
 
     @PostMapping("/update")
