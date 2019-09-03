@@ -1,5 +1,6 @@
 package com.boot.study.service.impl;
 
+import com.boot.study.bean.MenuTreeDto;
 import com.boot.study.common.PageResult;
 import com.boot.study.common.TreeDto;
 import com.boot.study.common.ZTreeDto;
@@ -15,7 +16,6 @@ import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 @Service
 public class SysMenuServiceImpl implements SysMenuService {
@@ -96,6 +96,32 @@ public class SysMenuServiceImpl implements SysMenuService {
         return rootList;
     }
 
+    @Override
+    public List<MenuTreeDto> indexMenuTree(Long parentId) {
+        if (parentId == null || parentId < 0) {
+            parentId = 0L;
+        }
+        List<SysMenu> menuList = sysMenuMapper.selectByParentId(parentId);
+        List<MenuTreeDto> rootList = TreeUtil.convertMenuTree(menuList);
+        recusiveMenuTree(rootList);
+        return rootList;
+    }
+
+    private void recusiveMenuTree(List<MenuTreeDto> rootList) {
+        if (rootList.size() > 0) {
+            rootList.forEach(treeDto -> {
+                List<SysMenu> sysMenus = sysMenuMapper.selectByParentId(treeDto.getId());
+                if(sysMenus != null && sysMenus.size() > 0){
+                    treeDto.setChildrenList(TreeUtil.convertMenuTree(sysMenus));
+                    treeDto.setLeafAble(false);
+                    recusiveMenuTree(treeDto.getChildrenList());
+                }else{
+                    treeDto.setLeafAble(true);
+                }
+            });
+        }
+    }
+
     private void recusiveZtree(List<ZTreeDto> rootList) {
         if (rootList.size() > 0) {
             rootList.forEach(treeDto -> {
@@ -107,7 +133,6 @@ public class SysMenuServiceImpl implements SysMenuService {
                 }else{
                     treeDto.setOpen(false);
                 }
-
             });
         }
     }

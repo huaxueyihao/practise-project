@@ -42,14 +42,16 @@
     <div class="layui-side layui-bg-black">
         <div class="layui-side-scroll">
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
-            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
-                <li class="layui-nav-item layui-nav-itemed">
-                    <a class="" href="javascript:;">系统管理</a>
-                    <dl class="layui-nav-child">
-                        <dd><a href="javascript:;" data-href="/user/index">用户管理</a></dd>
-                        <dd><a href="javascript:;" data-href="/menu/index">菜单管理</a></dd>
-                    </dl>
-                </li>
+            <ul class="layui-nav layui-nav-tree" id="menu-left-list"  lay-filter="test">
+
+<!--                <li class="layui-nav-item layui-nav-itemed">-->
+<!--                    <a class="" href="javascript:;">系统管理</a>-->
+<!--                    <dl class="layui-nav-child">-->
+<!--                        <dd><a href="javascript:;" data-href="/user/index">用户管理</a></dd>-->
+<!--                        <dd><a href="javascript:;" data-href="/menu/index">菜单管理</a></dd>-->
+<!--                    </dl>-->
+<!--                </li>-->
+
             </ul>
         </div>
     </div>
@@ -69,21 +71,91 @@
 <script>
     //JavaScript代码区域
     layui.use(['element','jquery'], function(){
-        var element = layui.element;
-        var $=layui.jquery;
+        var element = layui.element,
+            $=layui.jquery;
 
-        $("a").click(function(){
-            var url = $(this).data("href");
-            $("#content").load(url);
-            // $.ajax({
-            //     url:url,
-            //     success:function(html){
-            //
-            //     }
-            // })
-        })
+        // 动态加载菜单
+        //获取所有的菜单
+        $.ajax({
+            type:"GET",
+            url:"/indexMenuTree",
+            dataType:"json",
+            success:function(res){
+                //先添加所有的主材单
+                var data = res;
+                console.log('-----menu query--');
+                console.log(res);
+                console.log('-----menu query--');
+                // return;
+                $.each(data,function(i,obj){
+
+                    var content='<li class="layui-nav-item layui-nav-itemed ">';
+                    content+='<a href="javascript:;" ';
+
+                    if(obj.leafAble) {
+                        content += ' data-href="' + obj.menuUrl + '" ';
+                    }
+                    content+= '>'+obj.meunTitle+'</a>';
+                    //这里是添加所有的子菜单
+                    content+=loadchild(obj);
+                    content+='</li>';
+                    console.log('----menu content--');
+                    console.log(content);
+                    console.log('----menu content--');
+                    $(".layui-nav-tree").html(content);
+                });
+                element.init();
+
+                $("a").click(function(){
+                    console.log(111);
+                    var url = $(this).data("href");
+                    $("#content").load(url);
+
+                })
+            },
+            error:function(jqXHR){
+                // alert("发生错误："+ jqXHR.status);
+                console.log("发生错误："+ jqXHR.status);
+
+            }
+        });
+
+
+        //组装子菜单的方法
+        function loadchild(obj){
+            if(obj==null){
+                return;
+            }
+            var content='';
+            if(obj.childrenList!=null && obj.childrenList.length>0){
+                content+='<dl class="layui-nav-child">';
+            }else{
+                content+='<dl>';
+            }
+
+            if(obj.childrenList!=null && obj.childrenList.length>0){
+                $.each(obj.childrenList,function(i,note){
+                    content+='<dd>';
+                    content+='<a href="javascript:;"' ;
+                    if(note.leafAble) {
+                        content += ' data-href="' + note.meunUrl + '" ';
+                    }
+                    content+= '>'+note.meunTitle+'</a>';
+                    if(note.childrenList==null){
+                        return;
+                    }
+                    content+=loadchild(note);
+                    content+='</dd>';
+                });
+                content+='</dl>';
+            }
+            return content;
+        }
+
 
     });
+
+
 </script>
 </body>
 </html>

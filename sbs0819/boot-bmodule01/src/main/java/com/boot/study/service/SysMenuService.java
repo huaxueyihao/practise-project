@@ -1,5 +1,6 @@
 package com.boot.study.service;
 
+import com.boot.study.bean.MenuTreeDto;
 import com.boot.study.common.PageResult;
 import com.boot.study.common.TreeDto;
 import com.boot.study.common.ZTreeDto;
@@ -24,4 +25,6 @@ public interface SysMenuService {
     List<TreeDto> menuTree(Long parentId);
 
     List<ZTreeDto> menuZTree(Long parentId);
+
+    List<MenuTreeDto> indexMenuTree(Long parentId);
 }
