@@ -44,4 +44,23 @@
     3.提供(getState()、setState(int newState)、compareAndSetState(int expect,int update)),来进行状态操作，保证安全改变状态
     4.同步器自身没实现任何接口，推荐子类被定义为自定义同步组件的静态内部内(比如ReentrantLock里的Sync类)
     5.同步器既可以支持独占式，也可以支持共享式地获取同步状态
+    6.同步器的设计师基于模板方法模式的
  
+#### 5.2.1 对列同步器的接口与示例
+**1 同步器可重写的方法**  
+
+|方法名称|描述|
+|:----|:----|
+|protected boolean tryAcquire(int arg)|独占式获取同步状态，实现该方法需要查询当前状态并判断同步状态是否符合预期，然后再进行CAS设置同步状态|
+|protected boolean tryRelease(int arg)|独占式释放同步状态，等待获取同步状态的线程将有机会获取同步状态|
+|protected int tryAcquireShared(int arg)|共享式获取同步状态，返回大于0的值，标识获取成功，泛指，获取失败 |
+|protected boolean tryReleaseShare(int args)|共享式释放同步状态|
+|protected boolean isHeldExclusively()|当前同步器是否在独占模式下被线程占用，一般该方法表示是否被当前线程所独占|
+
+**2 同步器提供的模板方法**  
+
+|方法名称|描述|
+|:----|:----|
+|void acquire(int arg)|独占式获取同步状态，如果当前线程获取同步状态成功，则由该方法返回，否则，将会进入同步对列等待，该方法将会调用重写的tryAcquire(int arg)方法|
+|void acquireInterruptibly(int arg)|与acquire(int arg)相同，|
+  
