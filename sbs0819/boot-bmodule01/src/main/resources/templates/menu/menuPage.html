@@ -83,7 +83,7 @@
                         success: function (d) {
                             // console.log(d);
                             // 选中节点，根据id筛选
-                            treeSelect.checkNode('tree', parentId ? parentId : 1);
+                            treeSelect.checkNode('tree', parentId ? parentId : 0);
                             console.log($('#tree').val());
                             // 获取zTree对象，可以调用zTree方法
                             var treeObj = treeSelect.zTree('tree');

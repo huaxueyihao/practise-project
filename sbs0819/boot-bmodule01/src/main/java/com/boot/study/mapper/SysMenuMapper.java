@@ -9,6 +9,5 @@ import java.util.List;
 
 public interface SysMenuMapper extends MyMapperSuppurt<SysMenu> {
 
-//    @Select("select t.* from sys_menu t where t.parent_id = #{parentId}")
     List<SysMenu> selectByParentId(@Param("parentId") Long parentId);
 }

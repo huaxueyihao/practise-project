@@ -25,9 +25,10 @@ insert into sys_user (user_name,password,sex,age) values ('李雷20','123456','0
 insert into sys_user (user_name,password,sex,age) values ('李雷21','123456','0',19);
 
 -- 菜单
+insert into sys_menu (menu_name,parent_id,route_url,little_icon) values ('主页',0,'/dashboard','');
 insert into sys_menu (menu_name,parent_id,route_url,little_icon) values ('系统管理',0,'','');
-insert into sys_menu (menu_name,parent_id,route_url,little_icon) values ('用户管理',1,'/user/index','');
-insert into sys_menu (menu_name,parent_id,route_url,little_icon) values ('菜单管理',1,'/menu/index','');
+insert into sys_menu (menu_name,parent_id,route_url,little_icon) values ('用户管理',2,'/user/index','');
+insert into sys_menu (menu_name,parent_id,route_url,little_icon) values ('菜单管理',2,'/menu/index','');
 
 
 
