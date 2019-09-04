@@ -30,4 +30,18 @@
 | :---- | :---- |
 | void lock() | 获取锁，调用该方法当前线程将会获取锁，获得锁后，返回|
 | void lockInterruptibly()<br/> throws InterruptedEception | 可中断的获取锁，和lock()不同在该方法响应中断，在锁获取<br/>中可以响应中断当前线程 |
-| boolean tryLock() |  |
+| boolean tryLock() | 尝试非阻塞的获取锁，调用该方法后立刻返回，如果能够获取则返回true，否则返回false |
+| boolean tryLock(long time,<br/>TimeUnit unit) throws Interrupted Exception | 超时的获取锁，当前线程在一下3中情况会返回：<br/>1 当前线程在超时时间内获取锁<br/>2 当前线程在超时时间内被中断 <br/>3 超时时间结束，返回false |
+| void unlock() | 释放锁 |
+| Condition newCondition()| 获取等待通知组件，该组件和当前的锁绑定，当前线程只有获得了锁，才能调用该组件的wait()方法，而调用后，当前线程将释放锁 |
+
+
+### 5.2 对列同步器
+**简介**
+
+    1.对列同步器AbstractQueuedSynchronizer,用来构建锁和其他同步器的基础框架。
+    2.使用一个int成员变量表示同步状态，内置FIFO对列来完成资源获取线程的排对工作。
+    3.提供(getState()、setState(int newState)、compareAndSetState(int expect,int update)),来进行状态操作，保证安全改变状态
+    4.同步器自身没实现任何接口，推荐子类被定义为自定义同步组件的静态内部内(比如ReentrantLock里的Sync类)
+    5.同步器既可以支持独占式，也可以支持共享式地获取同步状态
+ 
