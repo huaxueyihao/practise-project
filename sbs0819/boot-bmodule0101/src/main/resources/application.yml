@@ -5,7 +5,9 @@ spring:
   datasource:
     driver-class-name: org.h2.Driver
     # default dbc:h2:mem:testdbsa
-    url: jdbc:h2:mem:testdbsa?characterEncoding=utf-8
+    # url: jdbc:h2:mem:testdbsa?characterEncoding=utf-8 # 在内存中创建表和数据库
+    #jdbc:h2:file:C:/data/test # 绝对路径
+    url: jdbc:h2:./testdbsa?characterEncoding=utf-8
     username: sa
     # default null
     password:
