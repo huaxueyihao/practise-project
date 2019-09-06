@@ -73,7 +73,7 @@
 
     同步器提供的模板方法基本上分3类：独占式获取与释放同步状态、共享式获取与释放同步状态和查询同步对垒中的等待线程情况。
 
-#### 5.2.1 对列同步器的实现分析
+#### 5.2.2 对列同步器的实现分析
 **1.1同步对列**
     
     1.同步器依赖内部的同步对列（FIFO）完成同步状态的管理，
@@ -104,11 +104,90 @@
 ![avatar](images/AbstractQueuedSynchronizer_add_tail.jpg)
     
     首节点是获取同步状态成功的节点，首节点的线程在释放同步状态时，将会唤醒后继节点，而后继节点将会在获取同步状态成功时将自己设置为首节点，如下图
+    由于只有一个线程能够获取到同步状态，所以设置头结点不需要CAS保证
 
 ![avatar](images/AbstractQueuedSynchronizer_Node_Release_Head.jpg)
 
 
+**2 独占式同步状态的获取与释放**
+**2.1 acquire(int arg)方法**
+
+    acquire(int arg)获取同步状态，对中断不敏感，获取同步状态失败进入同步对列，后续对线程进行中断操作，不会从对列中移除
+    public final void acquire(int arg){
+        if(!tryAcquire(arg) && acquireQueued(addWaiter(Node.EXCLUSIVE),arg))
+            selfInterrupt();
+    }
+    1.tryAcquire(arg)获取线程安全的获得同步状态，失败则构造独占式(Node.EXCLUSIVE)并通过addWaiter(Node node)方法将节点加入同步对列尾部
+    2.调用acquireQueued(Node node,int arg)方法，使得该节点以"死循环"的方式获取同步状态。获取不到，则阻塞节点中的线程，被阻塞的线程唤醒主要依靠前去节点的出队会阻塞线程被中断来实现。
     
+**2.2 addWaiter和enq方法**
+
+    同步器的addWaiter和enq方法
+    private Node addWaiter(Node node){
+        Node node = new Node(Thread.currentThread(),node);
+        // 快速尝试在尾部添加
+        Node pred = tail;
+        if(pred != null){
+            node.prev = pred;
+            if(compareAndSetTail(pred,node)){
+                pred.next = node;
+                return node;
+            }
+        }
+        // 用于初始化
+        enq(node);
+        return node;
+    }
+    
+    private Node enq(final Node node){
+        for(;;){
+            Node t = tail;
+            if(t == null){
+                if(compareAndSetHead(new Node())){
+                    tail = head;
+                }
+            }else{
+                node.prev = t;
+                if(compareAndSetTail(t,node)){
+                    t.next = node;
+                    return t;
+                }
+            }
+        }
+    }
+
+**2.4 acquireQueued方法**
+
+    节点进入到同步对列后，就进入一个自旋的过程，每个节点都在自省的观察，当条件满足的时候，就获去到了同步状态。就可以从自旋过程中退出
+    
+    final boolean acquireQueued(final Node node,int arg){
+        boolean failed  = true;
+        try{
+            boolean interrupted = false;
+            for(;;){
+                final Node p = node.predecessor();
+                if(p == head && tryAcquire(arg)){
+                    setHead(node);
+                    p.next = null; // help GC
+                    failed = false;
+                    return interrupted;
+                }
+                if(shouldParkAfterFailedAcquire(p,node) && parkAndCheckInterrupt()){
+                    interrupted - true;
+                }
+            }
+        } finally {
+            if(failed){
+                cancelAcquire(node);
+            }
+        }
+    }
+    
+    当前线程在"死循环"中尝试获取同步状态，而只有前驱节点是头节点才能够尝试获取同步状态，原因如下？
+    1.头节点是成功获取到同步状态的节点，而头结点的线程释放了同步状态之后，将会唤醒其后继节点，后继节点的线程被唤醒后需要检查自己的前驱节点是否是头结点。
+    2.维护同步对列的FIFO原则。该方法中，节点自旋获取同步状态的行为如下图
+
+![avatar](images/AbstractQueuedSynchronizer_CAS.jpg)   
     
     
     
