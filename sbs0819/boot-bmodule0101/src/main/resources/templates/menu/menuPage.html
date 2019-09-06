@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <title>菜单编辑</title>
+        <link rel="stylesheet" href="../layui/css/layui.css">
+
+    </head>
+    <body>
+        <form class="layui-form" action="" lay-filter="example">
+            <input type="hidden" name="id" id="primaryKey">
+            <div class="layui-form" lay-filter="layuiadmin-form-useradmin" id="layuiadmin-form-useradmin"
+                 style="padding: 20px 0 0 0;">
+                <div class="layui-form-item" lay-filter="sex">
+                    <label class="layui-form-label">父菜单</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="parentId" id="tree" lay-filter="tree" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">菜单名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="menuName" lay-verify="required" placeholder="请输入用户名" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">路由</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="routeUrl" lay-verify="required" placeholder="请输入密码" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">小图标</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="littleIcon" placeholder="请输入年龄" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-hide">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" id="btn_save" lay-submit="" lay-filter="btn_save">立即提交</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <script src="../layui/layui.js"></script>
+        <script>
+            //JavaScript代码区域
+            layui.config({
+                base: '../lib/extend/stree/',
+            }).extend({
+                ztree: 'ztree/ztree',
+                treeSelect: 'treeSelect/treeSelect'
+            }).use(['form', 'layedit', 'form', 'treeSelect', 'ztree'], function () {
+                var form = layui.form,
+                    layer = layui.layer,
+                    $ = layui.jquery,
+                    treeSelect = layui.treeSelect
+
+                // 树选择框
+                function loadTreeSelect(parentId) {
+                    treeSelect.render({
+                        // 选择器
+                        elem: '#tree',
+                        // 数据
+                        url: '/menu/menuZTree',
+                        // 请求头
+                        headers: {},
+                        // 异步加载方式：get/post，默认get
+                        type: 'get',
+                        // 占位符
+                        placeholder: '修改默认提示信息',
+                        // 是否开启搜索功能：true/false，默认false
+                        search: true,
+                        dataRoot: 'rows',
+                        searchPlaceholder: '搜索',
+                        click: function (d) {
+                            treeSelect.checkNode('tree', d.data.id);
+                        },
+                        success: function (d) {
+                            // console.log(d);
+                            // 选中节点，根据id筛选
+                            treeSelect.checkNode('tree', parentId ? parentId : 0);
+                            console.log($('#tree').val());
+                            // 获取zTree对象，可以调用zTree方法
+                            var treeObj = treeSelect.zTree('tree');
+                            // console.log(treeObj);
+                            // 刷新树结构
+                            treeSelect.refresh('tree');
+                        },
+                        setting: {
+                            check: {
+                                enable: false
+                            },
+                            data: {
+                                simpleData: {
+                                    enable: false,
+                                    idKey: 'id'
+                                },
+                                key: {
+                                    name: "name"
+                                }
+
+                            }
+                        }
+                    });
+                }
+
+
+                var primaryKey = $("#primaryKey").val();
+                console.log('primaryKey=' + primaryKey);
+                if (primaryKey) {
+                    $.ajax({
+                        url: '/menu/detail/' + primaryKey,
+                        method: 'get',
+                        dataType: 'JSON',
+                        success: function (res) {
+                            if (res.code = '0') {
+                                // parent.closeIframe(res.msg);
+                                loadTreeSelect(res.data.parentId);
+                                form.val('example', {
+                                    "menuName": res.data.menuName
+                                    , "parentId": res.data.parentId
+                                    , "routeUrl": res.data.routeUrl
+                                    , "littleIcon": res.data.littleIcon
+                                })
+
+                            } else
+                                alert(res.msg);
+                        },
+                        error: function (data) {
+
+                        }
+                    });
+                } else {
+                    loadTreeSelect();
+                }
+
+            });
+
+
+        </script>
+    </body>
+</html>

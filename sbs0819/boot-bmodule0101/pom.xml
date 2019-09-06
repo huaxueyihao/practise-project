@@ -10,7 +10,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>boot-bmodule01</artifactId>
+    <artifactId>boot-bmodule0101</artifactId>
+
 
     <dependencies>
         <dependency>
@@ -105,7 +106,7 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.boot.study.SpringbootLayUIApplication</mainClass>
+                                    <mainClass>com.boot.study.LayUIModule0101Application</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
