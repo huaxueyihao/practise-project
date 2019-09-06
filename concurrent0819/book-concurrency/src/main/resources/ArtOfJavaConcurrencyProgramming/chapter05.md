@@ -189,6 +189,31 @@
 
 ![avatar](images/AbstractQueuedSynchronizer_CAS.jpg)   
     
+    由于非首节点线程前驱节点出队或者被中断而从等待状态返回，随后检查自己的前驱节点是否是头结点，如果是则尝试获取同步状态。可以看到节点值之间在循环内检查
+    的过程中基本不互相通信，而是简单地判断自己的前驱是否为头结点，这样使得节点的释放过程复合FIFO，且也便于对过早通知的处理（过早通知是指前驱节点不是头节
+    点的线程由于终端而被唤醒）。
     
+    独占式同步状态获取流程如下图
+![avatar](images/AbstractQueuedSynchronizer_acquire_lock_flow.jpg)
     
+**2.5 release方法**
 
+    调用同步器的release(int arg)方法可以释放同步状态，该方法在释放了同步状态之后，会唤醒其后继结点。
+    public final boolean release(int arg){
+        if(tryRelease(arg)){
+            Node h = head;
+            if(h != null && h.waitStatus != 0){
+                unparkSuccessor(h);
+            }
+            retrun true;
+        }
+        return false;
+    }
+
+**2.6 总结**
+
+    在获取同步状态时，同步器维护一个对列，获取状态失败的线程都会被加入到对列中并在对列中进行自旋；
+    移除对列的条件是前驱节点为头节点且成功获取了同步状态。在释放同步状态时，听不器调用tryReleas(int arg)
+    方法释放同步状态，然后唤醒头节点的后继节点。
+    
+    
