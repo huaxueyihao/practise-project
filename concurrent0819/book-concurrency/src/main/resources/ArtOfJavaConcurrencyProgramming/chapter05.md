@@ -217,3 +217,52 @@
     方法释放同步状态，然后唤醒头节点的后继节点。
     
     
+**3 共享式同步状态的获取与释放**
+
+    共享式获取与独占式获取最最要的区别在与同一时刻能否有多个线程同时获取到同步状态。以文件的读写为例，
+    如果一个程序在对文件进行读写操作，那么这一时刻对于该文件的写操作军备阻塞，而读操作能够同时进行。
+    写操作要求对资源的独占式访问，而读操作可以共享式访问，两种不同的访问模式在同一时刻对文件或资源的
+    访问情况如下图：
+    
+![avatar](images/AbstractQueuedSynchronizer_Shared_Exclusive_Compare.jpg)
+**3.1 同步器acquireShared(int arg)方法**
+
+    public final void acquireShared(int arg){
+        if(tryAcquireShared(arg) < 0){
+            doAcquireShared(arg);
+        }
+        private void doAcquireShared(int arg){
+            final Node node = addWaiter(Node.SHARED);
+            boolean failed = true;
+            try{
+                boolean interrupted = false;
+                for(;;){
+                    final Node p = node.predecessor();
+                    if(p == head){
+                        int r = tryAcquireShared(arg);
+                        if(r >= 0){
+                            setHeadAndPropagate(node,r);
+                            p.next = null;
+                            if(interrupted){
+                                selfInterrupt();
+                            }
+                            failed = false;
+                            return;
+                        }
+                    }
+                    if(shouldParkAfterFailedAcquire(p,node) && parkAndCheckInterrupt()){
+                        interrupted = true;
+                    }
+                }
+            
+            } finally {
+                if(failed){
+                    cancelAcquired(node);
+                }
+            }
+        }
+    }
+    
+    
+
+      
