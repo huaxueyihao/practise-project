@@ -8,7 +8,7 @@ layui.define(['form', 'jquery', 'ztree'], function(exports) { //提示：模块�
             this.v = '1.0.5';
         };
     
-	layui.link((layui.cache.base ? layui.cache.base : "") + 'treeSelect/treeSelect.css', "treeSelectcss");
+	layui.link((layui.cache.base ? layui.cache.base : "") + '/treeSelect/treeSelect/treeSelect.css', "treeSelectcss");
 	
     TreeSelect.prototype.render = function(option) {
     	this.options = $.extend(true, {}, TreeSelect.defaults, option);
@@ -371,13 +371,11 @@ layui.define(['form', 'jquery', 'ztree'], function(exports) { //提示：模块�
      * @param id 选中的id
      */
     TreeSelect.prototype.checkNode = function(filter, id) {
-
         var o = obj.filter(filter),
             treeInput = o.find('.layui-select-title input'),
             treeObj = obj.treeObj(filter),
-            node = treeObj.getNodeByParam("id", id, null);
-            console.log(node);
-            var name = node.name;
+            node = treeObj.getNodeByParam("id", id, null),
+            name = node.name;
         treeInput.val(name);
         o.find('a[treenode_a]').removeClass('curSelectedNode');
         obj.get(filter).val(id).attr('value', id);

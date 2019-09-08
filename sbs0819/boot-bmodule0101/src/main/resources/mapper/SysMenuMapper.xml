@@ -10,10 +10,17 @@
         <result column="menu_name" jdbcType="VARCHAR" property="menuName"/>
         <result column="little_icon" jdbcType="VARCHAR" property="littleIcon"/>
         <result column="route_url" jdbcType="VARCHAR" property="routeUrl"/>
+        <result column="target" jdbcType="VARCHAR" property="target"/>
+        <result column="leaf_node" jdbcType="SMALLINT" property="leafNode"/>
+        <result column="menu_type" jdbcType="SMALLINT" property="menuType"/>
     </resultMap>
 
     <select id="selectByParentId" resultMap="BaseResultMap">
         select t.* from sys_menu t where t.parent_id = #{parentId}
     </select>
+
+    <update id="updateLeafNodeById" >
+        update sys_menu set leaf_node = #{leafNode} where id = #{id}
+    </update>
 
 </mapper>

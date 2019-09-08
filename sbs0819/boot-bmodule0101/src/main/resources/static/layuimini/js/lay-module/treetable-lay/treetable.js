@@ -193,7 +193,10 @@ layui.define(['layer', 'table'], function (exports) {
                     $ti.trigger('click');
                 }
             });
-        }
+        },
+        // reload: function(){
+        //     table.reload();
+        // }
     };
 
     layui.link(layui.cache.base + 'treetable-lay/treetable.css');

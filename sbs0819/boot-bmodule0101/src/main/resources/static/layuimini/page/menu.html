@@ -67,7 +67,16 @@
                         }
                     }, title: '类型'
                 },
-                {templet: '#auth-state', width: 120, align: 'center', title: '操作'}
+                {
+                    templet: function (d) {
+                        var content = '<a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit" onclick="update(d)">修改</a>';
+                        if (d.leafNode == 1) {
+                            content += '   <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del" onclick="del(d)">删除</a>';
+                        }
+                        return content;
+
+                    }, width: 120, align: 'center', title: '操作'
+                }
             ]],
             done: function () {
                 layer.closeAll('loading');
@@ -93,6 +102,10 @@
                 layer.msg('修改' + data.id);
             }
         });
+
+        function update(obj) {
+            console.log(obj);
+        }
     });
 </script>
 </body>

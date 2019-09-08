@@ -5,6 +5,7 @@
         <title>menu</title>
         <link rel="stylesheet" href="../layuimini/lib/layui-v2.5.4/css/layui.css" media="all">
         <link rel="stylesheet" href="../layuimini/css/public.css" media="all">
+        <link rel="stylesheet" href="../layuimini/lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
         <style>
             .layui-btn:not(.layui-btn-lg ):not(.layui-btn-sm):not(.layui-btn-xs) {
                 height: 34px;
@@ -20,13 +21,14 @@
                     <div class="layui-btn-group">
                         <button class="layui-btn" id="btn-expand">全部展开</button>
                         <button class="layui-btn" id="btn-fold">全部折叠</button>
+                        <button class="layui-btn data-add-btn" id="menu-add">添加</button>
                     </div>
-                    <table id="menu-table" class="layui-table" lay-filter="munu-table"></table>
+                    <table id="menu-table" class="layui-table" lay-filter="menu-table"></table>
                 </div>
             </div>
         </div>
         <!-- 操作列 -->
-        <script type="text/html" id="auth-state">
+        <script type="text/html" id="menu-operate">
             <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
             <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
         </script>
@@ -53,21 +55,36 @@
                         {type: 'numbers'},
                         {field: 'menuName', minWidth: 200, title: '权限名称'},
                         {field: 'dsd', title: '权限标识'},
-                        {field: 'routerUrl', title: '菜单url'},
+                        {field: 'routeUrl', title: '菜单url'},
+                        {
+                            field: 'littleIcon', width: 80, align: 'center', title: '小图标', templet: function (d) {
+                                return '<div class="layui-iconpicker-icon-item"><i class="fa ' + d.littleIcon + '"></i></div>';
+                            }
+                        },
                         {field: 'orderNumber', width: 80, align: 'center', title: '排序号'},
                         {
                             field: 'isMenu', width: 80, align: 'center', templet: function (d) {
-                                if (d.isMenu == 1) {
-                                    return '<span class="layui-badge layui-bg-gray">按钮</span>';
+                                if (d.menuType == 0) {
+                                    return '<span class="layui-badge layui-bg-gray">根目录</span>';
                                 }
-                                if (d.parentId == -1) {
-                                    return '<span class="layui-badge layui-bg-blue">目录</span>';
-                                } else {
-                                    return '<span class="layui-badge-rim">菜单</span>';
+                                if (d.menuType == 1) {
+                                    return '<span class="layui-badge layui-bg-blue">菜单</span>';
+                                }
+
+                                if (d.menuType == 2) {
+                                    return '<span class="layui-badge-rim">按钮</span>';
                                 }
                             }, title: '类型'
                         },
-                        {templet: '#auth-state', width: 120, align: 'center', title: '操作'}
+                        {
+                            templet: function (d) {
+                                var content = '<a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit" >修改</a>';
+                                if (d.leafNode == 1) {
+                                    content += '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>';
+                                }
+                                return content;
+                            }, width: 120, align: 'center', title: '操作'
+                        }
                     ]],
                     done: function () {
                         layer.closeAll('loading');
@@ -75,25 +92,67 @@
                 });
 
                 $('#btn-expand').click(function () {
-                    treetable.expandAll('#munu-table');
+                    treetable.expandAll('#menu-table');
                 });
 
                 $('#btn-fold').click(function () {
-                    treetable.foldAll('#munu-table');
+                    treetable.foldAll('#menu-table');
+                });
+
+                // 增加
+                $('#menu-add').click(function () {
+                    layer.open({
+                        type: 2,
+                        title: '新增菜单',
+                        area: ['700px', '430px'],
+                        shade: 0.7,
+                        shadeClose: true,
+                        scrollbar: true,
+                        resize: true,
+                        maxmin: true,
+                        content: ["/menu/menuPage"],
+                        success: function (layero, index) {
+                        },
+                        yes: function (index, layero) {
+                        }
+                    });
+
                 });
 
                 //监听工具条
-                table.on('tool(munu-table)', function (obj) {
+                table.on('tool(menu-table)', function (obj) {
+                    console.log(obj);
                     var data = obj.data;
                     var layEvent = obj.event;
 
                     if (layEvent === 'del') {
                         layer.msg('删除' + data.id);
+
+
                     } else if (layEvent === 'edit') {
                         layer.msg('修改' + data.id);
+                        layer.open({
+                            type: 2,
+                            title: "修改菜单",
+                            area: ['700px', '430px'],
+                            fix: false, //不固定
+                            shade: 0.7,
+                            shadeClose: true,
+                            scrollbar: true,
+                            maxmin: true,
+                            content: ["/menu/menuPage?id=" + data.id, 'yes'],
+                            success: function (layero, index) {
+                                var body = layer.getChildFrame('body', index);
+                                body.contents().find("#primaryKey").val(data.id);
+                            },
+                            end: function () {
+
+                            }
+                        });
                     }
                 });
             });
+
         </script>
     </body>
 </html>

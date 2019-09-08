@@ -45,6 +45,12 @@ public class SysMenuServiceImpl implements SysMenuService {
 
     @Override
     public void addUser(SysMenu sysMenu) {
+
+        Long parentId = sysMenu.getParentId();
+        if (parentId != null && parentId >= 0) {
+            sysMenuMapper.updateLeafNodeById(0, parentId);
+        }
+
         sysMenuMapper.insert(sysMenu);
     }
 
@@ -61,6 +67,8 @@ public class SysMenuServiceImpl implements SysMenuService {
             entity.setMenuName(sysMenu.getMenuName());
             entity.setParentId(sysMenu.getParentId());
             entity.setRouteUrl(sysMenu.getRouteUrl());
+            entity.setTarget(sysMenu.getTarget());
+            entity.setMenuType(sysMenu.getMenuType());
             sysMenuMapper.updateByPrimaryKey(entity);
         }
     }

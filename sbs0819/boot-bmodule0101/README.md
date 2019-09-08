@@ -16,7 +16,8 @@
     
 ## 3.实现功能和进度
     2019-09-06 boot-bmodule0101模块初始化，校验器和业务统一异常处理基本完成
-    2019-09-06 boot-bmodule0101将layui换成layuiMini
+    2019-09-08 boot-bmodule0101将layui换成layuiMini,优化了菜单和用户管理前端
+
                                                     
 备注：layuiMini由[zhongshaofa](https://github.com/zhongshaofa/layuimini)大佬基于layui开发的实用开源框架，欢迎小伙伴去fork&star
 

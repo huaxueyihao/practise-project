@@ -128,6 +128,8 @@
                 shade: 0.7,
                 shadeClose: true,
                 scrollbar: true,
+                resize: true,
+                maxmin: true,
                 content: ["/user/addUser", 'yes'],
             });
 
@@ -172,37 +174,6 @@
         table.on('toolbar(user-table)', function (obj) {
             var checkStatus = table.checkStatus(obj.config.id), data = checkStatus.data; //获取选中的数据
             switch (obj.event) {
-                case 'add':
-                    layer.open({
-                        type: 2,
-                        title: "增加用户",
-                        area: ['700px', '530px'],
-                        shade: 0.7,
-                        shadeClose: true,
-                        scrollbar: true,
-                        content: ["/user/addUser?classId=" + data.id, 'yes'],
-                        btn: ['提交', '取消'],
-                        yes: function (index, layero) {
-                            utilTool.formSubmit(index, layero, 'btn_save', '/user/add', function (res) {
-                                if (res.code == '0') {
-                                    layer.close(index);
-                                    table.reload('userTable', {
-                                        page: {
-                                            curr: 1 //重新从第 1 页开始
-                                        }
-                                        , where: {
-                                            key: {
-                                                id: $('#userTable').val()
-                                            }
-                                        }
-                                    }, 'data');
-                                } else {
-                                    layer.msg(res.msg);
-                                }
-                            });
-                        }
-                    });
-                    break;
                 case 'delete':
                     if (data.length === 0) {
                         layer.msg('请选择一行');
@@ -282,6 +253,7 @@
                     shade: 0.7,
                     shadeClose: true,
                     scrollbar: true,
+                    maxmin: true,
                     content: ["/user/addUser?id=" + data.id, 'yes'],
                     success: function (layero, index) {
                         var body = layer.getChildFrame('body', index);

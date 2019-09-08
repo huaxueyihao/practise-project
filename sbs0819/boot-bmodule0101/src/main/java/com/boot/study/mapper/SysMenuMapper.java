@@ -9,4 +9,7 @@ import java.util.List;
 public interface SysMenuMapper extends MyMapperSuppurt<SysMenu> {
 
     List<SysMenu> selectByParentId(@Param("parentId") Long parentId);
+
+    void updateLeafNodeById(@Param("leafNode") Integer leafNode, @Param("id") Long id);
+
 }

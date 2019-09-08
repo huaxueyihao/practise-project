@@ -1,0 +1,110 @@
+.layui-treeSelect .ztree li a:hover {
+    text-decoration: none;
+}
+.layui-treeSelect .ztree * {
+    font-size:14px;
+}
+.layui-treeSelect .ztree li {
+    line-height: 18px;
+}
+.layui-treeSelect .layui-anim::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    background-color: #F5F5F5;
+}
+
+.layui-treeSelect .layui-anim::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(107,98,98,0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+}
+
+.layui-treeSelect .layui-anim::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow: inset 0 0 6px rgba(107,98,98,0.3);
+    background-color: #555;
+}
+
+.layui-treeSelect.layui-form-select .layui-anim {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 42px;
+    padding: 5px 0;
+    z-index: 999999999;
+    border: 1px solid #d2d2d2;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: #fff;
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.12);
+    box-sizing: border-box;
+}
+
+.layui-treeSelect.layui-form-selected .layui-anim {
+    display: block;
+}
+
+.layui-treeSelect .layui-treeSelect-search{
+	margin-right: 80px;
+}
+
+.layui-treeSelect .layui-treeSelect-confirm{
+    text-align: right;
+    padding: 0px 5px 5px 0px;
+    width: 40px;
+    position: absolute;
+    right: 0px;
+    top: 12px;
+}
+
+.layui-treeSelect .ztree li span.button {
+    font-family: layui-icon!important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.layui-treeSelect .ztree li span.button.root_open,
+.layui-treeSelect .ztree li span.button.bottom_open,
+.layui-treeSelect .ztree li span.button.center_open,
+.layui-treeSelect .ztree li span.button.root_close,
+.layui-treeSelect .ztree li span.button.bottom_close,
+.layui-treeSelect .ztree li span.button.center_close,
+.layui-treeSelect .ztree li span.button.center_close,
+.layui-treeSelect .ztree li span.button.roots_open,
+.layui-treeSelect .ztree li span.button.roots_close{
+	background: none;
+}
+/**-号**/
+.layui-treeSelect .ztree li span.button.bottom_open:before,
+.layui-treeSelect .ztree li span.button.root_open:before,
+.layui-treeSelect .ztree li span.button.center_open:before,
+.layui-treeSelect .ztree li span.button.roots_open:before{
+    content: "\e625";
+}
+/**+号**/
+.layui-treeSelect .ztree li span.button.bottom_close:before,
+.layui-treeSelect .ztree li span.button.root_close:before,
+.layui-treeSelect .ztree li span.button.center_close:before,
+.layui-treeSelect .ztree li span.button.roots_close:before{
+    content: "\e623";
+}
+.layui-treeSelect .ztree li span.button{
+	line-height: 18px;
+}
+
+.layui-treeSelect .layui-anim,.layui-treeSelect.layui-form-select .layui-anim{
+	position: fixed;
+    width: 422px;
+    top: 9999px;
+    left: 0px;
+}
+
+.layui-treeSelect .layui-treeselect-header{
+	position: relative;
+    padding: 5px;
+    position: relative;
+    padding: 5px;
+    min-height: 30px;
+    border-bottom: 1px #828282 dashed;
+}

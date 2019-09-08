@@ -34,6 +34,16 @@ public class SysMenu implements Serializable {
     @Column(name = "target")
     private String target;
 
+    // 是否叶子节点，0:是，1：不是
+    @Column(name = "leaf_node")
+    private Integer leafNode;
+
+    //类型，0:根目录，1:菜单，2：按钮
+    @Column(name = "menu_type")
+    private Integer menuType;
+
+
+
 
 
 }
