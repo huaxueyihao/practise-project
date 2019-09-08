@@ -1,6 +1,7 @@
 package com.boot.study.util;
 
 import com.boot.study.bean.MenuTreeDto;
+import com.boot.study.bean.MiniMenuTreeDto;
 import com.boot.study.common.TreeDto;
 import com.boot.study.common.ZTreeDto;
 import com.boot.study.model.SysMenu;
@@ -31,6 +32,14 @@ public class TreeUtil {
     public static List<MenuTreeDto> convertMenuTree(List<SysMenu> menuList) {
         if (menuList != null && menuList.size() > 0) {
             return menuList.stream().map(menu -> MenuTreeDto.builder().id(menu.getId()).meunTitle(menu.getMenuName()).meunUrl(menu.getRouteUrl()).build()).collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public static List<MiniMenuTreeDto> convertMiniMenuTreeDto(List<SysMenu> menuList) {
+        if (menuList != null && menuList.size() > 0) {
+            return menuList.stream().map(menu -> MiniMenuTreeDto.builder().menuId(menu.getId()).title(menu.getMenuName()).href(menu.getRouteUrl()).icon(menu.getRouteUrl()).target(menu.getTarget()).build()).collect(Collectors.toList());
         } else {
             return new ArrayList<>();
         }

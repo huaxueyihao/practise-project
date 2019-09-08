@@ -15,5 +15,6 @@ create table sys_menu (
     menu_name varchar(20) not null comment '菜单名',
     parent_id bigint(20) not null default 0 comment '菜单父id',
     route_url varchar(20) not null comment '菜单路由',
-    little_icon varchar (20) comment '小图标'
+    little_icon varchar (20) comment '小图标',
+    target varchar(20) comment '打开方式：_self:本窗口打开,blank:新窗口打开 '
 );

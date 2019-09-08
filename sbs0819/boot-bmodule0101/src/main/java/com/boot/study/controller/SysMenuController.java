@@ -1,5 +1,6 @@
 package com.boot.study.controller;
 
+import com.boot.study.bean.MiniMenuTreeDto;
 import com.boot.study.common.JSONResponse;
 import com.boot.study.common.PageResult;
 import com.boot.study.common.TreeDto;
@@ -89,6 +90,20 @@ public class SysMenuController extends BaseController {
     public List<ZTreeDto> menuZTree(@PathVariable(required = false) Long parentId) {
         List<ZTreeDto> treeDtos = sysMenuService.menuZTree(parentId);
         return treeDtos;
+    }
+
+    @GetMapping({"/miniMenuTree", "/miniMenuTree/{parentId}"})
+    @ResponseBody
+    public List<MiniMenuTreeDto> miniMenuZTree(@PathVariable(required = false) Long parentId) {
+        List<MiniMenuTreeDto> treeDtos = sysMenuService.miniMenuZTree(parentId);
+        return treeDtos;
+    }
+
+    @GetMapping({"/getAllMenus", "/getAllMenus/{parentId}"})
+    @ResponseBody
+    public JSONResponse getAllMenus(@PathVariable(required = false) Long parentId) {
+        List<SysMenu> menuList = sysMenuService.selectByParentId(parentId);
+        return success(menuList);
     }
 
 

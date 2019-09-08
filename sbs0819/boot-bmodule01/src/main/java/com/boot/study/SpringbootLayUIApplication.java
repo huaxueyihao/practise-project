@@ -10,6 +10,5 @@ public class SpringbootLayUIApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SpringbootLayUIApplication.class, args);
-
     }
 }

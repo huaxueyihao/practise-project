@@ -1,0 +1,30 @@
+package com.boot.study.bean;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.ToString;
+
+import java.util.List;
+
+@Data
+@ToString
+@Builder
+public class MiniMenuTreeTableDto {
+
+    //菜单名称
+    private String menuName;
+    //连接
+    private String href;
+    //小图标
+    private String icon;
+    //
+    private String target = "_self";
+    //菜单id
+    private long menuId;
+    // 父菜单id
+    private long parentId;
+
+    private List<MiniMenuTreeTableDto> child;
+
+
+}

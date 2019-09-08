@@ -31,6 +31,9 @@ public class SysMenu implements Serializable {
     @Column(name = "route_url")
     private String routeUrl;
 
+    @Column(name = "target")
+    private String target;
+
 
 
 }
