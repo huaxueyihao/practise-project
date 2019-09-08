@@ -43,8 +43,8 @@
         <hr/>
         <div class="layui-form-item">
             <div class="layui-input-block">
-                <button class="layui-btn" lay-submit="" lay-filter="save">新增</button>
-                <button type="button" class="layui-btn layui-btn-primary" function="close">关闭</button>
+                <button class="layui-btn" lay-submit="" lay-filter="save">提交</button>
+                <button type="button" class="layui-btn layui-btn-primary" id="close" lay-filter="close">关闭</button>
             </div>
         </div>
     </div>
@@ -58,29 +58,12 @@
         var layer = layui.layer;
         var $ = layui.jquery;
 
-
-        // var index = parent.layer.getFrameIndex(window.name);
-        // parent.$("#handle").attr("value",1);
-        // parent.layer.close(index);
-
         // 提交
         form.on('submit(save)', function (data) {
-            console.log(data.field);
-            // $.getJSON('user/add', function (data, status) {
-            //     if (data == null) {
-            //         layuimini.msg_error('暂无菜单信息');
-            //     } else {
-            //         // layuimini.initClear(data.clearInfo);
-            //         console.log(data);
-            //         layuimini.initMenu(data);
-            //         layuimini.initTab();
-            //     }
-            // }).fail(function () {
-            //     layuimini.msg_error('菜单接口有误');
-            // });
-
+            var url = data.field.id ? '/user/update' : '/user/add';
+            var tips = data.field.id ? '编辑' : '新增';
             $.ajax({
-                url: '/user/add',
+                url: url,
                 data: JSON.stringify(data.field),
                 contentType: 'application/json;charset=UTF-8',
                 cache: false,
@@ -91,9 +74,9 @@
                     console.log(result);
                     if (result.success) {
                         var index = parent.layer.getFrameIndex(window.name);
-                        parent.layui.table.reload('user-table',{page:{curr:1}}); //主页代码，第一个参数为： 父页面的表格属性 id名
+                        parent.layui.table.reload('user-table', {page: {curr: 1}}); //主页代码，第一个参数为： 父页面的表格属性 id名
                         parent.layer.close(index); //成功再执行关闭
-                        parent.layer.msg("新增成功", {
+                        parent.layer.msg(tips + "成功", {
                             icon: 6
                         });
                     } else {
@@ -107,9 +90,14 @@
             return false;
         });
 
+        // 关闭
+        $('#close').click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index); //成功再执行关闭
+        })
+
 
         var userId = $("#userId").val();
-        console.log('userId=' + userId);
         if (userId) {
             console.log('userId=' + userId);
             $.ajax({
@@ -117,7 +105,7 @@
                 method: 'get',
                 dataType: 'JSON',
                 success: function (res) {
-                    if (res.code = '0') {
+                    if (res.success) {
                         // parent.closeIframe(res.msg);
                         console.log(res);
                         form.val('example', {
@@ -127,13 +115,11 @@
                             , "age": res.data.age
                         })
                     } else
-                        alert(res.msg);
+                        layer.msg(res.msg);
                 },
                 error: function (data) {
-
                 }
             });
-
         }
 
     });

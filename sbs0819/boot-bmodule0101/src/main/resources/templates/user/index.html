@@ -91,11 +91,12 @@
 
 </body>
 <script>
-    layui.use(['table', 'table', 'layuimini', 'element'], function () {
+    layui.use(['table', 'layuimini', 'element','utilTool'], function () {
         var layer = layui.layer //弹层
             , table = layui.table //表格
-            , $ = layui.jquery
-        // , utilTool = layui.utilTool
+            , $ = layui.jquery,
+            utilTool = layui.utilTool
+
 
         table.render({
             elem: '#user-table'
@@ -106,7 +107,7 @@
             , totalRow: true //开启合计行
             , cols: [[ //表头
                 {type: 'checkbox', fixed: 'left'}
-                , {field: 'id', title: 'ID', minWidth: 20, fixed: 'left', totalRowText: '合计：'}
+                , {field: 'id', title: 'ID', minWidth: 20, fixed: 'left'}
                 , {field: 'userName', title: '用户名', minWidth: 120},
                 {field: 'password', title: '密码', width: 120}
                 , {field: 'sex', title: '性别', width: 120, templet: '#sexTpl'}
@@ -125,33 +126,46 @@
                 shadeClose: true,
                 scrollbar: true,
                 content: ["/user/addUser", 'yes'],
-                yes: function (index, layero) {
-                    // utilTool.formSubmit(index, layero, 'btn_save', '/user/add', function (res) {
-                    //     if (res.code == '0') {
-                    //         layer.close(index);
-                    //         table.reload('userTable', {
-                    //             page: {
-                    //                 curr: 1 //重新从第 1 页开始
-                    //             }
-                    //             , where: {
-                    //                 key: {
-                    //                     id: $('#user-table').val()
-                    //                 }
-                    //             }
-                    //         }, 'data');
-                    //     } else {
-                    //         layer.msg(res.msg);
-                    //     }
-                    // });
-                }
             });
 
         });
 
         // 删除
         $('#user-batch-del').click(function () {
-
+            var checkStatus = table.checkStatus('user-table')
+                , data = checkStatus.data;
+            var ids = utilTool.tablePrimaryKeyList(data);
+            layer.confirm('确定要批量删除行么', function (index) {
+                $.ajax({
+                    url: '/user/batchRemove',
+                    method: 'post',
+                    data: JSON.stringify(ids),
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: 'JSON',
+                    success: function (res) {
+                        if (res.success) {
+                            layer.close(index);
+                            table.reload('user-table', {
+                                page: {
+                                    curr: 1 //重新从第 1 页开始
+                                }
+                            }, 'data');
+                            layer.msg("删除成功", {
+                                icon: 6
+                            });
+                        }else{
+                            layer.msg(res.msg, {
+                                icon: 7
+                            });
+                        }
+                    },
+                    error: function (data) {
+                    }
+                });
+            });
         });
+
+
 
 
         table.on('toolbar(user-table)', function (obj) {
@@ -162,7 +176,6 @@
                         type: 2,
                         title: "增加用户",
                         area: ['700px', '530px'],
-
                         shade: 0.7,
                         shadeClose: true,
                         scrollbar: true,
@@ -235,7 +248,6 @@
         table.on('tool(user-table)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
             var data = obj.data //获得当前行数据
                 , layEvent = obj.event; //获得 lay-event 对应的值
-            console.log(data);
             if (layEvent === 'detail') {
                 layer.msg('查看操作');
             } else if (layEvent === 'del') {
@@ -246,60 +258,34 @@
                         method: 'get',
                         dataType: 'JSON',
                         success: function (res) {
-                            if (res.code == '0') {
+                            if (res.success) {
                                 layer.close(index);
-                                table.reload('userTable', {
+                                table.reload('user-table', {
                                     page: {
                                         curr: 1 //重新从第 1 页开始
-                                    }
-                                    , where: {
-                                        key: {
-                                            id: $('#userTable').val()
-                                        }
                                     }
                                 }, 'data');
                             }
                         },
                         error: function (data) {
-
                         }
                     });
-
-                    //向服务端发送删除指令
                 });
             } else if (layEvent === 'edit') {
-                // layer.msg('编辑操作');
+                console.log(data);
                 layer.open({
                     type: 2,
                     title: "修改用户",
-                    area: ['700px', '530px'],
+                    area: ['600px', '430px'],
                     fix: false, //不固定
                     shade: 0.7,
                     shadeClose: true,
                     scrollbar: true,
-                    content: ["/user/addUser?classId=" + data.id, 'yes'],
+                    content: ["/user/addUser?id=" + data.id, 'yes'],
                     success: function (layero, index) {
-                        var body = top.layer.getChildFrame('body', index);
+                        var body = layer.getChildFrame('body', index);
                         body.contents().find("#userId").val(data.id);
-
                     },
-                    yes: function (index, layero) {
-
-                        //保存按钮单击事件
-                    },
-                    end: function () {    //子页面销毁时回调的方法
-                        var handle = $("#handle").val();
-                        if (handle == 1) {
-                            layer.msg('修改成功', {
-                                icon: 1,
-                                time: 1500 //2秒关闭（如果不配置，默认是3秒）
-                            }, function () {
-                                $("#handle").attr("value", "");
-                                window.location.href = '重新加载的页面';
-                            });
-
-                        }
-                    }
                 });
 
 
