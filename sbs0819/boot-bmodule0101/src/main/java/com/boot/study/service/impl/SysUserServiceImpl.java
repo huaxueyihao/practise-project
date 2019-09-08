@@ -1,5 +1,6 @@
 package com.boot.study.service.impl;
 
+import com.boot.study.common.PageParam;
 import com.boot.study.common.PageResult;
 import com.boot.study.exeception.BusinessException;
 import com.boot.study.mapper.SysUserMapper;
@@ -52,8 +53,8 @@ public class SysUserServiceImpl implements SysUserService {
     @Override
     public SysUser detail(Long id) {
         SysUser sysUser = sysUserMapper.selectByPrimaryKey(id);
-        if (Objects.isNull(sysUser)){
-            throw new BusinessException(100,"用户不存在");
+        if (Objects.isNull(sysUser)) {
+            throw new BusinessException(100, "用户不存在");
         }
         return sysUser;
     }
@@ -75,10 +76,30 @@ public class SysUserServiceImpl implements SysUserService {
 
     @Override
     public void batchRemove(Long[] ids) {
-        Optional.of(ids).ifPresent(idList->{
+        Optional.of(ids).ifPresent(idList -> {
             for (Long id : idList) {
                 sysUserMapper.deleteByPrimaryKey(id);
             }
         });
+    }
+
+    @Override
+    public PageResult<SysUser> pageList(PageParam<SysUser> pageParam) {
+        int limit = pageParam.getLimit();
+        int page = pageParam.getPage();
+        SysUser condition = pageParam.getCondition();
+        PageResult<SysUser> pageResult = new PageResult<>();
+        Example example = new Example(SysUser.class);
+        Example.Criteria criteria = example.createCriteria();
+        Optional.ofNullable(condition).ifPresent(userParam -> {
+            criteria.andLike("userName", "%" + userParam.getUserName() + "%");
+        });
+        int count = sysUserMapper.selectCountByExample(example);
+        if (count > 0) {
+            List<SysUser> sysUsers = sysUserMapper.selectByExampleAndRowBounds(example, pageParam.getRowBounds());
+            pageResult.setDataList(sysUsers);
+            pageResult.setCount(count);
+        }
+        return pageResult;
     }
 }

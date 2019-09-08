@@ -25,29 +25,17 @@
                         <div class="layui-inline">
                             <label class="layui-form-label">用户姓名</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="username" autocomplete="off" class="layui-input">
+                                <input type="text" name="userName" autocomplete="off" class="layui-input">
                             </div>
                         </div>
+                        <!--                        <div class="layui-inline">-->
+                        <!--                            <label class="layui-form-label">用户性别</label>-->
+                        <!--                            <div class="layui-input-inline">-->
+                        <!--                                <input type="text" name="sex" autocomplete="off" class="layui-input">-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
                         <div class="layui-inline">
-                            <label class="layui-form-label">用户性别</label>
-                            <div class="layui-input-inline">
-                                <input type="text" name="sex" autocomplete="off" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-inline">
-                            <label class="layui-form-label">用户城市</label>
-                            <div class="layui-input-inline">
-                                <input type="text" name="city" autocomplete="off" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-inline">
-                            <label class="layui-form-label">用户职业</label>
-                            <div class="layui-input-inline">
-                                <input type="text" name="classify" autocomplete="off" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-inline">
-                            <a class="layui-btn" lay-submit="" lay-filter="data-search-btn">搜索</a>
+                            <a class="layui-btn" lay-submit="" lay-filter="user-search-btn">搜索</a>
                         </div>
                     </div>
                 </form>
@@ -91,17 +79,20 @@
 
 </body>
 <script>
-    layui.use(['table', 'layuimini', 'element','utilTool'], function () {
+    layui.use(['table', 'layuimini', 'element', 'utilTool', 'form'], function () {
         var layer = layui.layer //弹层
             , table = layui.table //表格
-            , $ = layui.jquery,
-            utilTool = layui.utilTool
+            , $ = layui.jquery
+            , form = layui.form
+            , utilTool = layui.utilTool
 
 
         table.render({
             elem: '#user-table'
-            , height: 560
+            , height: 400
             , url: '/user/pageList/' //数据接口
+            , method: 'post'
+            , contentType: 'application/json;charset=UTF-8'
             , title: '用户表'
             , page: true //开启分页
             , totalRow: true //开启合计行
@@ -115,6 +106,18 @@
                 , {fixed: 'right', title: '操作', width: 165, align: 'center', toolbar: '#user-operate'}
             ]]
         });
+
+        form.on('submit(user-search-btn)', function (data) {
+            console.log(data.field);
+            table.reload('user-table', {
+                page: {
+                    curr: 1,//重新从第 1 页开始
+                },
+                where: {
+                    condition: data.field
+                },
+            }, 'data');
+        })
 
         // 增加
         $('#user-add').click(function () {
@@ -153,7 +156,7 @@
                             layer.msg("删除成功", {
                                 icon: 6
                             });
-                        }else{
+                        } else {
                             layer.msg(res.msg, {
                                 icon: 7
                             });
@@ -164,8 +167,6 @@
                 });
             });
         });
-
-
 
 
         table.on('toolbar(user-table)', function (obj) {

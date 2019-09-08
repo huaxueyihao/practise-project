@@ -48,12 +48,12 @@ layui.define(["element", "jquery"], function (exports) {
             //     if (data == null) {
             //         layuimini.msg_error('暂无菜单信息');
             //     } else {
-                    // layuimini.initHome(data.homeInfo);
-                    //layuimini.initLogo(data.logoInfo);
-                    // layuimini.initClear(data.clearInfo);
-                    // layuimini.initMenu(data.menuInfo);
-                    // layuimini.initTab();
-                // }
+            // layuimini.initHome(data.homeInfo);
+            //layuimini.initLogo(data.logoInfo);
+            // layuimini.initClear(data.clearInfo);
+            // layuimini.initMenu(data.menuInfo);
+            // layuimini.initTab();
+            // }
             // }).fail(function () {
             //     layuimini.msg_error('菜单接口有误');
             // });
@@ -456,11 +456,13 @@ layui.define(["element", "jquery"], function (exports) {
          * @param title
          */
         this.addTab = function (tabId, href, title, addSession) {
+            console.log(tabId + " " + href + " " + title + " " + addSession);
             if (addSession == undefined || addSession == true) {
                 var layuiminiTabInfo = JSON.parse(sessionStorage.getItem("layuiminiTabInfo"));
                 if (layuiminiTabInfo == null) {
                     layuiminiTabInfo = {};
                 }
+                console.log(layuiminiTabInfo);
                 layuiminiTabInfo[tabId] = {href: href, title: title}
                 sessionStorage.setItem("layuiminiTabInfo", JSON.stringify(layuiminiTabInfo));
             }

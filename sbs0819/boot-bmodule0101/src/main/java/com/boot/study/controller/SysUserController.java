@@ -1,6 +1,7 @@
 package com.boot.study.controller;
 
 import com.boot.study.common.JSONResponse;
+import com.boot.study.common.PageParam;
 import com.boot.study.common.PageResult;
 import com.boot.study.exeception.BusinessException;
 import com.boot.study.model.SysUser;
@@ -43,10 +44,17 @@ public class SysUserController extends BaseController {
         return sysUserService.getAllUser();
     }
 
-    @GetMapping("/pageList")
+    @GetMapping("/getPageList")
     @ResponseBody
     public JSONResponse pageList(@RequestParam("page") Integer page, @RequestParam("limit") Integer limit) {
         PageResult<SysUser> pageResult = sysUserService.pageList(page, limit);
+        return success(pageResult);
+    }
+
+    @PostMapping("/pageList")
+    @ResponseBody
+    public JSONResponse pageList(@RequestBody PageParam<SysUser> pageParam) {
+        PageResult<SysUser> pageResult = sysUserService.pageList(pageParam);
         return success(pageResult);
     }
 

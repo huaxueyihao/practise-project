@@ -34,7 +34,7 @@ layui.define(['layer'], function (exports) {
             var primaryKeyList = [];
             if (tableRows && tableRows.length > 0) {
                 for (var i = 0; i < tableRows.length; i++) {
-                    primaryKeyList.push(tableRows[primaryKeyName ? primaryKeyName : 'id']);
+                    primaryKeyList.push(tableRows[i][primaryKeyName ? primaryKeyName : 'id']);
                 }
             }
             return primaryKeyList;

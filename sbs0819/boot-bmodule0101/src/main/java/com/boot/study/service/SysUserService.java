@@ -1,5 +1,6 @@
 package com.boot.study.service;
 
+import com.boot.study.common.PageParam;
 import com.boot.study.common.PageResult;
 import com.boot.study.model.SysUser;
 
@@ -19,4 +20,6 @@ public interface SysUserService {
     void remove(Long id);
 
     void batchRemove(Long[] ids);
+
+    PageResult<SysUser> pageList(PageParam<SysUser> pageParam);
 }
