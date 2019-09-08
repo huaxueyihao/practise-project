@@ -9,16 +9,16 @@ public class BaseController {
 
     public JSONResponse success(Object data) {
         return JSONResponse.builder().data(data)
-                .msg("ok").code(0).build();
+                .msg("ok").code(0).success(true).build();
     }
 
     public JSONResponse success(PageResult<?> pageResult) {
         return JSONResponse.builder().data(Objects.nonNull(pageResult) ? pageResult.getDataList() : null)
-                .count(Objects.nonNull(pageResult) ? pageResult.getCount() : 0).msg("ok").code(0).build();
+                .count(Objects.nonNull(pageResult) ? pageResult.getCount() : 0).msg("ok").code(0).success(true).build();
     }
 
     public JSONResponse failure(Object data, long errCode, String msg) {
-        return JSONResponse.builder().code(errCode).msg(msg).data(data).build();
+        return JSONResponse.builder().code(errCode).msg(msg).data(data).success(false).build();
     }
 
 }

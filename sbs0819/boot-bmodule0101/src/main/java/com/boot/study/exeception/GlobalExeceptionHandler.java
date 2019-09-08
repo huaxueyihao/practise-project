@@ -20,15 +20,15 @@ public class GlobalExeceptionHandler {
         List<ObjectError> allErrors = e.getBindingResult().getAllErrors();
 
         for (ObjectError error : allErrors) {
-            return JSONResponse.builder().code(400).msg(error.getObjectName() + " " + error.getDefaultMessage()).build();
+            return JSONResponse.builder().code(400).msg(error.getObjectName() + " " + error.getDefaultMessage()).success(false).build();
         }
-        return JSONResponse.builder().code(400).msg("未知错误").build();
+        return JSONResponse.builder().code(400).msg("未知错误").success(false).build();
     }
 
     @ExceptionHandler(BusinessException.class)
     public JSONResponse handleBusinessException(BusinessException exeception, HttpServletRequest request){
         log.error("BusinessException:{}",exeception);
-        return JSONResponse.builder().code(exeception.getErrorCode()).msg(exeception.getMessage()).build();
+        return JSONResponse.builder().code(exeception.getErrorCode()).msg(exeception.getMessage()).success(false).build();
     }
 
 

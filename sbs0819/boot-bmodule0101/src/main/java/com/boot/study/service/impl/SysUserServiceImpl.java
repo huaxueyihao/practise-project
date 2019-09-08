@@ -1,6 +1,7 @@
 package com.boot.study.service.impl;
 
 import com.boot.study.common.PageResult;
+import com.boot.study.exeception.BusinessException;
 import com.boot.study.mapper.SysUserMapper;
 import com.boot.study.model.SysUser;
 import com.boot.study.service.SysUserService;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -49,7 +51,11 @@ public class SysUserServiceImpl implements SysUserService {
 
     @Override
     public SysUser detail(Long id) {
-        return sysUserMapper.selectByPrimaryKey(id);
+        SysUser sysUser = sysUserMapper.selectByPrimaryKey(id);
+        if (Objects.isNull(sysUser)){
+            throw new BusinessException(100,"用户不存在");
+        }
+        return sysUser;
     }
 
     @Override

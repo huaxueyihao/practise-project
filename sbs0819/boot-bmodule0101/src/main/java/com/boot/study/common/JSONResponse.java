@@ -15,5 +15,7 @@ public class JSONResponse {
 
     private Object data;
 
+    private boolean success;
+
 
 }
