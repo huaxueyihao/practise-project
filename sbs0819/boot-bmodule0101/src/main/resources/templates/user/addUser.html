@@ -4,23 +4,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>增加用户</title>
-    <link rel="stylesheet" href="../layui/css/layui.css">
+    <link rel="stylesheet" href="../layuimini/lib/layui-v2.5.4/css/layui.css" media="all">
+    <!--    <link rel="stylesheet" href="../layuimini/css/public.css" media="all">-->
 </head>
 <body class="layui-layout-body">
 <form class="layui-form" action="" lay-filter="example">
-    <input type="hidden" name="id" id="userId">
+    <input type="number" class="layui-hide" name="id" id="userId">
     <div class="layui-form" lay-filter="layuiadmin-form-useradmin" id="layuiadmin-form-useradmin"
          style="padding: 20px 0 0 0;">
         <div class="layui-form-item">
             <label class="layui-form-label">用户名</label>
-            <div class="layui-input-inline">
+            <div class="layui-input-block">
                 <input type="text" name="userName" lay-verify="required" placeholder="请输入用户名" autocomplete="off"
                        class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">密码</label>
-            <div class="layui-input-inline">
+            <div class="layui-input-block">
                 <input type="text" name="password" lay-verify="required" placeholder="请输入密码" autocomplete="off"
                        class="layui-input">
             </div>
@@ -39,20 +40,72 @@
                 <input type="radio" name="sex" value="2" title="神秘">
             </div>
         </div>
-        <div class="layui-form-item layui-hide">
+        <hr/>
+        <div class="layui-form-item">
             <div class="layui-input-block">
-                <button class="layui-btn " id="btn_save" lay-submit="" lay-filter="btn_save">立即提交</button>
+                <button class="layui-btn" lay-submit="" lay-filter="save">新增</button>
+                <button type="button" class="layui-btn layui-btn-primary" function="close">关闭</button>
             </div>
         </div>
     </div>
 </form>
-<script src="../layui/layui.js"></script>
+<script src="../layuimini/lib/layui-v2.5.4/layui.js" charset="utf-8"></script>
+<script src="../layuimini/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
 <script>
     //JavaScript代码区域
     layui.use(['form', 'layedit'], function () {
         var form = layui.form;
         var layer = layui.layer;
         var $ = layui.jquery;
+
+
+        // var index = parent.layer.getFrameIndex(window.name);
+        // parent.$("#handle").attr("value",1);
+        // parent.layer.close(index);
+
+        // 提交
+        form.on('submit(save)', function (data) {
+            console.log(data.field);
+            // $.getJSON('user/add', function (data, status) {
+            //     if (data == null) {
+            //         layuimini.msg_error('暂无菜单信息');
+            //     } else {
+            //         // layuimini.initClear(data.clearInfo);
+            //         console.log(data);
+            //         layuimini.initMenu(data);
+            //         layuimini.initTab();
+            //     }
+            // }).fail(function () {
+            //     layuimini.msg_error('菜单接口有误');
+            // });
+
+            $.ajax({
+                url: '/user/add',
+                data: JSON.stringify(data.field),
+                contentType: 'application/json;charset=UTF-8',
+                cache: false,
+                async: false,
+                type: "POST",
+                dataType: 'json',
+                success: function (result) {
+                    console.log(result);
+                    if (result.success) {
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layui.table.reload('user-table',{page:{curr:1}}); //主页代码，第一个参数为： 父页面的表格属性 id名
+                        parent.layer.close(index); //成功再执行关闭
+                        parent.layer.msg("新增成功", {
+                            icon: 6
+                        });
+                    } else {
+                        layer.msg(result.msg);
+
+                    }
+                },
+                error: function (res) {
+                }
+            });
+            return false;
+        });
 
 
         var userId = $("#userId").val();
@@ -73,7 +126,6 @@
                             , "sex": res.data.sex
                             , "age": res.data.age
                         })
-
                     } else
                         alert(res.msg);
                 },
