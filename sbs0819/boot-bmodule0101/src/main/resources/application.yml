@@ -23,8 +23,8 @@ spring:
       path: /h2-console # console url
       enabled: true
   ############### static resources begin ################
-  #  resources:
-  #    static-locations: classpath:static/,file:static/,
+    resources:
+      static-locations: classpath:static/,classpath:templates/
 
   ############### static resources end ################
   #  thymeleaf:

@@ -22,15 +22,15 @@ public class SysMenuController extends BaseController {
     private SysMenuService sysMenuService;
 
 
-    @RequestMapping({"/index"})
-    public String index(Model model) {
-        return "menu/index";
-    }
-
-    @RequestMapping({"/menuPage"})
-    public String addUserPage(Model model) {
-        return "menu/menuPage";
-    }
+//    @RequestMapping({"/index"})
+//    public String index(Model model) {
+//        return "menu/index";
+//    }
+//
+//    @RequestMapping({"/menuPage"})
+//    public String addUserPage(Model model) {
+//        return "menu/menuPage";
+//    }
 
     @GetMapping("/pageList")
     @ResponseBody

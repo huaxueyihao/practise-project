@@ -64,7 +64,7 @@
                            data-icon="fa fa-gears">修改密码</a>
                     </dd>
                     <dd>
-                        <a href="javascript:;" class="login-out">退出登录</a>
+                        <a href="javascript:;" id="logout" class="login-out">退出登录</a>
                     </dd>
                 </dl>
             </li>
@@ -144,9 +144,16 @@
 
 
         $('.login-out').on("click", function () {
-            layer.msg('退出登录成功', function () {
-                window.location = '/page/login-1.html';
+            $.getJSON('/logout', function (data, status) {
+                layer.msg('退出登录成功');
+                window.location = '/loginPage';
+            }).fail(function () {
+                layuimini.msg_error('菜单接口有误');
             });
+
+            // layer.msg('退出登录成功', function () {
+            //     window.location = '/page/login-1.html';
+            // });
         });
     });
 

@@ -22,4 +22,6 @@ public interface SysUserService {
     void batchRemove(Long[] ids);
 
     PageResult<SysUser> pageList(PageParam<SysUser> pageParam);
+
+    boolean checkByUserNameAndPassword(String userName, String password);
 }

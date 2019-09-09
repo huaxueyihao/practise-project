@@ -28,15 +28,15 @@ public class SysUserController extends BaseController {
     private SysUserService sysUserService;
 
 
-    @RequestMapping({"/index"})
-    public String index(Model model) {
-        return "user/index";
-    }
-
-    @RequestMapping({"/addUser"})
-    public String addUserPage(Model model) {
-        return "user/addUser";
-    }
+//    @RequestMapping({"/index"})
+//    public String index(Model model) {
+//        return "user/index";
+//    }
+//
+//    @RequestMapping({"/addUser"})
+//    public String addUserPage(Model model) {
+//        return "user/addUser";
+//    }
 
     @GetMapping("/getAllUser")
     @ResponseBody

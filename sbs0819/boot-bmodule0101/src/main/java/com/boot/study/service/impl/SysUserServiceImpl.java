@@ -102,4 +102,13 @@ public class SysUserServiceImpl implements SysUserService {
         }
         return pageResult;
     }
+
+    @Override
+    public boolean checkByUserNameAndPassword(String userName, String password) {
+        Example example = new Example(SysUser.class);
+        Example.Criteria criteria = example.createCriteria();
+        Optional.ofNullable(userName).ifPresent(name->criteria.andEqualTo("userName", name));
+        Optional.ofNullable(password).ifPresent(pass->criteria.andEqualTo("password", pass));
+        return sysUserMapper.selectCountByExample(example) > 0 ? true : false;
+    }
 }

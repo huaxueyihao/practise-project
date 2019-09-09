@@ -3,6 +3,7 @@ package com.boot.study.controller;
 import com.boot.study.bean.MenuTreeDto;
 import com.boot.study.service.SysMenuService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,15 +19,15 @@ public class IndexController {
     @Resource
     private SysMenuService sysMenuService;
 
-    @RequestMapping({"/","/index"})
-    public String index(){
-        return "index";
-    }
+//    @RequestMapping({"/index"})
+//    public String index(Model model) {
+//        return "index";
+//    }
 
-    @RequestMapping({"/dashboard"})
-    public String main(){
-        return "dashboard";
-    }
+//    @RequestMapping({"/dashboard"})
+//    public String main() {
+//        return "dashboard";
+//    }
 
 
     @GetMapping({"/indexMenuTree", "/indexMenuTree/{parentId}"})
