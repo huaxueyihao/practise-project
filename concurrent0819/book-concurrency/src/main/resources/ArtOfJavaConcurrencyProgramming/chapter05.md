@@ -263,6 +263,20 @@
         }
     }
     
+    1.tryAcquireShared(int arg)方法返回值>=0时，获取同步状态
+    2.doAcquireShared(int arg)方法在自旋过程中，若果当前节点的前驱节点为头结点时，调用tryAcquireShared(int arg)方法尝试获取同步状态
     
-
+**3.2 releaseShared(int arg)释放同步状态方法**
+  
+    public final boolean releaseShared(int arg){
+        if(tryReleaseShared(arg)){
+            doReleaseShared();
+            return true;
+        }
+        return false;
+    }
+    1.该方法用于释放同步状态，将会唤醒后续处于等待状态的节点。
+    2.和独占式主要区别在于tryReleaseShared(int arg)方法必须确保同步状态线程安全释放，一般是通过循环和CAS来保证
+    
+    
       
