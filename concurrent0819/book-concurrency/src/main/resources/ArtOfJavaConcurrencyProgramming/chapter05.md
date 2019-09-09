@@ -278,5 +278,53 @@
     1.该方法用于释放同步状态，将会唤醒后续处于等待状态的节点。
     2.和独占式主要区别在于tryReleaseShared(int arg)方法必须确保同步状态线程安全释放，一般是通过循环和CAS来保证
     
+**4 独占式超时获取同步状态**    
+**4.1 doAcquireNanos(int arg,long nanosTimeout)**
     
-      
+       1.在指定的时间段内获取同步状态，获取到返回true，否则，返回false
+       2.synchronized 响应中断，是修改中断线程中断标志位，但线程依旧被阻塞在synchronized上，等待着获取锁 。
+       3.同步器提供acquireInterruptibly(int arg)方法，这个方法在等待获取同步状态时，如果当前线程被中断，会立刻返回，并抛出InterruptedException
+       
+       private boolean doAcquireNanos(long arg, long nanosTimeout)
+               throws InterruptedException {
+           if (nanosTimeout <= 0L)
+               return false;
+           final long deadline = System.nanoTime() + nanosTimeout;
+           final Node node = addWaiter(Node.EXCLUSIVE);
+           boolean failed = true;
+           try {
+               for (;;) {
+                   final Node p = node.predecessor();
+                   if (p == head && tryAcquire(arg)) {
+                       // 获取到同步状态
+                       setHead(node);
+                       p.next = null; // help GC
+                       failed = false;
+                       return true;
+                   }
+                   // 没有获取到同步状态，检验是否超时
+                   nanosTimeout = deadline - System.nanoTime();
+                   if (nanosTimeout <= 0L)
+                       return false;
+                   if (shouldParkAfterFailedAcquire(p, node) &&
+                       nanosTimeout > spinForTimeoutThreshold)
+                       LockSupport.parkNanos(this, nanosTimeout);
+                   if (Thread.interrupted())
+                       throw new InterruptedException();
+               }
+           } finally {
+               if (failed)
+                   cancelAcquire(node);
+           }
+       }
+ 
+![avatar](images/AbstractQueuedSynchronizer_Timeout_Exclusive_Flow.jpg)      
+       
+       
+**5 自定义同步组件---TwinsLock** 
+    
+    设计同步工具：该工具在同一时刻，只允许之多两个线程同时访问，超过两个线程的访问将被阻塞
+    1.确定其是共享式的
+    2.定义资源数。至多两个线程同时访问，设置字段status(类似计数器)初始值为2，一个线程获得同步状态，status减1，该线程释放，则status加1
+    
+    
