@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.study.mapper.SysFileMapper">
+
+    <resultMap id="BaseResultMap" type="com.boot.study.model.SysFile">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="file_name" jdbcType="BIGINT" property="fileName"/>
+        <result column="path" jdbcType="VARCHAR" property="path"/>
+        <result column="extension" jdbcType="VARCHAR" property="extension"/>
+        <result column="module" jdbcType="VARCHAR" property="module"/>
+        <result column="module_id" jdbcType="VARCHAR" property="moduleId"/>
+        <result column="fileize" jdbcType="SMALLINT" property="fileSize"/>
+        <result column="remark" jdbcType="SMALLINT" property="remark"/>
+    </resultMap>
+
+
+
+</mapper>

@@ -14,9 +14,14 @@ insert into sys_menu (menu_name,parent_id,route_url,little_icon,target) values (
 insert into sys_menu (menu_name,parent_id,route_url,little_icon,target) values ('系统管理',1,'','','_self');
 insert into sys_menu (menu_name,parent_id,route_url,little_icon,target) values ('菜单管理',4,'/menu/index','','_self');
 insert into sys_menu (menu_name,parent_id,route_url,little_icon,target) values ('用户管理',4,'/user/index','','_self');
+insert into sys_menu (menu_name,parent_id,route_url,little_icon,target) values ('文件管理',4,'/file/index','','_self');
 
 insert into sys_menu (menu_name,parent_id,route_url,little_icon,target) values ('图标列表',2,'/user/index','','_self');
 insert into sys_menu (menu_name,parent_id,route_url,little_icon,target) values ('图标选择',2,'/user/index','','_self');
 
+
+-- 文件
+insert into sys_file (file_name,path,extension,module,moduleId,file_size) values ('测试1','434','pdf','客户',1,20);
+insert into sys_file (file_name,path,extension,module,moduleId,file_size) values ('测试2','434','jpg','客户',1,30);
 
 

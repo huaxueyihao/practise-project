@@ -20,3 +20,19 @@ create table sys_menu (
     leaf_node smallint (1) default 1 comment '是否叶子节点，0:不是，1：是',
     menu_type int(1) default 1 comment '类型，0:根目录，1:菜单，2：按钮'
 );
+
+-- 文件
+drop table if exists sys_file;
+create table sys_file (
+    id bigint(20) primary key auto_increment,
+    file_name varchar(100) not null comment '文件名',
+    path varchar(100) not null comment '文件路劲',
+    extension varchar(10) not null comment '文件扩展名',
+    module varchar (20) comment '模块',
+    moduleId bigint(20) comment '模块主键Id',
+    file_size bigint (20) default 0 comment '文件大小',
+    remark varchar (255) comment '备注'
+);
+
+
+

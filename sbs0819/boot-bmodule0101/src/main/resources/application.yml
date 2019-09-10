@@ -69,3 +69,14 @@ server:
 #    context-path: /demo
 
 ############### Port End ################
+
+
+############### fdfs Begin ################
+fdfs:
+  server:
+    ip: 172.16.144.144:80
+  tracker:
+    conf:
+      path: /fdfs/tracker.conf
+
+############### fdfs End ################
