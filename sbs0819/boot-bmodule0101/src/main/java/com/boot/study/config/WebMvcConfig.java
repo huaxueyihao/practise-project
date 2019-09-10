@@ -11,9 +11,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("*","/","/**")
+        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/","/**")
                 .excludePathPatterns("/loginPage","/login")
-                .excludePathPatterns("/**/*.html","/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
+                .excludePathPatterns("/**/*.html","/**/*.css", "/**/*.js",
+                        "/**/*.png", "/**/*.jpg", "/**/*.jpeg","/**/*.svg",
+                        "/**/*.min.css","/**/*.ttf","/**/*.woff");
     }
 
     @Override
@@ -25,6 +27,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("index");
         registry.addViewController("/loginPage").setViewName("login");
         registry.addViewController("/index").setViewName("index");
         registry.addViewController("/user/index").setViewName("user/index");

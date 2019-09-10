@@ -65,5 +65,7 @@ logging:
 ############### Port Begin ################
 server:
   port: 8080
+#  servlet:
+#    context-path: /demo
 
 ############### Port End ################
