@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import java.util.List;
 
+/**
+ * 首页controller
+ */
 @Controller
 public class IndexController {
 
@@ -30,6 +33,11 @@ public class IndexController {
 //    }
 
 
+    /**
+     * 首页渲染菜单
+     * @param parentId 父菜单id
+     * @return
+     */
     @GetMapping({"/indexMenuTree", "/indexMenuTree/{parentId}"})
     @ResponseBody
     public List<MenuTreeDto> indexMenuTree(@PathVariable(required = false) Long parentId) {

@@ -17,7 +17,7 @@ public class MiniMenuTreeTableDto {
     private String href;
     //小图标
     private String icon;
-    //
+    // 打开方式
     private String target = "_self";
     //菜单id
     private long menuId;

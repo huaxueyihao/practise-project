@@ -6,6 +6,9 @@ import lombok.ToString;
 
 import java.util.List;
 
+/**
+ * 新增菜单时的ztree数据结构对象
+ */
 @Data
 @Builder
 @ToString

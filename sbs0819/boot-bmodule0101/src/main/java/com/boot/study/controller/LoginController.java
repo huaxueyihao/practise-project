@@ -6,23 +6,18 @@ import com.boot.study.exeception.BusinessException;
 import com.boot.study.model.SysUser;
 import com.boot.study.service.SysUserService;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-import java.lang.invoke.MethodType;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-
+/**
+ * 登入登出controller
+ */
 @Controller
 public class LoginController extends BaseController {
 
@@ -35,6 +30,13 @@ public class LoginController extends BaseController {
 //    }
 
 
+    /**
+     * 登陆
+     *
+     * @param request
+     * @param sysUser 用户名和密码
+     * @return
+     */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
     public JSONResponse login(HttpServletRequest request, @RequestBody(required = false) SysUser sysUser) {
@@ -61,6 +63,11 @@ public class LoginController extends BaseController {
     }
 
 
+    /**
+     * 登出
+     * @param request
+     * @return
+     */
     @GetMapping(value = "/logout")
     @ResponseBody
     public JSONResponse logout(HttpServletRequest request) {

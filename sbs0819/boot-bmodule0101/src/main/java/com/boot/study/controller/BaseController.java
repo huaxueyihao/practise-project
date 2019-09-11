@@ -5,6 +5,10 @@ import com.boot.study.common.PageResult;
 
 import java.util.Objects;
 
+/**
+ * 基础controller，所有controller均继承此类
+ * 返回结果 success或failure
+ */
 public class BaseController {
 
     public JSONResponse success(Object data) {
