@@ -11,6 +11,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * 参数校验器
+ */
 public class ValidatorUtil {
 
     public static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();

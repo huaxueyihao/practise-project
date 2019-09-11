@@ -4,6 +4,10 @@ import lombok.*;
 
 import java.io.Serializable;
 
+/**
+ * 异常对象
+ * 没有用到
+ */
 @Data
 @ToString
 @AllArgsConstructor

@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 菜单controller
+ */
 @Controller
 @RequestMapping("/menu")
 public class SysMenuController extends BaseController {
@@ -45,7 +48,7 @@ public class SysMenuController extends BaseController {
     @PostMapping("/add")
     @ResponseBody
     public JSONResponse addUser(@RequestBody SysMenu sysMenu) {
-        sysMenuService.addUser(sysMenu);
+        sysMenuService.addMenu(sysMenu);
         return success(null);
     }
 

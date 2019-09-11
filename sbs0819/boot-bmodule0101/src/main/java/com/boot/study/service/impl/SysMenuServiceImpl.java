@@ -44,7 +44,7 @@ public class SysMenuServiceImpl implements SysMenuService {
     }
 
     @Override
-    public void addUser(SysMenu sysMenu) {
+    public void addMenu(SysMenu sysMenu) {
 
         Long parentId = sysMenu.getParentId();
         if (parentId != null && parentId >= 0) {

@@ -6,6 +6,9 @@ import org.csource.fastdfs.StorageClient;
 import org.csource.fastdfs.TrackerClient;
 import org.csource.fastdfs.TrackerServer;
 
+/**
+ * 上传工具类
+ */
 public class FileUploadUtil {
 
     /**

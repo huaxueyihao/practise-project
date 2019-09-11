@@ -20,6 +20,9 @@ import javax.validation.*;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 用户controller
+ */
 @Controller
 @RequestMapping("/user")
 public class SysUserController extends BaseController {

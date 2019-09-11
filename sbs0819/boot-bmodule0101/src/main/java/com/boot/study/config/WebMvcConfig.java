@@ -42,6 +42,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
+        /**
+         * "/" 这个一定要配置，不配置，不会被拦截，就是直接访问localhost:8080默认跳转到index页面
+         * 但是，却跳过了登陆，直接访问了index.html页面，配置后就会被拦截跳转到登陆页面
+         */
         registry.addViewController("/").setViewName("index");
         registry.addViewController("/loginPage").setViewName("login");
         registry.addViewController("/index").setViewName("index");

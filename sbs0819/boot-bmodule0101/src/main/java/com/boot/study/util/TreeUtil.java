@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * tree树转化工具类
+ */
 public class TreeUtil {
 
     public static List<TreeDto> convert(List<SysMenu> menuList) {

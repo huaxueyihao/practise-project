@@ -1,5 +1,8 @@
 package com.boot.study.exeception;
 
+/**
+ * 业务异常对象
+ */
 public class BusinessException extends RuntimeException {
 
     private static final long serialVersionUID = 600183292785742603L;
