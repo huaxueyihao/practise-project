@@ -7,7 +7,7 @@ create table sys_user (
     telphone varchar(20) comment '手机',
     sex varchar(1) default '0' comment '0-男，1-女，2-位置',
     age int(3) comment '年龄'
-);
+) default charset=utf8 ;
 -- 菜单
 drop table if exists sys_menu;
 create table sys_menu (
@@ -19,7 +19,7 @@ create table sys_menu (
     target varchar(20) comment '打开方式：_self:本窗口打开,blank:新窗口打开 ',
     leaf_node smallint (1) default 1 comment '是否叶子节点，0:不是，1：是',
     menu_type int(1) default 1 comment '类型，0:根目录，1:菜单，2：按钮'
-);
+) default charset=utf8 ;
 
 -- 文件
 drop table if exists sys_file;
@@ -32,7 +32,7 @@ create table sys_file (
     moduleId bigint(20) comment '模块主键Id',
     file_size bigint (20) default 0 comment '文件大小',
     remark varchar (255) comment '备注'
-);
+)  default charset=utf8 ;
 
 
 

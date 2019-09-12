@@ -33,12 +33,16 @@
     下载的资料
     nginx-1.9.9.tar.gz
     libfastcommon-master.zip
-    FastDFS_v5.05.tar.gz
+    FastDFS_v5.05.tar.gz 这里后面替换成了fastdfs-5.11.tar.gz版本 步骤都是一样的
     fastdfs-nginx-module_v1.16.tar.gz
     
     用ftp工具或者用scp命令，这里采用scp命令
+    如下：资源位置
+![avatar](images/centos7_fdfs_relate_data.jpg)
+    
     scp fdfs_package/* root@172.16.144.145:/root/package/
-
+![avatar](images/centos7_scp_upload.jpg)
+![avatar](images/centos7_scp_after_upload.jpg)
 
     
     
@@ -90,6 +94,45 @@
     cp conf/* /etc/fdfs/
 ![avatar](images/centos7_cp_fdfs_conf_etc.jpg) 
 
+
+**2.4.4 配置tracker 、storage & 启动项** 
+
+    在tom用户下，创建用于存储fastdfs等软件运行产生的文件、日志等
+![avatar](images/centos7_root2tom.jpg) 
+    
+    从tom用户切换到root用户，进行配置文件配置
+![avatar](images/centos7_tom2root.jpg) 
+    
+    配置tracker.conf
+    cd /etc/fdfs/
+    vim tracker.conf
+    shift+q调出退出命令行输入wq!保存退出
+![avatar](images/centos7_edit_tracker.jpg)
+![avatar](images/centos7_save_edit_tracker.jpg)
+![avatar](images/centos7_wq_save_tracker.jpg)
+    
+    配置storage
+    vim storage.conf
+    shift+q调出退出命令行输入wq!保存退出
+![avatar](images/centos7_edit_storage_01.jpg)
+![avatar](images/centos7_edit_storage_02.jpg)
+![avatar](images/centos7_edit_storage_03.jpg)
+ 
+    启动看看是否成功,版本换成了5.11版本
+    
+    service fdfs_trackerd start (或者systemctl start fdfs_trackerd)
+    service fdfs_storaged start (或者systemctl start fdfs_storaged)
+    ps -ef | grep fdfs
+![avatar](images/centos7_i_am_ok.jpg)  
+
+    
+    
+    
+ 
+    
+    
+        
+    
 
     
 
