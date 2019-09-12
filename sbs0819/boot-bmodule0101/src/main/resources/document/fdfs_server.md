@@ -37,12 +37,8 @@
     fastdfs-nginx-module_v1.16.tar.gz
     
     用ftp工具或者用scp命令，这里采用scp命令
-    如下：资源位置
-![avatar](images/centos7_fdfs_relate_data.jpg)
-    
     scp fdfs_package/* root@172.16.144.145:/root/package/
-![avatar](images/centos7_scp_upload.jpg)
-![avatar](images/centos7_scp_after_upload.jpg)
+
 
     
     
