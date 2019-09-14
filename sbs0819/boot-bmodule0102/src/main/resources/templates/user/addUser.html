@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>增加用户</title>
+    <link rel="stylesheet" href="../layuimini/lib/layui-v2.5.4/css/layui.css" media="all">
+    <link rel="stylesheet" href="../layuimini/css/public.css" media="all">
+    <style>
+        .layui-btn:not(.layui-btn-lg ):not(.layui-btn-sm):not(.layui-btn-xs) {
+            height: 34px;
+            line-height: 34px;
+            padding: 0 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <form class="layui-form" action="" lay-filter="example">
+            <input type="number" class="layui-hide" name="id" id="userId">
+            <div class="layui-form" lay-filter="layuiadmin-form-useradmin" id="layuiadmin-form-useradmin"
+                 style="padding: 20px 0 0 0;">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="userName" lay-verify="required" placeholder="请输入用户名" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">密码</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="password" lay-verify="required" placeholder="请输入密码" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">年龄</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="age" placeholder="请输入年龄" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item" lay-filter="sex">
+                    <label class="layui-form-label">选择性别</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="sex" value="0" title="男" checked="">
+                        <input type="radio" name="sex" value="1" title="女">
+                        <input type="radio" name="sex" value="2" title="神秘">
+                    </div>
+                </div>
+                <hr/>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="save">提交</button>
+                        <button type="button" class="layui-btn layui-btn-primary" id="close" lay-filter="close">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../layuimini/lib/layui-v2.5.4/layui.js" charset="utf-8"></script>
+<script src="../layuimini/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script>
+    //JavaScript代码区域
+    layui.use(['form', 'layedit'], function () {
+        var form = layui.form;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+
+        // 提交
+        form.on('submit(save)', function (data) {
+            var url = data.field.id ? '/user/update' : '/user/add';
+            var tips = data.field.id ? '编辑' : '新增';
+            $.ajax({
+                url: url,
+                data: JSON.stringify(data.field),
+                contentType: 'application/json;charset=UTF-8',
+                cache: false,
+                async: false,
+                type: "POST",
+                dataType: 'json',
+                success: function (result) {
+                    console.log(result);
+                    if (result.success) {
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layui.table.reload('user-table', {page: {curr: 1}}); //主页代码，第一个参数为： 父页面的表格属性 id名
+                        parent.layer.close(index); //成功再执行关闭
+                        parent.layer.msg(tips + "成功", {
+                            icon: 6
+                        });
+                    } else {
+                        layer.msg(result.msg);
+
+                    }
+                },
+                error: function (res) {
+                }
+            });
+            return false;
+        });
+
+        // 关闭
+        $('#close').click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index); //成功再执行关闭
+        })
+
+
+        var userId = $("#userId").val();
+        if (userId) {
+            console.log('userId=' + userId);
+            $.ajax({
+                url: '/user/detail/' + userId,
+                method: 'get',
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.success) {
+                        // parent.closeIframe(res.msg);
+                        console.log(res);
+                        form.val('example', {
+                            "userName": res.data.userName
+                            , "password": res.data.password
+                            , "sex": res.data.sex
+                            , "age": res.data.age
+                        })
+                    } else
+                        layer.msg(res.msg);
+                },
+                error: function (data) {
+                }
+            });
+        }
+
+    });
+
+
+</script>
+</body>
+</html>
