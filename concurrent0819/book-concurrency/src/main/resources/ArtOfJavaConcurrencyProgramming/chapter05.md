@@ -338,4 +338,66 @@
     重进入：任意线程在获取到锁之后能够再次获取该锁而不会被锁锁阻塞
     要解决以下两个问题，才能实现重进入
     1.线程再次获取锁：锁需要去识别获取锁的线程是否为当前占据锁的线程，若果是，则在次成功获取
-    2.锁的最终是释放：
+    2.锁的最终是释放：线程重复n次去识别取了锁，状态值累加n次，被释放时，计数自减，计数等于0，表示成功释放
+    
+    // 非公平 加锁
+    final boolean nonfairTryAcquire(int acquires) {
+        final Thread current = Thread.currentThread();
+        int c = getState();
+        if (c == 0) {
+            if (compareAndSetState(0, acquires)) {
+                setExclusiveOwnerThread(current);
+                return true;
+            }
+        }
+        else if (current == getExclusiveOwnerThread()) {
+            // 同一个线程，计数器加 acquires，
+            int nextc = c + acquires;
+            if (nextc < 0) // overflow
+                throw new Error("Maximum lock count exceeded");
+            setState(nextc);
+            return true;
+        }
+        return false;
+    }
+    
+    // 释放锁
+    protected final boolean tryRelease(int releases) {
+        int c = getState() - releases;
+        if (Thread.currentThread() != getExclusiveOwnerThread())
+            throw new IllegalMonitorStateException();
+        boolean free = false;
+        if (c == 0) {
+            free = true;
+            setExclusiveOwnerThread(null);
+        }
+        setState(c);
+        return free;
+    }
+    
+#### 5.3.2 公平与非公平获取锁的区别
+    
+     
+     protected final boolean tryAcquire(int acquires) {
+         final Thread current = Thread.currentThread();
+         int c = getState();
+         if (c == 0) {
+             // 区别在这里，多了个hasQueuedPredecessors()方法的判断条件
+             // 表示加入同步对列中当前节点是否有前驱节点，如果该方法返回true，表示有线程比当前线程个更早地请求获取锁，因此需要等待前驱线程获取并释放锁
+             if (!hasQueuedPredecessors() &&
+                 compareAndSetState(0, acquires)) {
+                 setExclusiveOwnerThread(current);
+                 return true;
+             }
+         }
+         else if (current == getExclusiveOwnerThread()) {
+             int nextc = c + acquires;
+             if (nextc < 0)
+                 throw new Error("Maximum lock count exceeded");
+             setState(nextc);
+             return true;
+         }
+         return false;
+     }   
+    
+    
