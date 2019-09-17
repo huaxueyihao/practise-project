@@ -398,6 +398,145 @@
              return true;
          }
          return false;
-     }   
+     }
+     
+     
+     // 如下，代码可以看出公平和非公平的区别
+     package com.book.study.ArtOfJavaConcurrencyProgramming.chapter05;
+     import org.junit.Test;
+     import java.io.IOException;
+     import java.util.ArrayList;
+     import java.util.Collection;
+     import java.util.Collections;
+     import java.util.List;
+     import java.util.concurrent.locks.ReentrantLock;
+     
+     public class FairAndUnfairTest {
+     
+         private static RenntrantLock2 fairLock = new RenntrantLock2(true);
+     
+         private static RenntrantLock2 unfairLock = new RenntrantLock2(false);
+     
+     
+         @Test
+         public void testFair() throws IOException {
+             testLock(fairLock);
+         }
+     
+         @Test
+         public void testUnFair() throws IOException {
+             testLock(unfairLock);
+         }
+     
+         private void testLock(RenntrantLock2 lock) throws IOException {
+             for (int i = 0; i < 5; i++) {
+                 new Job(lock, "" + i).start();
+             }
+             System.in.read();
+         }
+     
+         private static class Job extends Thread {
+             private RenntrantLock2 lock;
+     
+             public Job(RenntrantLock2 lock, String name) {
+                 super(name);
+                 this.lock = lock;
+             }
+     
+             public void run() {
+                 for (int i = 0; i < 5; i++) {
+                     lock.lock();
+                     try {
+                         try {
+                             Thread.sleep(1000);
+                         } catch (InterruptedException e) {
+                             e.printStackTrace();
+                         }
+                         System.out.println("lock by [" + Thread.currentThread().getName() + "],wait by " + lock.getQueuedThreads());
+                     } finally {
+                         lock.unlock();
+                     }
+                 }
+             }
+     
+             @Override
+             public String toString() {
+                 return getName();
+             }
+         }
+     
+     
+         private static class RenntrantLock2 extends ReentrantLock {
+             public RenntrantLock2(boolean fair) {
+                 super(fair);
+             }
+     
+             @Override
+             protected Collection<Thread> getQueuedThreads() {
+                 List<Thread> arrayList = new ArrayList<Thread>(super.getQueuedThreads());
+                 Collections.reverse(arrayList);
+                 return arrayList;
+             }
+         }
+     }
+     
+     testFair输出如下，明显等待对列中是按请求顺序进行执行的
+     
+     lock by [0],wait by [1, 2, 3, 4]
+     lock by [1],wait by [2, 3, 4, 0]
+     lock by [2],wait by [3, 4, 0, 1]
+     lock by [3],wait by [4, 0, 1, 2]
+     lock by [4],wait by [0, 1, 2, 3]
+     lock by [0],wait by [1, 2, 3, 4]
+     lock by [1],wait by [2, 3, 4, 0]
+     lock by [2],wait by [3, 4, 0, 1]
+     lock by [3],wait by [4, 0, 1, 2]
+     lock by [4],wait by [0, 1, 2, 3]
+     lock by [0],wait by [1, 2, 3, 4]
+     lock by [1],wait by [2, 3, 4, 0]
+     lock by [2],wait by [3, 4, 0, 1]
+     lock by [3],wait by [4, 0, 1, 2]
+     lock by [4],wait by [0, 1, 2, 3]
+     lock by [0],wait by [1, 2, 3, 4]
+     lock by [1],wait by [2, 3, 4, 0]
+     lock by [2],wait by [3, 4, 0, 1]
+     lock by [3],wait by [4, 0, 1, 2]
+     lock by [4],wait by [0, 1, 2, 3]
+     lock by [0],wait by [1, 2, 3, 4]
+     lock by [1],wait by [2, 3, 4]
+     lock by [2],wait by [3, 4]
+     lock by [3],wait by [4]
+     lock by [4],wait by []
+     
+     testUnFair输出，由于重入性，同一个线程会连续执行多次
+     lock by [0],wait by [1, 2, 3, 4]
+     lock by [0],wait by [1, 2, 3, 4]
+     lock by [0],wait by [1, 2, 3, 4]
+     lock by [0],wait by [1, 2, 3, 4]
+     lock by [0],wait by [1, 2, 3, 4]
+     lock by [1],wait by [2, 3, 4]
+     lock by [1],wait by [2, 3, 4]
+     lock by [1],wait by [2, 3, 4]
+     lock by [1],wait by [2, 3, 4]
+     lock by [1],wait by [2, 3, 4]
+     lock by [2],wait by [3, 4]
+     lock by [3],wait by [4, 2]
+     lock by [3],wait by [4, 2]
+     lock by [3],wait by [4, 2]
+     lock by [4],wait by [2, 3]
+     lock by [4],wait by [2, 3]
+     lock by [4],wait by [2, 3]
+     lock by [4],wait by [2, 3]
+     lock by [4],wait by [2, 3]
+     lock by [2],wait by [3]
+     lock by [2],wait by [3]
+     lock by [2],wait by [3]
+     lock by [2],wait by [3]
+     lock by [3],wait by []
+     lock by [3],wait by []
+
+
+     
+        
     
     
