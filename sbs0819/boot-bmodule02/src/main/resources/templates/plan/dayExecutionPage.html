@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>menu</title>
+    <link rel="stylesheet" href="../layuimini/lib/layui-v2.5.4/css/layui.css" media="all">
+    <link rel="stylesheet" href="../layuimini/css/public.css" media="all">
+    <link rel="stylesheet" href="../layuimini/lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="../layuimini/js/lay-module/formSelects/formSelects-v4.css" media="all">
+    <!--        <link rel="stylesheet" href="../layuimini/js/lay-module/treeSelect/ztree/ztree.css" media="all">-->
+    <!--        <link rel="stylesheet" href="../layuimini/js/lay-module/treeSelect/treeSelect/treeSelect.css" media="all">-->
+    <style>
+        .layui-btn:not(.layui-btn-lg ):not(.layui-btn-sm):not(.layui-btn-xs) {
+            height: 34px;
+            line-height: 34px;
+            padding: 0 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <form class="layui-form" action="" lay-filter="example">
+            <input type="hidden" name="id" id="primaryKey">
+            <div class="layui-form" lay-filter="layuiadmin-form-useradmin" id="layuiadmin-form-useradmin"
+                 style="padding: 20px 0 0 0;">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">主题</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="title" lay-verify="required" placeholder="请输入用户名"
+                                   autocomplete="off"
+                                   class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">类型</label>
+                        <div class="layui-input-inline">
+                            <select name="typeName"  xm-select="select1" xm-select-radio="" xm-select-search="" lay-verify="required" lay-search="">
+                                <option value="">直接选择或搜索选择</option>
+<!--                                <option value="1">layer</option>-->
+<!--                                <option value="2">form</option>-->
+<!--                                <option value="3">layim</option>-->
+<!--                                <option value="4">element</option>-->
+                            </select>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="layui-form-item">
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">开始时间</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" name="startTime" id="startTime" autocomplete="off"
+                                   placeholder="yyyy-MM-dd HH:mm:ss">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">结束时间</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" name="endTime" id="endTime" autocomplete="off"
+                                   placeholder="yyyy-MM-dd HH:mm:ss">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">地点</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="location" placeholder="" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-block">
+                        <textarea placeholder="请输入内容" name="remark" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item">
+
+                </div>
+
+                <hr/>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="save">提交</button>
+                        <button type="button" class="layui-btn layui-btn-primary" id="close" lay-filter="close">
+                            关闭
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- 操作列 -->
+<script type="text/html" id="auth-state">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script src="../layuimini/lib/layui-v2.5.4/layui.js" charset="utf-8"></script>
+<script src="../layuimini/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<!--<script src="../layuimini/js/lay-module/formSelects/formSelects.js" charset="utf-8"></script>-->
+<script>
+
+    layui.config({
+        base: '../layuimini/js/lay-module/' //此处路径请自行处理, 可以使用绝对路径
+    }).extend({
+        formSelects: 'formSelects/formSelects'
+    });
+
+    layui.use(['table', 'treetable', 'treeSelect', 'form', 'iconPickerFa', 'laydate','formSelects'], function () {
+        var $ = layui.jquery;
+        var form = layui.form;
+        var formSelects = layui.formSelects
+            , iconPickerFa = layui.iconPickerFa,
+            laydate = layui.laydate
+
+
+
+        laydate.render({
+            elem: '#startTime'
+            , type: 'datetime'
+        });
+
+        laydate.render({
+            elem: '#endTime'
+            , type: 'datetime'
+        });
+
+        // 类型加载
+
+        formSelects.data('select1', 'server', {
+            url: '/planType/getAll'
+        });
+
+        // formSelects.config('select1', {
+        //     type: 'get',                //请求方式: post, get, put, delete...
+        //     header: {},                 //自定义请求头
+        //     data: {},                   //自定义除搜索内容外的其他数据
+        //     searchUrl: 'sa/df',              //搜索地址, 默认使用xm-select-search的值, 此参数优先级高
+        //     searchName: 'keyword',      //自定义搜索内容的key值
+        //     searchVal: '',              //自定义搜索内容, 搜素一次后失效, 优先级高于搜索框中的值
+        //     keyName: 'name',            //自定义返回数据中name的key, 默认 name
+        //     keyVal: 'value',            //自定义返回数据中value的key, 默认 value
+        //     keySel: 'selected',         //自定义返回数据中selected的key, 默认 selected
+        //     keyDis: 'disabled',         //自定义返回数据中disabled的key, 默认 disabled
+        //     keyChildren: 'children',    //联动多选自定义children
+        //     delay: 500,                 //搜索延迟时间, 默认停止输入500ms后开始搜索
+        //     direction: 'auto',          //多选下拉方向, auto|up|down
+        //     response: {
+        //         statusCode: 0,          //成功状态码
+        //         statusName: 'code',     //code key
+        //         msgName: 'msg',         //msg key
+        //         dataName: 'data'        //data key
+        //     },
+        //     success: function(id, url, searchVal, result){      //使用远程方式的success回调
+        //         console.log(id);        //组件ID xm-select
+        //         console.log(url);       //URL
+        //         console.log(searchVal); //搜索的value
+        //         console.log(result);    //返回的结果
+        //     },
+        //     error: function(id, url, searchVal, err){           //使用远程方式的error回调
+        //         //同上
+        //         console.log(err);   //err对象
+        //     },
+        //     beforeSuccess: function(id, url, searchVal, result){        //success之前的回调, 干嘛呢? 处理数据的, 如果后台不想修改数据, 你也不想修改源码, 那就用这种方式处理下数据结构吧
+        //         console.log(id);        //组件ID xm-select
+        //         console.log(url);       //URL
+        //         console.log(searchVal); //搜索的value
+        //         console.log(result);    //返回的结果
+        //
+        //         return result;  //必须return一个结果, 这个结果要符合对应的数据结构
+        //     },
+        //     beforeSearch: function(id, url, searchVal){         //搜索前调用此方法, return true将触发搜索, 否则不触发
+        //         if(!searchVal){//如果搜索内容为空,就不触发搜索
+        //             return false;
+        //         }
+        //         return true;
+        //     },
+        //     clearInput: false,          //当有搜索内容时, 点击选项是否清空搜索内容, 默认不清空
+        // }, true);
+
+
+
+
+        // 提交
+        form.on('submit(save)', function (data) {
+            var url = data.field.id ? '/planDayExecution/update' : '/planDayExecution/add';
+            var tips = data.field.id ? '编辑' : '新增';
+            console.log(data.field);
+            $.ajax({
+                url: url,
+                data: JSON.stringify(data.field),
+                contentType: 'application/json;charset=UTF-8',
+                cache: false,
+                async: false,
+                type: "POST",
+                dataType: 'json',
+                success: function (result) {
+                    console.log(result);
+                    if (result.success) {
+                        // var index = parent.layer.getFrameIndex(window.name);
+                        // parent.layui.table.reload('plan-type-table'); //主页代码，第一个参数为： 父页面的表格属性 id名
+                        // parent.layer.close(index); //成功再执行关闭
+                        // parent.layer.msg(tips + "成功", {
+                        //     icon: 6
+                        // });
+                        parent.location.reload();
+                    } else {
+                        layer.msg(result.msg);
+
+                    }
+                },
+                error: function (res) {
+                }
+            });
+            return false;
+        });
+
+        // 关闭
+        $('#close').click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index); //成功再执行关闭
+        })
+
+
+        var primaryKey = $("#primaryKey").val();
+        if (primaryKey) {
+            $.ajax({
+                url: '/planType/detail/' + primaryKey,
+                method: 'get',
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.success) {
+                        form.val('example', {
+                            "typeName": res.data.typeName
+                            , "typeDesc": res.data.typeDesc
+                        })
+
+                    } else
+                        layer.msg(res.msg);
+                },
+                error: function (data) {
+                }
+            });
+        } else {
+        }
+
+
+    });
+</script>
+</body>
+</html>

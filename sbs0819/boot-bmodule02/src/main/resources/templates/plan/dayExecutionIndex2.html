@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>layout 后台大布局 - Layui</title>
+    <link rel="stylesheet" href="../layuimini/lib/layui-v2.5.4/css/layui.css" media="all">
+    <link rel="stylesheet" href="../layuimini/css/public.css" media="all">
+
+    <link rel="stylesheet" href="../layuimini/css/public.css" media="all">
+
+    <link href='../fullcalendar/core/main.css' rel='stylesheet'/>
+    <link href='../fullcalendar/daygrid/main.css' rel='stylesheet'/>
+    <link href='../fullcalendar/timegrid/main.css' rel='stylesheet'/>
+    <link href='../fullcalendar/list/main.css' rel='stylesheet'/>
+
+    <script src='../fullcalendar/core/main.js'></script>
+    <script src='../fullcalendar/daygrid/main.js'></script>
+    <script src='../fullcalendar/interaction/main.js'></script>
+    <script src='../fullcalendar/timegrid/main.js'></script>
+    <script src='../fullcalendar/list/main.js'></script>
+
+
+
+
+    <style>
+        .layui-btn:not(.layui-btn-lg ):not(.layui-btn-sm):not(.layui-btn-xs) {
+            height: 34px;
+            line-height: 34px;
+            padding: 0 8px;
+        }
+
+        body {
+            margin: 40px 10px;
+            padding: 0;
+            font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+<!--        <fieldset class="layui-elem-field layuimini-search">-->
+<!--            <legend>搜索信息</legend>-->
+<!--            <div style="margin: 10px 10px 10px 10px">-->
+<!--                <form class="layui-form layui-form-pane" action="">-->
+<!--                    <div class="layui-form-item">-->
+<!--                        <div class="layui-inline">-->
+<!--                            <label class="layui-form-label">时间</label>-->
+<!--                            <div class="layui-input-inline">-->
+<!--                                <input type="text" name="typeDesc" autocomplete="off" class="layui-input">-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        <div class="layui-inline">-->
+<!--                            <label class="layui-form-label">状态</label>-->
+<!--                            <div class="layui-input-inline">-->
+<!--                                <input type="text" name="typeDesc" autocomplete="off" class="layui-input">-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        <div class="layui-inline">-->
+<!--                            <a class="layui-btn" lay-submit="" lay-filter="day-execution-search-btn">搜索</a>-->
+
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </form>-->
+<!--            </div>-->
+<!--        </fieldset>-->
+
+        <button class="layui-btn data-add-btn" id="day-execution-add">添加</button>
+
+        <div>
+            <div id='calendar'></div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+<script src="../layuimini/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script src="../layuimini/lib/layui-v2.5.4/layui.js" charset="utf-8"></script>
+<script src="../layuimini/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script>
+
+    layui.use(['table', 'layuimini', 'element', 'utilTool', 'form'], function () {
+        var layer = layui.layer //弹层
+            , table = layui.table //表格
+            , $ = layui.jquery
+            , form = layui.form
+            , utilTool = layui.utilTool
+
+        $('#day-execution-add').click(function () {
+
+            layer.open({
+                type: 2,
+                title: "增加类型",
+                area: ['700px', '530px'],
+                shade: 0.7,
+                shadeClose: true,
+                scrollbar: true,
+                resize: true,
+                maxmin: true,
+                content: ["/plan/dayExecutionPage", 'yes'],
+            });
+
+        })
+
+
+
+
+
+
+    })
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+
+        var eventData = [];
+
+
+        // $.ajaxSettings.async = false
+        $.ajax({
+            url: '/planDayExecution/getAll',
+            method: 'get',
+            // data: JSON.stringify(ids),
+            // contentType: 'application/json;charset=UTF-8',
+            dataType: 'JSON',
+            success: function (res) {
+                if (res.success) {
+                    console.log('dd');
+                    console.log(res.data);
+                    console.log('jsj');
+                    // eventData = res.data;
+                    res.data.forEach(function(item,index){
+                        calendar.addEvent(item);
+                    })
+                    calendar.executeRender();
+                } else {
+                    layer.msg(res.msg, {
+                        icon: 7
+                    });
+                }
+            },
+            error: function (data) {
+            }
+        });
+        // $.ajaxSettings.async = true;
+
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: ['dayGrid', 'timeGrid', 'list', 'interaction'],
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            },
+            // defaultDate: '',
+            navLinks: true, // can click day/week names to navigate views
+            editable: true,
+            eventLimit: true, // allow "more" link when too many events
+            dateClick: function () {
+                alert('a day has been clicked!');
+
+
+            },
+            eventClick: function (info) {
+                // alert(info);
+                console.log(info);
+                console.log(info.event);
+
+
+            },
+            events: eventData
+                // [
+                // {
+                //     title: 'All Day Event',
+                //     start: '2019-09-16',
+                //     textColor: '#8fdf82',
+                //     backgroundColor: '#9e5fff'
+                // },
+                // {
+                //     title: 'Long Event',
+                //     start: '2019-09-16T20:00:00',
+                //     end: '2019-09-16T22:00:00',
+                //     textColor: '#8fdf82',
+                // },
+                // {
+                //     groupId: 999,
+                //     title: 'Repeating Event',
+                //     start: '2019-09-16T10:00:00',
+                //     textColor: '#8fdf82',
+                //     backgroundColor: '#00a9ff'
+                //
+                // },
+                // {
+                //     groupId: 999,
+                //     title: 'Repeating Event',
+                //     start: '2019-09-16T16:00:00',
+                //     textColor: '#8fdf82',
+                //     backgroundColor: '#00a9ff'
+                //
+                // },
+                // {
+                //     title: 'Conference',
+                //     start: '2019-06-11',
+                //     end: '2019-06-13',
+                //     textColor: '#8fdf82'
+                // },
+                // {
+                //     title: 'Meeting',
+                //     start: '2019-06-12T10:30:00',
+                //     end: '2019-06-12T12:30:00',
+                //     textColor: '#8fdf82',
+                // },
+                // {
+                //     title: 'Lunch',
+                //     start: '2019-06-12T12:00:00'
+                // },
+                // {
+                //     title: 'Meeting',
+                //     start: '2019-06-12T14:30:00'
+                // },
+                // {
+                //     title: 'Happy Hour',
+                //     start: '2019-06-12T17:30:00'
+                // },
+                // {
+                //     title: 'Dinner',
+                //     start: '2019-06-12T20:00:00'
+                // },
+                // {
+                //     title: 'Birthday Party',
+                //     start: '2019-06-13T07:00:00'
+                // },
+                // {
+                //     title: 'Click for Google',
+                //     url: 'http://google.com/',
+                //     start: '2019-06-28'
+                // }
+            // ]
+        });
+
+        calendar.render();
+    });
+
+
+</script>
+</html>

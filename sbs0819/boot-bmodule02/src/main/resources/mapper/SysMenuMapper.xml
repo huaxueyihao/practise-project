@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.study.mapper.SysMenuMapper">
+
+    <resultMap id="BaseResultMap" type="com.boot.study.model.SysMenu">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="parent_id" jdbcType="BIGINT" property="parentId"/>
+        <result column="menu_name" jdbcType="VARCHAR" property="menuName"/>
+        <result column="little_icon" jdbcType="VARCHAR" property="littleIcon"/>
+        <result column="route_url" jdbcType="VARCHAR" property="routeUrl"/>
+        <result column="target" jdbcType="VARCHAR" property="target"/>
+        <result column="leaf_node" jdbcType="SMALLINT" property="leafNode"/>
+        <result column="menu_type" jdbcType="SMALLINT" property="menuType"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectByParentId" resultMap="BaseResultMap">
+        select t.* from sys_menu t where t.parent_id = #{parentId}
+    </select>
+
+    <update id="updateLeafNodeById" >
+        update sys_menu set leaf_node = #{leafNode} where id = #{id}
+    </update>
+
+</mapper>
