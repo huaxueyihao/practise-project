@@ -18,14 +18,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
      * controller请求拦截器
      * @param registry
      */
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
 //        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/","/**")
 //                .excludePathPatterns("/loginPage","/login")
 //                .excludePathPatterns("/**/*.html","/**/*.css", "/**/*.js",
 //                        "/**/*.png", "/**/*.jpg", "/**/*.jpeg","/**/*.svg",
 //                        "/**/*.min.css","/**/*.ttf","/**/*.woff");
-    }
+//    }
 
     /**
      * 静态资源位置映射
