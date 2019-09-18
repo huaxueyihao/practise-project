@@ -561,5 +561,57 @@
  |boolean isWriteLocked()|写锁是否被获取|
  |boolean getWriteHoldCount()|返回当前写锁被获取的次数|
         
+      缓存示例
+      public class Cache {
+      
+          static Map<String, Object> map = new HashMap<>();
+      
+          static ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+      
+          static Lock r = rwl.readLock();
+      
+          static Lock w = rwl.writeLock();
+      
+          // 获取一个key对应的value
+          public static final Object get(String key) {
+              r.lock();
+              try {
+                  return map.get(key);
+              } finally {
+                  r.unlock();
+              }
+          }
+      
+          // 设置key对应的value，并返回旧的value
+          public static final Object put(String key, Object value) {
+              w.lock();
+              try {
+                  return map.put(key, value);
+              } finally {
+                  w.unlock();
+              }
+          }
+      
+          // 清空所有的内容
+          public static final void clear() {
+              w.lock();
+              try {
+                  map.clear();
+              } finally {
+                  w.unlock();
+              }
+          }
+      }
+      
+      
+### 5.4.2 读写锁的实现分析
+**1 读写状态设计**
+
+    1.ReentrantLock中自定义同步器实现，同步状态表示被一个线程重复获取的次数
+    2.读写锁定义同步器需要在同步状态(一个整型变量)上维护多个线程和一个写线程的状态。
+    3.如下图，将同步状态变量切分为高16位（读状态），低16位(写状态)
+    
+![avatar](images/ReadWriteReenterantLock_state_design.jpg)
+    
     
     
