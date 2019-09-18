@@ -13,5 +13,8 @@
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
 
+    <select id="selectByUserName" resultMap="BaseResultMap">
+        select t.* from sys_user t where t.user_name = #{userName}
+    </select>
 
 </mapper>
