@@ -610,8 +610,67 @@
     1.ReentrantLock中自定义同步器实现，同步状态表示被一个线程重复获取的次数
     2.读写锁定义同步器需要在同步状态(一个整型变量)上维护多个线程和一个写线程的状态。
     3.如下图，将同步状态变量切分为高16位（读状态），低16位(写状态)
+    4.若同步状态为S，写状态等于$&0x0000FFFF（抹掉高位的16位），读状态等于S>>>16（无符号补0右移16位）
+    当写状态加1时，等于S+1，读状态加1时，等于S+(1<<16)，也就是S+0x00010000.
+    5.推论:S不等于0时，当写状态($&0x0000FFFF)等于0时，则读状态(S>>>16)大于0，即读锁已被获取
+    
     
 ![avatar](images/ReadWriteReenterantLock_state_design.jpg)
+
+**2 写锁的获取与释放**
     
+     protected final boolean tryAcquire(int acquires) {
+         /*
+          * Walkthrough:
+          * 1. If read count nonzero or write count nonzero
+          *    and owner is a different thread, fail.
+          * 2. If count would saturate, fail. (This can only
+          *    happen if count is already nonzero.)
+          * 3. Otherwise, this thread is eligible for lock if
+          *    it is either a reentrant acquire or
+          *    queue policy allows it. If so, update state
+          *    and set owner.
+          */
+         Thread current = Thread.currentThread();
+         int c = getState(); // c !=0 说明有锁，需要进一步判断 是读锁还是写锁
+         int w = exclusiveCount(c);// w != 0 说明是写锁
+         if (c != 0) {
+             // (Note: if c != 0 and w == 0 then shared count != 0)
+             // 这里说明当前是读锁，w==0(且c!=0 说明读锁获取了同步状态) 说明是不存在写锁 或者（写锁是独占锁，有且只有一个线程持有同步状态）
+             // 若是当前线程==同步状态的独占线程，也说明是写锁线程获得了同步状态;反之不相等,则说明是读锁
+             if (w == 0 || current != getExclusiveOwnerThread())
+                 return false;
+             // 走到这里 说明 写锁可以获取同步状态，但是需要校验(低位16位，有个上最大值)写锁独占重入(有待确定是否是重入)次数是否超过最大值
+             if (w + exclusiveCount(acquires) > MAX_COUNT)
+                 throw new Error("Maximum lock count exceeded");
+             // Reentrant acquire
+             // 这里设置写锁的独占状态(也即是次数)
+             setState(c + acquires);
+             return true;
+         }
+         // 这里
+         if (writerShouldBlock() ||
+             !compareAndSetState(c, c + acquires))
+             return false;
+         // 设置独占线程
+         setExclusiveOwnerThread(current);
+         return true;
+     }
+     
+     NonfairSync非公平锁
+     final boolean writerShouldBlock() {
+         return false; // writers can always barge
+     }
+     
+     FairSync公平锁(有前置节点，则被阻塞)
+     final boolean writerShouldBlock() {
+         return hasQueuedPredecessors();
+     }
     
+**3 读锁的获取与释放** 
     
+    1.读锁是一个支持重入的共享锁，它能够被多个线程同时获取
+    2.读锁获取到同步状态，读状态增加，读状态是所有线程获取读锁次数的总和
+    每个线程获取读锁的次数保存在ThreadLocal中，由线程自身维护
+    
+     
