@@ -672,5 +672,61 @@
     1.读锁是一个支持重入的共享锁，它能够被多个线程同时获取
     2.读锁获取到同步状态，读状态增加，读状态是所有线程获取读锁次数的总和
     每个线程获取读锁的次数保存在ThreadLocal中，由线程自身维护
-    
      
+    protected final int tryAcquireShared(int unused) {
+        /*
+         * Walkthrough:
+         * 1. If write lock held by another thread, fail.
+         * 2. Otherwise, this thread is eligible for
+         *    lock wrt state, so ask if it should block
+         *    because of queue policy. If not, try
+         *    to grant by CASing state and updating count.
+         *    Note that step does not check for reentrant
+         *    acquires, which is postponed to full version
+         *    to avoid having to check hold count in
+         *    the more typical non-reentrant case.
+         * 3. If step 2 fails either because thread
+         *    apparently not eligible or CAS fails or count
+         *    saturated, chain to version with full retry loop.
+         */
+        Thread current = Thread.currentThread();
+        int c = getState();
+        // 独占状态!=0 说明有写锁，并且独占线程!=当前线程
+        if (exclusiveCount(c) != 0 &&
+            getExclusiveOwnerThread() != current)
+            return -1;
+        int r = sharedCount(c);
+        // 读锁没有被阻塞，且读状态值没有超过最大值，且compareAndSetState设置读状态成功
+        if (!readerShouldBlock() &&
+            r < MAX_COUNT &&
+            compareAndSetState(c, c + SHARED_UNIT)) {
+            
+            // 对每个读线程进入同步状态，重入次数维护(这里比较难理解)
+            if (r == 0) {
+                firstReader = current;
+                firstReaderHoldCount = 1;
+            } else if (firstReader == current) {
+                firstReaderHoldCount++;
+            } else {
+                HoldCounter rh = cachedHoldCounter;
+                if (rh == null || rh.tid != getThreadId(current))
+                    cachedHoldCounter = rh = readHolds.get();
+                else if (rh.count == 0)
+                    readHolds.set(rh);
+                rh.count++;
+            }
+            return 1;
+        }
+        // 首次获取读锁失败后，重试获取(这里不是很理解，后面回头过来接着看)
+        return fullTryAcquireShared(current);
+    }
+     
+**4 锁降级** 
+
+    锁降级指写锁降级称为读锁。当前线程拥有写锁，让后将其释放，最好再获取读锁，这种分段完成的过程
+    读锁不能称之为锁降级。锁降级是指把持住（当前拥有的）写锁，再获取到读锁，随后释放(先前拥有的)写锁的过程
+    
+    呵呵 这个真的懵逼(先放一放)
+
+    
+    
