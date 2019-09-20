@@ -729,4 +729,67 @@
     呵呵 这个真的懵逼(先放一放)
 
     
+### 5.5 LockSupport工具
+    
+     LockSupport定义了一组以park开头的方法用来阻塞当前线程，以及unpark(Thread thread)方法来唤醒一个被阻塞的线程，方法如下
+     
+ |方法名称|描述|
+ |:----|:----|
+ |void park()|阻塞当前线程，如果调用unpark(Thread thread)方法或者当前线程被中断，才能从park()方法返回|
+ |void parkNanos(long nanos)|阻塞当前线程，最长不超过nanos纳秒，返回条件在park()的基础上增加了超时返回|
+ |void parkUntil(long deadline)|阻塞当前线程，直到deadline时间(从1970年开始到deadline时间的毫秒数)|
+ |void unpark(Thread thread)|唤醒处于阻塞状态的线程thread|
+       
+### 5.6 Condition接口
+
+    Condition接口提供了类似Object的监视器方法，与Lock配合可以实现等待/通知模式。
+    Object的监视器方法与Condition接口的对比
+    
+|对比项|Object Monitor Methods|Condition|
+|:----|:----|:----|
+|前置条件|获取对象的锁|调用Lock.lock()获取锁，调用Lock.newCondition()获取Condition对象|
+|调用方式|直接调用，如：object.wait()|直接调用，如：condition.await()|
+|等待对列个数|一个|多个|
+|当前线程释放锁并进入等待状态|支持|支持|
+|当前线程释放锁并进入等待状态，在等待状态中不断响应中断|不支持|支持|
+|当前线程释放锁并进入超时等待状态|支持|支持|
+|当前线程释放锁并进入等待状态到将来的某个时间|不支持|支持|
+|唤醒等待对列中的一个线程|支持|支持|
+|唤醒等待对列中的全部线程|支持|支持|
+
+
+#### 5.6.1 Condition接口
+
+    Condition定义了等待/通知两种类型的方法，当前线程调用这些方法时，需要提前获取到Condition对象关联的锁。
+    Condition对象是由Lock对象创建的
+
+    Lock lock = new ReeentrantLock();
+    Condition condition = lock.newCondition();
+    
+    public void conditionWait() throws InterruptedException{
+        lock.lock();
+        try{
+            condition.await();
+        }finally{
+            lock.unlock();
+        }
+    }
+    
+    public void conditionSignal() throws InterruptedException {
+        lock.lock();
+        try{
+            condition.signal();
+            
+        }finally{
+            lock.unlock();
+        }
+    }
+
+**Condition api 方法**  
+
+|方法名称|描述|
+|:----|:----|
+|void await() throws InterruptedException| 当前线程进入等待状态直到被通知(signal)或中断，当前线程将进入运行状态且从await()方法返回的情况，包括：|
+  
+
     
