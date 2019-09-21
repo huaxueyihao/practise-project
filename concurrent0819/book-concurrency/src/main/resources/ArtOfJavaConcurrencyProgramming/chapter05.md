@@ -789,7 +789,156 @@
 
 |方法名称|描述|
 |:----|:----|
-|void await() throws InterruptedException| 当前线程进入等待状态直到被通知(signal)或中断，当前线程将进入运行状态且从await()方法返回的情况，包括：|
-  
+|void await() throws InterruptedException| 当前线程进入等待状态直到被通知(signal)或中断，当前线程将进入运行状态且从await()方法返回的情况，包括：<br/> 其他线程调用该Condition的额signal()或signalAll()方法，而当前线程被选中唤醒<br/>其他线程(调用interrupt()方法)中断当前线程<br/> 如果当前等待线程从await()方法返回，那么表名该线程已经获取了Condition对象所对应的锁|
+|void awaitUninteruptibly()|当前线程进入等待状态被通知，对中断不敏感|
+|void awaitNanos(long nanosTimeout) throws InterruptedException|当前线程进入等待状态被通知、中断或者超时。返回值表示剩余的时间，如<br/>果在nanosTimeout纳秒之前被唤醒，那么返回值就是(nanosTimeout-实际耗时)。<br/>如果返回值是0或者负数，那么可以认定已经超时了|
+|long awaitUntil(Date deadline) throws InterruptedException|当前线程进入等待状态直到被通知、中断或者到某个时间。如果没有到指定时间<br/>就被通知，方法返回true，否则，表示到了指定时间，方法返回false|
+|void signal()|唤醒一个等待在Condition上的线程，该线程从等待方法返回前必须获得与Condition相关联的锁|
+|void signalAll()|唤醒所有等待在Condition上的线程，能够从等待方法返回的线程必须获得与Condition相关联的锁|  
 
+
+    public class BoundedQueue<T> {
     
+        private Object[] items;
+        private int addIndex, removeIndex, count;
+    
+        private Lock lock = new ReentrantLock();
+        private Condition notEmpty = lock.newCondition();
+        private Condition notFull = lock.newCondition();
+    
+        public BoundedQueue(int size) {
+            items = new Object[size];
+        }
+    
+        // 添加有个元素、如果数组满，则添加线程进入等待状态，直到有"空位"
+    
+        public void add(T t) throws InterruptedException {
+            lock.lock();
+            try {
+                while (count == items.length) {
+                    notFull.await();
+                }
+                if (++addIndex == items.length) {
+                    addIndex = 0;
+                }
+                ++count;
+                notEmpty.signal();
+    
+            } finally {
+                lock.unlock();
+            }
+    
+        }
+    
+        public T remove() throws InterruptedException {
+            lock.lock();
+            try {
+                while (count == 0) {
+                    notEmpty.await();
+                }
+                Object x = items[removeIndex];
+                if (++removeIndex == items.length) {
+                    removeIndex = 0;
+                }
+                --count;
+                notFull.signal();
+                return (T) x;
+    
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+    
+    当数组数量等于数组长度时，表示数组已满，则调用notFull.await()，当前线程随之释放锁并进入等待状态。
+    如果数组数量不等于数组长度，表示数组未满数组，则添加元素到数组中，同时通知的鞥带在notEmpty上的线程。
+
+#### 5.6.2 Condition的实现分析
+
+    1.ConditionObject是同步器AbstractQueuedSynchronizer的内部类，因为condition的操作需要获取相关联的锁
+    2.每个condition对象都包含着一个对列(一下成为等待对列)，该对列是Condition对象实现等待/通知功能的额关键。
+
+**1 等待对列**
+    
+    1.等待对列是一个FIFO的对列，在对列中的每个节点都包含了一个线程引用，该线程就是Condition对象上的等待线程
+    2.线程调用了Condition.await()方法，将会释放锁，构造节点加入等待对列并进入等待状态。
+    3.同步对列和等待对列中节点类型都是同步器的静态内部类
+    4.一个Condition包含由首节点fisrtWaiter和尾节点lastWaiter构成的等待对列，如下图
+    5.线程调用了Condition.await()方法，已当前线程构造节点，并从尾部加入到等待对列
+
+![avatar](images/Condition_wait_queue_01.jpg) 
+
+    6.Object的监视器模型上，一个对象又有一个同步对列和等待对列，而并发包中的Lock(更确切的说是同步器)拥有一个同步对列和多个等待对列
+    如下图：
+    
+![avatar](images/Condition_wait_queue_02.jpg)
+    
+**2 等待**  
+    
+    1.调用Condition的await()(或者以await开头的方法)，会使当前线程进入等待对列并释放锁，同时线程状态变为等待状态。
+    2.从await()方法返回时，当前线程一定获取了Condition相关联的锁
+    3.从对列(同步对列和等待对列)的角度看await(),当调用await()方法时，相当于同步对列的首节点(获取了锁的节点)移动到Condition的等待对列中。
+    4.调用await()方法的线程肯定获取了锁，即同步对列首节点，该方法会将该线程构造成节点加入等待对列中，然后释放同步对列，唤醒同步对列中的后继节点，
+    当前线程进入等待状态
+    5.等待对列中的节点被唤醒，则唤醒节点的线程开始尝试获取同步状态。
+    
+    ConditionObject的await方法
+    public final void await() throws InterruptedException {
+        if (Thread.interrupted())
+            throw new InterruptedException();
+        // 当前线程加入等待对列
+        Node node = addConditionWaiter();
+        int savedState = fullyRelease(node);
+        int interruptMode = 0;
+        // 释放同步状态，也就是释放锁
+        while (!isOnSyncQueue(node)) {
+            LockSupport.park(this);
+            if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
+                break;
+        }
+        if (acquireQueued(node, savedState) && interruptMode != THROW_IE)
+            interruptMode = REINTERRUPT;
+        if (node.nextWaiter != null) // clean up if cancelled
+            unlinkCancelledWaiters();
+        if (interruptMode != 0)
+            reportInterruptAfterWait(interruptMode);
+    }
+    
+**3 通知**   
+    
+    1.调用Condition的signal()方法，将会唤醒在等待对列中的等待时间最长的节点(首节点)，在
+    唤醒之前，会将节点移到同步对列中，如下图
+  
+![avatar](images/Condition_wait_queue_03.jpg)   
+    
+    2.signal方法，调用该方法的线程一定获取到了关联的锁。
+    
+    public final void signal() {
+        if (!isHeldExclusively())
+            throw new IllegalMonitorStateException();
+        Node first = firstWaiter;
+        if (first != null)
+            doSignal(first);
+    }
+    
+    3.获取等待对列的首节点，将其移动到同步对列并使用LockSupport唤醒节点中的线程
+    
+![avatar](images/Condition_wait_queue_04.jpg)
+
+    4.被唤醒的线程，将从await()方法中的while循环中退出(isOnSyncQueue(Node node)方法返回true，节点已经在同步对列中)，
+    进而调用同步器的acquireQueued()方法加入到获取同步状态的竞争中
+    5. signalAll()方法，相当于对等待对列中的每个节点均执行一次signal()方法，效果就是讲等待对列中所有节点全部移动到同步对列中，并唤醒每个节点的线程。  
+    
+ 
+    
+    
+
+
+
+   
+    
+    
+    
+    
+    
+
