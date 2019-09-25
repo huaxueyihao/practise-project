@@ -102,12 +102,209 @@
         this.segments = ss;
     }
     
+#### 6.1.4 定位Segment
+
+    1.ConcurrentHashMap在插入和获取元素的时候，必须先通过散列算法定位到Segment。先使用Wang/Jenkins hash的变种算法对元素hashCode进行一次再散列
     
     
+    private int hash(Object k) {
+       // hashSeed = randomHashSeed(this)
+       int h = hashSeed;
+       
+       if ((0 != h) && (k instanceof String)) {
+           // 这里根据k算出hashCode
+           return sun.misc.Hashing.stringHash32((String) k);
+       }
+       
+       // 这里也是算hashCode的值
+       h ^= k.hashCode();
+
+       // Spread bits to regularize both segment and index locations,
+       // using variant of single-word Wang/Jenkins hash.
+       h += (h <<  15) ^ 0xffffcd7d;
+       h ^= (h >>> 10);
+       h += (h <<   3);
+       h ^= (h >>>  6);
+       h += (h <<   2) + (h << 14);
+       return h ^ (h >>> 16);
+   }
+       
     
     
+#### 6.1.5 ConcurrentHashMap的操作
+    
+**1 get操作**
+
+    Class tc = HashEntry[].class;
+    Class sc = Segment[].class;
+    TBASE = UNSAFE.arrayBaseOffset(tc); // 获取数组元素的第一个元素的偏移地址
+    SBASE = UNSAFE.arrayBaseOffset(sc);
+    ts = UNSAFE.arrayIndexScale(tc);
+    ss = UNSAFE.arrayIndexScale(sc);
+    
+    arrayIndexScale方法也是一个本地方法，可以获取数组的转换因子，也就是数组中元素的增量地址
+    SSHIFT = 31 - Integer.numberOfLeadingZeros(ss);
+    TSHIFT = 31 - Integer.numberOfLeadingZeros(ts);
+    
+    （hash >>> segmentShift) & segmentMask// 定位Segment所使用的hash算法
+     int index = hash & (tab.length - 1)// 定位HashEntry锁使用过的hash算法
+     定位Segment使用的是元素的hashCode通过再散列后得到的值的高位，而定位HashEntry直接使用的是再散列后的值
     
     
+     public V get(Object key) {
+         Segment<K,V> s; // manually integrate access methods to reduce overhead
+         HashEntry<K,V>[] tab;
+         int h = hash(key);
+         // 拿到数组的索引
+         long u = (((h >>> segmentShift) & segmentMask) << SSHIFT) + SBASE;
+         // (Segment<K,V>)UNSAFE.getObjectVolatile(segments, u)  根据索引拿到Segment对象
+         // s.table 拿到HashEntry<K,V>[] 数组
+         if ((s = (Segment<K,V>)UNSAFE.getObjectVolatile(segments, u)) != null &&
+             (tab = s.table) != null) {
+             // ((long)(((tab.length - 1) & h)) << TSHIFT) + TBASE 相当于HashEntry对象的索引(应该是偏移地址值)
+             // UNSAFE.getObjectVolatile(Object obj, long offset):获取obj对象中offset偏移地址对应的object型field的值,支持volatile load语义
+             for (HashEntry<K,V> e = (HashEntry<K,V>) UNSAFE.getObjectVolatile
+                      (tab, ((long)(((tab.length - 1) & h)) << TSHIFT) + TBASE);
+                  e != null; e = e.next) {
+                  // 到这里终于拿到了entry了，然后 就是比对k的问题了
+                 K k;
+                 if ((k = e.key) == key || (e.hash == h && key.equals(k)))
+                     return e.value;
+             }
+         }
+         return null;
+     }   
+    
+    
+**2 put操作**   
+    
+    public V put(K key, V value) {
+        Segment<K,V> s;
+        if (value == null)
+            throw new NullPointerException();
+        int hash = hash(key);
+        int j = (hash >>> segmentShift) & segmentMask;
+        // 增加一段Segment操作
+        if ((s = (Segment<K,V>)UNSAFE.getObject          // nonvolatile; recheck
+             (segments, (j << SSHIFT) + SBASE)) == null) //  in ensureSegment
+            s = ensureSegment(j);
+        return s.put(key, hash, value, false);
+    }
+    
+    
+    private Segment<K,V> ensureSegment(int k) {
+        final Segment<K,V>[] ss = this.segments;
+        long u = (k << SSHIFT) + SBASE; // raw offset
+        Segment<K,V> seg;
+        if ((seg = (Segment<K,V>)UNSAFE.getObjectVolatile(ss, u)) == null) {
+            Segment<K,V> proto = ss[0]; // use segment 0 as prototype
+            // 重新构造一个Segment对象
+            int cap = proto.table.length;
+            float lf = proto.loadFactor;
+            int threshold = (int)(cap * lf);
+            HashEntry<K,V>[] tab = (HashEntry<K,V>[])new HashEntry[cap];
+            if ((seg = (Segment<K,V>)UNSAFE.getObjectVolatile(ss, u))
+                == null) { // recheck
+                // 重新构造一个Segment对象
+                Segment<K,V> s = new Segment<K,V>(lf, threshold, tab);
+                // 自旋CAS 扩容，是不是？
+                while ((seg = (Segment<K,V>)UNSAFE.getObjectVolatile(ss, u))
+                       == null) {
+                    if (UNSAFE.compareAndSwapObject(ss, u, null, seg = s))
+                        break;
+                }
+            }
+        }
+        return seg;
+    }
+    
+    // 参数key，key散列后的hash，value 
+    final V put(K key, int hash, V value, boolean onlyIfAbsent) {
+        HashEntry<K,V> node = tryLock() ? null :
+            scanAndLockForPut(key, hash, value);
+        V oldValue;
+        try {
+            HashEntry<K,V>[] tab = table;
+            int index = (tab.length - 1) & hash;
+            HashEntry<K,V> first = entryAt(tab, index);
+            // 又自旋
+            for (HashEntry<K,V> e = first;;) {
+                if (e != null) {
+                    K k;
+                    if ((k = e.key) == key ||
+                        (e.hash == hash && key.equals(k))) {
+                        oldValue = e.value;
+                        if (!onlyIfAbsent) {
+                            e.value = value;
+                            ++modCount;
+                        }
+                        break;
+                    }
+                    e = e.next;
+                }
+                else {
+                    if (node != null)
+                        node.setNext(first);
+                    else
+                        node = new HashEntry<K,V>(hash, key, value, first);
+                    int c = count + 1;
+                    if (c > threshold && tab.length < MAXIMUM_CAPACITY)
+                        rehash(node);
+                    else
+                        setEntryAt(tab, index, node);
+                    ++modCount;
+                    count = c;
+                    oldValue = null;
+                    break;
+                }
+            }
+        } finally {
+            unlock();
+        }
+        return oldValue;
+    }
+    
+    
+**3 size操作**     
       
+    public int size() {
+        // Try a few times to get accurate count. On failure due to
+        // continuous async changes in table, resort to locking.
+        final Segment<K,V>[] segments = this.segments;
+        int size;
+        boolean overflow; // true if size overflows 32 bits
+        long sum;         // sum of modCounts
+        long last = 0L;   // previous sum
+        int retries = -1; // first iteration isn't retry
+        try {
+            for (;;) {
+                if (retries++ == RETRIES_BEFORE_LOCK) {
+                    for (int j = 0; j < segments.length; ++j)
+                        ensureSegment(j).lock(); // force creation
+                }
+                sum = 0L;
+                size = 0;
+                overflow = false;
+                for (int j = 0; j < segments.length; ++j) {
+                    Segment<K,V> seg = segmentAt(segments, j);
+                    if (seg != null) {
+                        sum += seg.modCount;
+                        int c = seg.count;
+                        if (c < 0 || (size += c) < 0)
+                            overflow = true;
+                    }
+                }
+                if (sum == last)
+                    break;
+                last = sum;
+            }
+        } finally {
+            if (retries > RETRIES_BEFORE_LOCK) {
+                for (int j = 0; j < segments.length; ++j)
+                    segmentAt(segments, j).unlock();
+            }
+        }
+        return overflow ? Integer.MAX_VALUE : size;
+    }
     
     
