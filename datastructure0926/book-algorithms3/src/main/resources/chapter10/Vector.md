@@ -1,12 +1,14 @@
 Vector
 
-###1 介绍
-###1.1 概念介绍
->在index.md文件里
-###1.2 类图结构
+### 1 介绍
+#### 1.1 概念介绍
+
+>在index.md文件里<br/>
+
+#### 1.2 类图结构
 ![avatar](images/Stack.jpg)
-###2 源码分析
-####2.1 字段
+### 2 源码分析
+#### 2.1 字段
     
 ```
 // 存放元素的数组
@@ -19,9 +21,9 @@ protected int capacityIncrement;
 private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 ```
 
-####2.2 方法
+#### 2.2 方法
 
-#####2.2.1 构造方法
+##### 2.2.1 构造方法
 ```$xslt
 // 指定初始容量、和扩容增加的步长的构造函数
 public Vector(int initialCapacity, int capacityIncrement) {
@@ -70,7 +72,7 @@ public static <T,U> T[] copyOf(U[] original, int newLength, Class<? extends T[]>
 
 ```
 
-#####2.2.2 add
+##### 2.2.2 add
 
 ```$xslt
 // 添加元素方法，返回boolean类型，该方法是同步的
@@ -124,7 +126,7 @@ private static int hugeCapacity(int minCapacity) {
 }
 
 ```
-#####2.2.3 addElement
+##### 2.2.3 addElement
 ```$xslt
 // 该方法和add方法代码一毛一样，就是返回值不一样
 // 笔者只是发现Vector的子类Stack的push(入栈)操作调用了addElement方法，而非add方法，原因尚未明却，读者可自行脑补？
@@ -148,7 +150,7 @@ public synchronized void addElement(E obj) {
 }
 ```
 
-#####2.2.4 get和elementAt
+##### 2.2.4 get和elementAt
 
 ```$xslt
 // 获取元素的方法，贼简单
@@ -167,7 +169,8 @@ public synchronized E elementAt(int index) {
 }
 ```
 
-#####2.2.5 remove
+##### 2.2.5 remove
+
 ```$xslt
 public synchronized E remove(int index) {
     // 又见modCount，不在赘述，读者不明所以，可自行搜索fast-fail机制
@@ -211,7 +214,7 @@ public class VectorTest {
     }
 
 ```
-#####2.2.6 removeElement
+##### 2.2.6 removeElement
 
 ```$xslt
 // 这个方法和addElement与add的方法性质一样
@@ -261,10 +264,11 @@ public synchronized void removeElementAt(int index) {
 
 ```
 
->备注：Vector结构不算复杂，这里就介绍到这里
+>备注：Vector结构不算复杂，这里就介绍到这里<br/>
 
-####2.3 小结
->1.Vector(翻译：向量)的底层是动态数组实现的，也就是顺序存储结构，增加，删除需要移动元素，所以效率低点
+#### 2.3 小结
+
+>1.Vector(翻译：向量)的底层是动态数组实现的，也就是顺序存储结构，增加，删除需要移动元素，所以效率低点<br/>
 
 
 

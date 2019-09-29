@@ -1,25 +1,32 @@
 ArrayDeque.md(双端对列)
 
-###1 介绍
-###1.1 概念介绍
->1.在index.md文件里的简单介绍
->2.ArrayDeque双端对列，可以对对列尾部和头部进行增加、删除的对列
->3.ArrayDeque底层是数组，LinkedList底层是链表
->4.ArrayDeque的装元素的数组长度永远是2的N次方
->5.当ArrayDeque满时，head=tail，形成了一个环，也叫循环数组
+### 1 介绍
+#### 1.1 概念介绍
+
+>1.在index.md文件里的简单介绍<br/>
+>2.ArrayDeque双端对列，可以对对列尾部和头部进行增加、删除的对列<br/>
+>3.ArrayDeque底层是数组，LinkedList底层是链表<br/>
+>4.ArrayDeque的装元素的数组长度永远是2的N次方<br/>
+>5.当ArrayDeque满时，head=tail，形成了一个环，也叫循环数组<br/>
 >6.head和tail在add和remove时，随着操作在动态变化，就向指针一样，addFirst，则head-1；addLast，则tail+1
-###1.2 类图结构
+
+#### 1.2 类图结构
+
 ![avatar](images/03_ArrayDeque_Structure.jpg)
 
 
-###2 源码额分析
-####2.1 字段
->elements Object[]:存放对列的数组
->head int :对列头部
->tail int :对列尾部
->private static final int MIN_INITIAL_CAPACITY = 8 :最小容量
-####2.2 方法
-#####2.2.1 构造方法
+### 2 源码额分析
+
+#### 2.1 字段
+
+>elements Object[]:存放对列的数组<br/>
+>head int :对列头部<br/>
+>tail int :对列尾部<br/>
+>private static final int MIN_INITIAL_CAPACITY = 8 :最小容量<br/>
+
+#### 2.2 方法
+
+##### 2.2.1 构造方法
 
 ```$xslt
 // 默认16容量的无参构造函数
@@ -58,7 +65,7 @@ private static int calculateSize(int numElements) {
 }
 ```
 
-#####2.2.2 add及相关方法
+##### 2.2.2 add及相关方法
 
 ```$xslt
 // 在对尾加入
@@ -159,6 +166,7 @@ public class ArrayQueueTest {
 
 
 #####2.2.5 removeFirst及相关的方法
+
 ```$xslt
 
 // 删除对列
