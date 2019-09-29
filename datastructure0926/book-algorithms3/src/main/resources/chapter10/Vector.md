@@ -1,6 +1,9 @@
 Vector
 
-###1 类图
+###1 介绍
+###1.1 概念介绍
+>在index.md文件里
+###1.2 类图结构
 ![avatar](images/Stack.jpg)
 ###2 源码分析
 ####2.1 字段
@@ -145,7 +148,7 @@ public synchronized void addElement(E obj) {
 }
 ```
 
-#####2.2.4 get
+#####2.2.4 get和elementAt
 
 ```$xslt
 // 获取元素的方法，贼简单
@@ -153,6 +156,13 @@ public synchronized E get(int index) {
     if (index >= elementCount)
         throw new ArrayIndexOutOfBoundsException(index);
 
+    return elementData(index);
+}
+// 两个方法功能一毛一样，这里面有不可告人的？？？
+public synchronized E elementAt(int index) {
+    if (index >= elementCount) {
+        throw new ArrayIndexOutOfBoundsException(index + " >= " + elementCount);
+    }
     return elementData(index);
 }
 ```
@@ -251,7 +261,9 @@ public synchronized void removeElementAt(int index) {
 
 ```
 
-####2.2 小结
+>备注：Vector结构不算复杂，这里就介绍到这里
+
+####2.3 小结
 >1.Vector(翻译：向量)的底层是动态数组实现的，也就是顺序存储结构，增加，删除需要移动元素，所以效率低点
 
 
