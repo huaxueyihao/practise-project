@@ -17,21 +17,7 @@ public class VectorTest {
 //        System.out.println(b); // 2
 
 
-        int initialCapacity = 100;
-
-
-//        initialCapacity = initialCapacity | (initialCapacity >>>  1);
-
-//        initialCapacity |= (initialCapacity >>>  1);
-//        System.out.println(initialCapacity);
-//        initialCapacity |= (initialCapacity >>>  2);
-//        System.out.println(initialCapacity);
-//        initialCapacity |= (initialCapacity >>>  4);
-//        System.out.println(initialCapacity);
-//        initialCapacity |= (initialCapacity >>>  8);
-//        System.out.println(initialCapacity);
-        initialCapacity |= (initialCapacity >>> 16);
-        System.out.println(initialCapacity);
+        System.out.println(1 & 10);
 
     }
 
