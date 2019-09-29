@@ -1,0 +1,37 @@
+10 基本数据结构
+
+### 10.1 栈和对列
+
+>1.栈和对列都是动态集合 
+>2.栈中，被删除的是最近插入的元素，栈实现的是一种后进先出(last-in,first-out,LIFO)策略
+>3.对列中，被删除的总是在集合中存在时间最长的那个元素：对列实现的是一种先进先出(first-in,first-out,FIFO)策略
+
+**栈**
+    
+>1.栈上的INSERT操作称为压入(PUSH)，无参的DELETE操作称为弹出(POP)
+>2.数组S[1..n]，最多容纳n个元素，该数组有个属性S.top，指向最新插入的元素，栈中元素S[1..S.top],S[1]栈底元素，S[S.top]是栈顶元素
+![avatar](images/01_stack_top.jpg)
+>3.试图对空栈执行弹出，称为下溢(underflow),若是S.top超过了n，则称为栈上溢(overflow)
+
+```
+// 空栈判断伪代码
+STACK-EMPTY(S) 
+if S.top == 0
+    return TRUE
+else 
+    return FALSE
+ 
+// 进栈伪代码
+PUSH(S,x)
+S.top = S.top + 1
+S[S.top] = x
+
+// 出栈伪代码
+POP(S)
+if STACK-EMPTY(S) 
+    error "underflow"
+else S.top = S.top - 1
+    return S[S.top + 1]
+```
+
+**对列**
