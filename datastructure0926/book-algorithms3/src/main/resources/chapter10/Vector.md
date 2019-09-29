@@ -121,7 +121,7 @@ private static int hugeCapacity(int minCapacity) {
 }
 
 ```
-#####2.2.2 addElement
+#####2.2.3 addElement
 ```$xslt
 // 该方法和add方法代码一毛一样，就是返回值不一样
 // 笔者只是发现Vector的子类Stack的push(入栈)操作调用了addElement方法，而非add方法，原因尚未明却，读者可自行脑补？
@@ -145,7 +145,7 @@ public synchronized void addElement(E obj) {
 }
 ```
 
-#####2.2.2 get
+#####2.2.4 get
 
 ```$xslt
 // 获取元素的方法，贼简单
@@ -157,7 +157,7 @@ public synchronized E get(int index) {
 }
 ```
 
-#####2.2.2 remove
+#####2.2.5 remove
 ```$xslt
 public synchronized E remove(int index) {
     // 又见modCount，不在赘述，读者不明所以，可自行搜索fast-fail机制
@@ -171,8 +171,10 @@ public synchronized E remove(int index) {
     if (numMoved > 0)
         // 这里的移动操作还是用的native的拷贝方法
         // 如果不使用这个方法，读者可以尝试自行实现，笔者下面给出了自己的简单操作
+        // 这里没有构建新的数组，在原数组上进行的拷贝
         System.arraycopy(elementData, index+1, elementData, index,
                          numMoved);
+    // 手动置空，有助于垃圾回收，将最后一位置null
     elementData[--elementCount] = null; // Let gc do its work
 
     return oldValue;
@@ -198,9 +200,59 @@ public class VectorTest {
         arr[arr.length - 1] = 0;
     }
 
+```
+#####2.2.6 removeElement
+
+```$xslt
+// 这个方法和addElement与add的方法性质一样
+// 介绍它，是应为子类Stack的pop(出栈)操作调用的是它
+public synchronized boolean removeElement(Object obj) {
+    modCount++;
+    int i = indexOf(obj);
+    if (i >= 0) {
+        removeElementAt(i);
+        return true;
+    }
+    return false;
+}
+// 删除指定位置的元素
+public synchronized void removeElementAt(int index) {
+    modCount++;
+    if (index >= elementCount) {
+        throw new ArrayIndexOutOfBoundsException(index + " >= " +
+                                                 elementCount);
+    }
+    else if (index < 0) {
+        throw new ArrayIndexOutOfBoundsException(index);
+    }
+    int j = elementCount - index - 1;
+    if (j > 0) {
+        System.arraycopy(elementData, index + 1, elementData, index, j);
+    }
+    // elementCount--(先赋值后减一),与remove(int index)方法中的elementData[--elementCount] = null，--elementCount(先减一，后赋值)有啥区别？
+    // 作者将两种方式都用一遍，但是有区别，区别就是下面测试的结果 能够说明问题
+    elementCount--; 
+    elementData[elementCount] = null; /* to let gc do its work */
 }
 
 
+// elementCount-- 和 --elementCount的区别
+ public static void main(String[] args) {
+    int[] arr = {1, 2, 3, 4, 5, 6};
+    
+    int a = 3;
+    int b = 3;
+    System.out.println(arr[a--]);// 结果：4，说明是a[3]
+    System.out.println(a); // 2
+    System.out.println(arr[--b]);// 结果：3，说明是a[2]
+    System.out.println(b); // 2
+
+ }
+
 ```
+
+####2.2 小结
+>1.Vector(翻译：向量)的底层是动态数组实现的，也就是顺序存储结构，增加，删除需要移动元素，所以效率低点
+
 
 
