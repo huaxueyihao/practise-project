@@ -8,12 +8,77 @@
         http://www.springframework.org/schema/security/spring-security-4.2.xsd">
 
 
-<!--    最基本的配置-->
+    <!-- 最基本的配置
+        security:http：spring过滤器链配置
+        1.需要拦截什么资源
+        2.什么资源什么角色权限
+        3.定义认证方式
+        4.定义登陆页面，定义登陆请求地址，定义错误处理方式
+
+    -->
     <security:http>
-        <security:http-basic/>
+        <!-- pattern 需要拦截的资源
+            access：isFullyAuthenticated:该资源需要认证
+                    permitAll() 允许所有人访问，包括匿名用户和登陆用户
+                    isAnonymous() 匿名访问，必须是匿名用户访问，登陆用户不能访问
+
+        -->
+        <security:intercept-url pattern="/product/index" access="permitAll()"/>
+        <security:intercept-url pattern="/userLogin" access="permitAll()"/>
+        <security:intercept-url pattern="/product/add" access="hasRole('ROLE_USER')"/>
+        <security:intercept-url pattern="/product/update" access="hasRole('ROLE_USER')"/>
+        <security:intercept-url pattern="/product/list" access="hasRole('ROLE_ADMIN')"/>
+        <security:intercept-url pattern="/product/delete" access="hasRole('ROLE_ADMIN')"/>
+
+        <security:intercept-url pattern="/**" access="isFullyAuthenticated()"/>
+
+        <!--  <security:http-basic/>-->
+
+        <!--
+            login-page="/userLogin"：自定义登陆页面
+            login-processing-url: 登陆请求地址
+          -->
+        <security:form-login login-page="/userLogin" login-processing-url="/securityLogin" default-target-url="/product/index"
+                             authentication-success-handler-ref="myAuthenticationSuccessHandler" authentication-failure-handler-ref="myAuthenticationFailureHandler"/>
+
+        <!-- 错误页面-->
+        <security:access-denied-handler error-page="/error" />
+        <!-- 关闭crsf机制 -->
+        <security:csrf disabled="true"></security:csrf>
+
+
+
     </security:http>
 
-    <security:authentication-manager></security:authentication-manager>
+    <!--
+        security:authentication-manager: 认证管理器
+        1.认证信息提供方式(账户名，密码，当前用户权限)
+        -->
+    <security:authentication-manager>
+        <security:authentication-provider user-service-ref="myUserDetailService" >
+            <!-- 加密方式-->
+            <security:password-encoder ref="passwordEncoder"/>
+<!--            <security:user-service>-->
+<!--                &lt;!&ndash; 模拟用户&ndash;&gt;-->
+<!--                <security:user name="tom" password="123456" authorities="ROLE_USER" />-->
+<!--                <security:user name="jerry" password="123456" authorities="ROLE_ADMIN" />-->
+<!--            </security:user-service>-->
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+
+    <!-- 不对密码进行加密-->
+    <bean id="passwordEncoder"
+            class="org.springframework.security.crypto.password.NoOpPasswordEncoder" factory-method="getInstance"/>
+
+    <!-- 自定义的客户用户登录校验类-->
+    <bean id="myUserDetailService" class="com.mvc.security.study.security.MyUserDetailService" />
+
+    <!-- 自定义登陆成功的返回数据json处理的handler-->
+    <bean id="myAuthenticationSuccessHandler" class="com.mvc.security.study.security.MyAuthenticationSuccessHandler" />
+    <!-- 自定义登陆失败的返回数据json处理的handler-->
+    <bean id="myAuthenticationFailureHandler" class="com.mvc.security.study.security.MyAuthenticationFailureHandler" />
+
 
 
 

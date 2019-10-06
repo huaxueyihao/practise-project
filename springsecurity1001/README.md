@@ -451,16 +451,341 @@ Spring-Security
         </bean>
     
     </beans>
+    
+### 4.2 配置spring-security.xml文件
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:security="http://www.springframework.org/schema/security"
+           xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/security
+            http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+    
+    
+    <!--    最基本的配置
+            security:http：spring过滤器链配置
+            1.需要拦截什么资源
+            2.什么资源什么角色权限
+            3.定义认证方式
+            4.定义登陆页面，定义登陆请求地址，定义错误处理方式
+    
+    -->
+        <security:http>
+    <!--        pattern 需要拦截的资源
+                access：isFullyAuthenticated:该资源需要认证
+    -->
+            <security:intercept-url pattern="/**" access="isFullyAuthenticated()"/>
+    
+    <!--        <security:http-basic/>-->
+            <security:form-login/>
+    
+    
+        </security:http>
+    
+        <!--
+            security:authentication-manager: 认证管理器
+            1.认证信息提供方式(账户名，密码，当前用户权限)
+            -->
+        <security:authentication-manager>
+            <security:authentication-provider>
+    <!--            加密方式-->
+                <security:password-encoder ref="passwordEncoder"/>
+                <security:user-service>
+    <!--                模拟用户-->
+                    <security:user name="tom" password="123456" authorities="ROLE_USER" />
+    
+                </security:user-service>
+            </security:authentication-provider>
+    
+        </security:authentication-manager>
+    
+    
+    <!--    不对密码进行加密-->
+        <bean id="passwordEncoder"
+                class="org.springframework.security.crypto.password.NoOpPasswordEncoder" factory-method="getInstance"/>
+    
+    </beans>
 
 
+
+### 4.4 启动会让认证
+
+![avatar](spring-security01/src/main/resources/images/start_isFullAuthenticated.jpg) 
     
 
+## 5 FormLogin(表单)方式的权限实现
+    
+    将配置<security:http-basic/> 换成 <security:form-login/>
 
 
+## 6 Spring security执行原理
 
+    底层：springSecurityFilterChain控制整个过程
+    
+    
+### 6.1 UsernamePasswordAuthenticationFilter(用户校验)
 
+    用户校验
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        // 
+        if (this.postOnly && !request.getMethod().equals("POST")) {
+            throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
+        } else {
+            String username = this.obtainUsername(request);
+            String password = this.obtainPassword(request);
+            if (username == null) {
+                username = "";
+            }
+
+            if (password == null) {
+                password = "";
+            }
+
+            username = username.trim();
+            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+            this.setDetails(request, authRequest);
+            return this.getAuthenticationManager().authenticate(authRequest);
+        }
+    }
+
+### 6.2 BasicAuthenticationFilter(基于HttpBasic方式校验)
+
+### 6.n-1 ExceptionTransactionFilter(异常转换过滤器)
+
+### 6.n FilterSecurityInterceptor(总拦截器)
+    
+    // 第一次请求都会走FilterSecurityInterceptor
+
+    public void invoke(FilterInvocation fi) throws IOException, ServletException {
+        if (fi.getRequest() != null && fi.getRequest().getAttribute("__spring_security_filterSecurityInterceptor_filterApplied") != null && this.observeOncePerRequest) {
+            fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+        } else {
+            if (fi.getRequest() != null && this.observeOncePerRequest) {
+                fi.getRequest().setAttribute("__spring_security_filterSecurityInterceptor_filterApplied", Boolean.TRUE);
+            }
+
+            InterceptorStatusToken token = super.beforeInvocation(fi);
+
+            try {
+                fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+            } finally {
+                super.finallyInvocation(token);
+            }
+
+            super.afterInvocation(token, (Object)null);
+        }
+
+    }
 
 
    
+## 7 自定义登陆页面
+    
+    <!--
+        login-page="/userLogin"：自定义登陆页面
+        login-processing-url: 登陆请求地址
+      -->
+    <security:form-login login-page="/userLogin" login-processing-url="/securityLogin"/>
 
+    
+    
+## 8 user-service 配置实现不同用户访问不通资源
+
+    增加用户jerry，角色未ROLE_ADMIN,
+    同时对商品的crud请求进行拦截和指定角色
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+
+
+    <!-- 最基本的配置
+        security:http：spring过滤器链配置
+        1.需要拦截什么资源
+        2.什么资源什么角色权限
+        3.定义认证方式
+        4.定义登陆页面，定义登陆请求地址，定义错误处理方式
+
+    -->
+    <security:http>
+        <!-- pattern 需要拦截的资源
+            access：isFullyAuthenticated:该资源需要认证
+                    permitAll() 允许所有人访问，包括匿名用户和登陆用户
+                    isAnonymous() 匿名访问，必须是匿名用户访问，登陆用户不能访问
+
+        -->
+        <security:intercept-url pattern="/product/index" access="permitAll()"/>
+        <security:intercept-url pattern="/userLogin" access="permitAll()"/>
+        <security:intercept-url pattern="/product/add" access="hasRole('ROLE_USER')"/>
+        <security:intercept-url pattern="/product/update" access="hasRole('ROLE_USER')"/>
+        <security:intercept-url pattern="/product/list" access="hasRole('ROLE_ADMIN')"/>
+        <security:intercept-url pattern="/product/delete" access="hasRole('ROLE_ADMIN')"/>
+
+        <security:intercept-url pattern="/**" access="isFullyAuthenticated()"/>
+
+        <!--  <security:http-basic/>-->
+
+        <!--
+            login-page="/userLogin"：自定义登陆页面
+            login-processing-url: 登陆请求地址
+          -->
+        <security:form-login login-page="/userLogin" login-processing-url="/securityLogin"/>
+
+        <!-- 错误页面-->
+        <security:access-denied-handler error-page="/error" />
+        <!-- 关闭crsf机制 -->
+        <security:csrf disabled="true"></security:csrf>
+
+
+
+    </security:http>
+
+    <!--
+        security:authentication-manager: 认证管理器
+        1.认证信息提供方式(账户名，密码，当前用户权限)
+        -->
+    <security:authentication-manager>
+        <security:authentication-provider>
+            <!-- 加密方式-->
+            <security:password-encoder ref="passwordEncoder"/>
+            <security:user-service>
+                <!-- 模拟用户-->
+                <security:user name="tom" password="123456" authorities="ROLE_USER" />
+                <security:user name="jerry" password="123456" authorities="ROLE_ADMIN" />
+            </security:user-service>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+
+    <!-- 不对密码进行加密-->
+    <bean id="passwordEncoder"
+            class="org.springframework.security.crypto.password.NoOpPasswordEncoder" factory-method="getInstance"/>
+
+</beans>
+
+
+
+## 9 自定义UserDetailService类实现用户权限访问控制
+
+    关键是使用UserDetailService
+    类org.springframework.security.core.userdetails.User 封装用户信息
+    
+    package com.mvc.security.study.security;
+    
+    import org.springframework.security.core.authority.AuthorityUtils;
+    import org.springframework.security.core.userdetails.User;
+    import org.springframework.security.core.userdetails.UserDetails;
+    import org.springframework.security.core.userdetails.UserDetailsService;
+    import org.springframework.security.core.userdetails.UsernameNotFoundException;
+    
+    /**
+     * 自定义 用户校验类
+     */
+    public class MyUserDetailService implements UserDetailsService {
+    
+    
+    
+        @Override
+        public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+            // 封装用户信息的接口UserDetails
+            String username = "tom";
+            String password = "123456";
+            User user = new User(username,password, AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER,ROLE_ADMIN"));
+    
+            return user;
+        }
+    }
+
+## 10 自定义登录成功与失败的处理逻辑
+    
+    package com.mvc.security.study.security;
+    
+    import com.fasterxml.jackson.databind.ObjectMapper;
+    import org.springframework.security.core.Authentication;
+    import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+    
+    import javax.servlet.ServletException;
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    import java.io.IOException;
+    import java.util.HashMap;
+    import java.util.Map;
+    
+    /**
+     * 自定义登陆成功的处理器
+     */
+    public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+    
+        private ObjectMapper objectMapper = new ObjectMapper();
+        @Override
+        public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
+    
+            Map result = new HashMap();
+            result.put("success",true);
+    
+            String json = objectMapper.writeValueAsString(result);
+            httpServletResponse.setContentType("text/json;charset=utf-8");
+            httpServletResponse.getWriter().write(json);
+        }
+    }
+
+
+    package com.mvc.security.study.security;
+    
+    import com.fasterxml.jackson.databind.ObjectMapper;
+    import org.springframework.security.core.AuthenticationException;
+    import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+    
+    import javax.servlet.ServletException;
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    import java.io.IOException;
+    import java.util.HashMap;
+    import java.util.Map;
+    
+    /**
+     * 自定义登陆失败的处理器
+     */
+    public class MyAuthenticationFailureHandler implements AuthenticationFailureHandler{
+    
+        private ObjectMapper objectMapper = new ObjectMapper();
+    
+        @Override
+        public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
+    
+            Map result = new HashMap();
+            result.put("success",false);
+    
+            String json = objectMapper.writeValueAsString(result);
+            httpServletResponse.setContentType("text/json;charset=utf-8");
+            httpServletResponse.getWriter().write(json);
+        }
+    }
+    
+    // 在spring-security.xml文件中修改配置
+
+    <!--
+        login-page="/userLogin"：自定义登陆页面
+        login-processing-url: 登陆请求地址
+      -->
+    <security:form-login login-page="/userLogin" login-processing-url="/securityLogin" default-target-url="/product/index"
+                         authentication-success-handler-ref="myAuthenticationSuccessHandler" authentication-failure-handler-ref="myAuthenticationFailureHandler"/>
+    
+    <!-- 自定义登陆成功的返回数据json处理的handler-->
+    <bean id="myAuthenticationSuccessHandler" class="com.mvc.security.study.security.MyAuthenticationSuccessHandler" />
+    <!-- 自定义登陆失败的返回数据json处理的handler-->
+    <bean id="myAuthenticationFailureHandler" class="com.mvc.security.study.security.MyAuthenticationFailureHandler" />
+
+
+    
+    
+
+    
 
