@@ -63,5 +63,70 @@ return x
 
 ```
 
+### 10.2 链表
+
+>1.数组的线性顺序是由数组下标决定的，链表的顺序是由各个对象里的指针决定的。<br/>
+>2.双向链表的每个元素都是一个对象，每个对象有一个关键字key和两个指针，next和prev。x.prev指向它的前驱元素，x.next是指向它在链表中的后继元素<br/>
+>x.prev=NIL,则元素x没有前驱，因此是链表的第一个元素，链表的头(head).x.next=NIL，则元素x没有后继，因此链表的最后一个元素，即链表的尾(tail),L.head=NIL,链表为空<br/>
+![avatar](images/05_Double_LinkedList.jpg)
+>3.链表可以是循环的或非循环的，如果一个链表是单连接的(Singly linked).则省略每个元素中的prev指针<br/>
+>4.在循环链表中，表头元素的prev指针指向表尾元素，而表尾元素的next指针则指向表头元素。 
+
+```
+// 链表的搜索
+// 搜索n个对象链表，过程LIST-SEARCH在最坏情况下的运行时间为O(n)
+LIST-SEEARCH(L,k)
+x = L.head
+while x != NIL and x.key != k
+    x = x.next
+return x
+
+// 链表的插入,插入到链表的前端
+// 在一个含n个元素的链表上执行LIST-INSERT的运行时间是O(1).
+LIST-INSEERT(L,x)
+x.next = L.head
+if L.head != NIL
+    L.head.prev= x
+L.head = x
+x.prev=NIL
+
+// 链表的删除
+// LIST-DELETE的原型时间为O(1).但如果要删除具有给定关键的元素，则最坏情况需要的时间是O(n),因为需要先调用LIST-SEARCH找到该元素
+LIST-DELETE(L,x)
+if x.prev != NIL
+    x.prev.next = x.next
+else L.head = x.next
+if x.next != NIL
+    x.next.prev = x.prev 
 
 
+```
+**哨兵**
+
+>1.哨兵(sentinel)是一个哑对象，作用简化边界条件的处理。<br/>
+>2.链表L中设置一个对象L.nil，该对象代表NIL，具有和其他对象相同的各个属性。对于链表代码中出现的每一处对NIL的引用，都代之以对哨兵L.nil的引用
+   这样的调整将一个常规的双向链表转变为一个有哨兵的双向循环链表<br/>
+>3.哨兵L.nil位于表头和表尾之间。属性L.nil.next指向表头，L.nil.prev指向表尾，类似，表尾的next属性和表头的prev属性同时指向L.nil.
+
+![avatar](images/06_Sentine_Link.jpg)
+
+```
+LIST-SEARCH(L,k)
+x = L.nil.next
+while x != L.nil and x.key != k
+    x = x.next
+return x
+
+
+LIST-INSEERT(L,x)
+x.next = L.nil.next
+L.nil.next.prev=x
+L.nil.next=x
+x.prev=L.nil
+
+
+```
+
+### 10.3 指针和对象的实现
+
+    

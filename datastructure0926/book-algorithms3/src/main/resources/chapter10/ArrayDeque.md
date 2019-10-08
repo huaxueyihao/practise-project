@@ -169,12 +169,17 @@ public class ArrayQueueTest {
 
 ```$xslt
 
-// 删除对列
+// 从头部删除对列
 public E removeFirst() {
     E x = pollFirst();
     if (x == null)
         throw new NoSuchElementException();
     return x;
+}
+
+// 调用了removeFirst()
+public E pop() {
+    return removeFirst();
 }
 
 public E pollFirst() {
@@ -192,6 +197,55 @@ public E pollFirst() {
     return result;
 }
 
+```
+
+#####2.2.6 removeLast及相关的方法
+
+```
+// 从对尾删除
+public E removeLast() {
+    E x = pollLast();
+    if (x == null)
+        throw new NoSuchElementException();
+    return x;
+}
+
+// 
+public E pollLast() {
+    // 计算出对尾的索引位置
+    int t = (tail - 1) & (elements.length - 1);
+    @SuppressWarnings("unchecked")
+    E result = (E) elements[t];
+    if (result == null)
+        return null;
+    elements[t] = null;
+    tail = t;
+    return result;
+}
+
+```
+##### 2.2.7 peek及相关的方法
+
+```
+
+public E peek() {
+    return peekFirst();
+}
+
+// 查看对首的元素
+public E peekFirst() {
+    // elements[head] is null if deque empty
+    return (E) elements[head];
+}
+    
+// 查看对尾的元素
+@SuppressWarnings("unchecked")
+public E peekLast() {
+    return (E) elements[(tail - 1) & (elements.length - 1)];
+}
 
 
 ```
+
+
+

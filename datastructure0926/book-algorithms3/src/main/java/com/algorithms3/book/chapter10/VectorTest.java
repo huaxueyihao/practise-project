@@ -1,6 +1,7 @@
 package com.algorithms3.book.chapter10;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 
 public class VectorTest {
 
@@ -18,6 +19,8 @@ public class VectorTest {
 
 
         System.out.println(1 & 10);
+
+        LinkedList linkedList = new LinkedList();
 
     }
 
