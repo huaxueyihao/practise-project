@@ -129,4 +129,29 @@ x.prev=L.nil
 
 ### 10.3 指针和对象的实现
 
+> 看不懂。。。。
+
     
+### 10.4 有根树的表示
+
+**二叉树**
+
+> 1.二叉树T中属性p、left和right存放指向父节点、左孩子和右孩子的指针
+> 2.若x.p=NIL，则x是根节点，若x没有左孩子，则x.left=NIL，右孩子一样。
+> 3.属性T.root指向整颗树T的根节点，如果T.root=NIL,则树为空
+
+![avatar](images/08_Tree.jpg)
+
+**分支无限制的有根树**
+
+> 1.对任意n个节点的有根树，只需要O(n)的存储空间。
+> 2.每个节点都包含一个父节点指针p,且T.root指向树T的根节点。每个节点中不是包含指向每个孩子的指针，而是只有两个指针
+> 3.x.left-child指向节点x最左边的孩子节点。
+> 4.x.rigth-sibling指向x右侧相邻的兄弟节点。
+> 5.如果x没有孩子节点，则x.left-child=NIL;若果x时期父节点的最右孩子，则x.right-sibling=NIL
+
+![avatar](images/09_Tree_unlimit.jpg)
+
+
+
+
