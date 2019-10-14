@@ -138,6 +138,61 @@ else
 
 **删除**
 
+> 从一棵二叉搜索树T中删除一个结点z的整个策略分为三种基本情况 <br/>
+> 1.如果z没有孩子结点，那么只是简单地将它删除，并修改它的父节点，用NIL作为孩子来替换z. <br/>
+> 2.如果z只是有一个孩子，那么将这个孩子提升到树中z的位置上，并修改z的父结点，用z的孩子来替换z。 <br/>
+> 3.如果z有两个孩子，那么找z的后继y(一定在z的右子树中)，并让y占据树种z的位置。z的原来右子树 <br/>
+    部分称为y的新的右子树，并且z的左子树称为y的新的左子树。这种情况稍显麻烦，因为还与y是否为 <br/>
+    z的右孩子相关。
+
+
+
+> 从一颗二叉树搜索树T中删除一个给定的节点z，这个过程取指向T和z的指针作为输入参数。
+> 1.如果z没有左孩子，那么用其右孩子来替换z，这个右孩子可以是NIL，也可以不是。当z的右孩子是NIL时，<br/>
+    此时这种情况归为z没有孩子结点的情形。当z的右孩子非NIL时，这种情况就是z仅有一个孩子节点的情形，<br/>
+    该孩子是其右孩子
+> 2.如果z仅有一个左孩子且为其左孩子，那么用左孩子来替换z。
+> 3.否则，z即有一个左孩子又有一个右孩子。我们要查找z的后继y，这个后继位于z的右子树中并且没有左孩子。现在<br/>
+    需要将y移出原来的位置进行拼接，并提换树中的z。
+> 4.如果y是z的右孩子。那么用y替换z，并仅留下y的右孩子。
+> 5.否则，y位于z的右子树中但并不是z的右孩子，在这种情况下，先用y的右孩子替换y，然后再用y替换z。
+ 
+![avatar](images/03_binary_tree_delete.jpg) 
+
+> 6.为了在二叉搜索树内移动子树，定义一个子过程TRANSPLANT，它是用另一颗子树替换一颗子树并成为其双亲的孩子节点。
+    当TRANSPLANT用一颗已v为根的子树来替换一颗以u为根的子树时，结点u的双亲就变为结点v的双亲，并且最后v成为u的双亲的相应孩子。
+
+```
+// 子树替换过程
+TRANSPLANT(T,u,v)
+if u.p == NIL
+    T.root = v // 处理u是T的树根的情况
+elseif u == u.p.left
+    u.p.left=v // u是左孩子
+else 
+    u.p.right=v // u是右孩子
+if v!=NIL
+    v.p=u.p // v有可能为NIL
+    
+    
+// 二叉搜索树T中删除z的删除过程
+Tree-DELETE(T,z)
+if z.left == NIL
+    TRANSPLANT(T,z,z.right)
+elseif z.right == NIL
+    TRANSPLANT(T,z,z.left)
+else y=TREE-MINMUM(z,right)
+    if y.p !=z
+        TRANSPLANT(T,y,y.right)
+        y.right=z.right
+        y.right.p=y
+    TRANSPLANT(T,z,y)
+    y.left = z.left
+    y.left.p = y
+
+```
+
+
 
 
 
