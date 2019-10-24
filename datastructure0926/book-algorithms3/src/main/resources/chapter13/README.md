@@ -131,6 +131,7 @@ T.root.color = BLACK
 > 从一颗红黑树中删除结点的过程基于TREE-DELETE而来的。首先，需要特别设计一个供TREE-DELETE调用的子过程TRANSPLANT，并将其应用到红黑树上。
 
 ```
+// 将结点v取代u结点位置(u.p.left 或者u.p.right 指向了v，且v.p 也指向了u.p,但是u.p这个指针没有断开)
 
 RB-TRANSPLANT(T,u,v)
 if u.p == T.nil
@@ -144,32 +145,108 @@ v.p = u.p
 ```
 
 ```
+
 RB-DELETE(T,z)
 y = z
 y-original-color = y.color
 if z.left == T.nil
     x = z.right
-    RB-TRANSPLANT(T,z,z.right)
+    RB-TRANSPLANT(T,z,z.right)        # z的右节点取代z的位置
 elseif z.right == T.nil
     x = z.left
-    RB-TRANSPLANT(T,z,z.left)
+    RB-TRANSPLANT(T,z,z.left)         # z的左结点取代z的位置
 else y = TREE-MINIMUM(z.right)        # 找到z的后继，即右子树中的最小的结点
     y-original-color = y.color        # 记下后继的颜色
     x = y.right                       # 后继节点的右子结点
-    if y.p == z                       # 若后继节点，刚好是z的子结点，则
+    if y.p == z                       # 若后继节点，刚好是z的子结点，则x.p 还是 y
         x.p = y                       # 
-    else RB-TRANSPLANT(T,y,y.right)   # 先将后继y节点的右子结点变成y的兄弟结点(),
-        y.right = z.right             # 后继y的右子节点指向z的右子节点
+    else RB-TRANSPLANT(T,y,y.right)   # 将y的右子结点取代y的位置
+        y.right = z.right             # y的右子结点指向z的右子结点
         y.right.p = y                 # 将z的右子结点的父结点指向y
-    RB-TRANSPLANT(T,z,y)              # 将y结点变为z节点的兄弟结点
-    y.left = z.left                   # 将z的左子结点赋给y的左子结点
+    RB-TRANSPLANT(T,z,y)              # 将y结点取代z结点的位置 这一步是删除z结点的操作
+    y.left = z.left                   # y的做结点是z的左结点
     y.left.p = y                      # 将z的左子结点的父结点指向y，这一行和上一行是为了将z的左子树移给y
-    y.color = z.color
+    y.color = z.color                 # 将y的颜色改变为要删除的节点的z的颜色
 if y-original-color == BLACK
     RB-DELETE-FIXUP(T,x)
 
+```
 
 ```
+// 1.x是z的右子结点(且是红色的，因为，这种情况下，y的刚好是z的子结点) 
+// 2.x是y的右子树(y是z的后继).
+
+RB-DELETE-FIXUP(T,x)
+while x != T.root and x.color == BLACK                              # x是y的子结点
+    if x == x.p.left                                                # y的左结点
+        w = x.p.right                                               # w是y的右结点，即是x的兄弟结点
+        if w.color == RED                                           # case1 # w是红色：则将w的颜色改为黑色，父结点的颜色改为红色，进行左旋一次
+            w.color = BLACK                                         # case1 
+            x.p.color = RED                                         # case1 
+            LEFT-ROTATE(T,x.p)                                      # case1
+            w = x.p.right                                           # case1 
+        if w.left.color == BLACK and w.right.color == BLACK         # case2
+            w.color = RED                                           # case2
+            x = x.p                                                 # case2
+        elseif w.right.color == BLACK                               # case3
+                w.left.color = BLACK                                # case3
+                w.color = RED                                       # case3
+                RIGHT-ROTATE(T,w)                                   # case3
+                w = x.p.right                                       # case3
+             w.color = x.p.color
+             x.p.color = BLACK
+             w.right.color = BLACK
+             LEFT-ROTATE(T,x.p)
+             x = T.root
+    else (same as then claue with "right" and "left" exchanged)
+x.color = BLACK
+
+```
+
+![avatar](images/07_rb_delete_fixup.jpg)
+
+> case1: x的兄弟结点w是红色的
+  x的兄弟结点w为红色时。w必须有黑色结点，所以可以改变w和x.p的颜色，然后对x.p做一次左旋而不违反红黑树的任何性质。现在，
+  x的新兄弟结点是旋转之前w的某个子结点，其颜色为黑色。这样，就将情况1转为情况2、3、或4处理。
+> case2: x的兄弟结点w是黑色的，而且w的两个子结点都是黑色的
+  w的两个子结点都是黑色的。因为w也是黑色的，所以从x和w上去掉的一重黑色，使得x只有一冲黑色而w为红色。为了补偿从x和w中
+  去掉的一重黑色，在原来是红色或黑色的x.p上新增一重额外的黑色。通过将x.p作为新节点x来重复while循环。
+> case3: x的兄弟结点w是黑色的，w的左孩子是红色的，w的右孩子是黑色的
+  w为黑色且其左孩子为红色，右孩子为黑色时。可以交换w和其左孩子w.left的颜色，然后对w进行右旋而不违反红黑树的任何性质。
+  现在x的新兄弟节点w是一个有红色右孩子的黑色结点，这样我们就将情况3转成了情况4.
+> case4: x的兄弟结点w是黑色的，且w的右孩子是红色的
+  发生在节点x的兄弟结点w为黑色且w的右孩子为红色时。通过进行某些颜色修改并对x.p做一次左旋，可以去掉x的额外黑色，从而
+  使它变为重黑色，而且不破坏红黑树的任何性质。将x设置为根后，当while循环测试器换条件时，循环终止。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
