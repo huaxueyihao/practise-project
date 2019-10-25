@@ -31,6 +31,12 @@
     <mappers>
         <!--        映射文件所在位置-->
         <mapper resource="mappers/CountryMapper.xml"></mapper>
+        <mapper resource="mappers/UserMapper.xml"></mapper>
+        <mapper resource="mappers/RoleMapper.xml"></mapper>
+        <mapper resource="mappers/PrivilegeMapper.xml"></mapper>
+        <mapper resource="mappers/UserRoleMapper.xml"></mapper>
+        <mapper resource="mappers/RolePrivilegeMapper.xml"></mapper>
+
     </mappers>
 
 </configuration>
