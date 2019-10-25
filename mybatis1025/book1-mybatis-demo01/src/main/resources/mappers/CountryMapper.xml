@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mybatis.book.study.mapper.CountryMapper">
 
-    <select id="selectAll" resultType="Country">
+    <select id="selectAll" resultType="com.mybatis.book.study.model.Country">
         select id,countryname,countrycode from country
     </select>
 

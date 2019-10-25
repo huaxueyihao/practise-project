@@ -4,4 +4,80 @@
 <mapper namespace="com.mybatis.book.study.mapper.UserMapper">
 
 
+
+    <resultMap id="userMap" type="com.mybatis.book.study.model.SysUser">
+        <id property="id" column="id"/>
+        <result property="userName" column="user_name"/>
+        <result property="userPassword" column="user_password"/>
+        <result property="userEmail" column="user_email"/>
+        <result property="userInfo" column="user_info"/>
+        <result property="headImg" column="head_img" jdbcType="BLOB"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <select id="selectById" resultMap="userMap">
+        select * from sys_user where id = #{id}
+    </select>
+
+
+
+<!--    selectById和selectAll的区别：selectById中使用了resultMap来设置结果映射，
+        而selectAll中则通过resultType直接指定了返回结果的类型。可以发现，如果使用resultType
+        来设置返回结果的类型，需要在SQL中为所有列名和属性名不一致的类设置别名，通过哟设置别名使
+        最终的查询结果列和resultType指定对象的属性名保持一致，进而实现自动映射-->
+    <select id="selectAll" resultType="com.mybatis.book.study.model.SysUser">
+        select id,
+            user_name userName,
+            user_password userPassword,
+            user_email userEmail,
+            user_info userInfo,
+            head_img headImg,
+            create_time createTime
+        from sys_user
+    </select>
+
+    <select id="selectRolesByUserId" resultType="com.mybatis.book.study.model.SysRole">
+        select
+            r.id,
+            r.role_name roleName,
+            r.enabled,
+            r.create_by createBy,
+            r.create_time createTime
+        from sys_user u
+        inner join sys_user_role ur on u.id = ur.user_id
+        inner join sys_role r on ur.role_id = r.id
+        where u.id = #{userId}
+    </select>
+
+    <select id="selectRolesByUserIdExtend" resultType="com.mybatis.book.study.model.SysRoleExtend">
+        select
+            r.id,
+            r.role_name roleName,
+            r.enabled,
+            r.create_by createBy,
+            r.create_time createTime,
+            u.user_name userName
+        from sys_user u
+        inner join sys_user_role ur on u.id = ur.user_id
+        inner join sys_role r on ur.role_id = r.id
+        where u.id = #{userId}
+    </select>
+
+    <select id="selectRolesByUserIdWithSysUser" resultType="com.mybatis.book.study.model.SysRole">
+        select
+            r.id,
+            r.role_name roleName,
+            r.enabled,
+            r.create_by createBy,
+            r.create_time createTime,
+            u.user_name as "user.userName",
+            u.user_email as "user.userEmail"
+        from sys_user u
+        inner join sys_user_role ur on u.id = ur.user_id
+        inner join sys_role r on ur.role_id = r.id
+        where u.id = #{userId}
+    </select>
+
+
 </mapper>
