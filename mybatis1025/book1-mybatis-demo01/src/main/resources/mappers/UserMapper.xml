@@ -4,7 +4,6 @@
 <mapper namespace="com.mybatis.book.study.mapper.UserMapper">
 
 
-
     <resultMap id="userMap" type="com.mybatis.book.study.model.SysUser">
         <id property="id" column="id"/>
         <result property="userName" column="user_name"/>
@@ -21,11 +20,10 @@
     </select>
 
 
-
-<!--    selectById和selectAll的区别：selectById中使用了resultMap来设置结果映射，
-        而selectAll中则通过resultType直接指定了返回结果的类型。可以发现，如果使用resultType
-        来设置返回结果的类型，需要在SQL中为所有列名和属性名不一致的类设置别名，通过哟设置别名使
-        最终的查询结果列和resultType指定对象的属性名保持一致，进而实现自动映射-->
+    <!--    selectById和selectAll的区别：selectById中使用了resultMap来设置结果映射，
+            而selectAll中则通过resultType直接指定了返回结果的类型。可以发现，如果使用resultType
+            来设置返回结果的类型，需要在SQL中为所有列名和属性名不一致的类设置别名，通过哟设置别名使
+            最终的查询结果列和resultType指定对象的属性名保持一致，进而实现自动映射-->
     <select id="selectAll" resultType="com.mybatis.book.study.model.SysUser">
         select id,
             user_name userName,
@@ -78,6 +76,79 @@
         inner join sys_role r on ur.role_id = r.id
         where u.id = #{userId}
     </select>
+
+
+    <!--
+        insert标签属性：
+        id:命名空间中的唯一标识，
+        parameterType:即将传入的语句的参数的完全限定类名或别名。这个属性时可选的
+        flushCache:默认值是true，任何时候只要语句被调用，都会清空一级缓存和二级缓存
+        timeout：设置在抛出异常之前，驱动程序等待数据库返回请求结果的秒数
+        statementType：对于STATEMENT，PREPARED、CALLABLE，Mybatis会分表使用对应的Statement，PreparedStatement、CallableStatement，默认是PREPARED
+        useGeneratedKeys：默认值为false，如果设置为true，Mybatis会使用JDBC的getGeneratedKeys方法来取出由数据库内部生成的主键，
+        keyProperty：Mybatis通过getGeneratedKeys获取主键值后将要复制属性名。如果希望得到多个数据库自动生成的列，属性值也可以是以逗号分隔的属性名称列表
+        keyColumn：仅对INSERT和UPDATE有用。通过生成的键值设置表中的列名，这个设置仅在某些数据库（PostgreSQL）中是必须的，当主键列不是表中的第一列时需要设置
+        databaseId：如果配置了databaseIdProvider，Mybatis会加载所有的不带dataBaseId的或匹配当前databaseId的语句，如果同时存在带databaseId和不带databaseId的语句。
+
+        说明：BLOB对应的类型是ByteArrayInputStream，就是二级制数据流；date，time，datetime对应的JDBC类型分别为DATE(年月日)、TIME(时分秒)、TIMESTAMP(年月日时分秒)
+
+    -->
+    <insert id="insert">
+        insert into sys_user (id,user_name,user_password,user_email,user_info,head_img,create_time)
+         values (
+            #{id},#{userName} ,#{userPassword} ,#{userEmail} ,#{userInfo} ,#{headImg,jdbcType=BLOB},
+            #{createTime,jdbcType=TIMESTAMP}
+         );
+    </insert>
+
+    <!--
+        useGeneratedKeys设置为tre后，mybatis会使用JDBC的getGeneratedKeys方法来取出数据库内部生成的主键
+        获得主键后将其复制给keyProperty配置的id属性。当需要设置多个属性时，使用逗号隔开。
+        通常还需要设置keyColum属性，按顺序指定数据库的列，这里列的值会和keyProperty配置的属性一一对应
+    -->
+    <insert id="insert2" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_user (user_name,user_password,user_email,user_info,head_img,create_time)
+         values (
+            #{userName} ,#{userPassword} ,#{userEmail} ,#{userInfo} ,#{headImg,jdbcType=BLOB},
+            #{createTime,jdbcType=TIMESTAMP}
+         );
+    </insert>
+
+
+    <!--
+
+    -->
+    <insert id="insert3">
+        insert into sys_user (user_name,user_password,user_email,user_info,head_img,create_time)
+         values (
+            #{userName} ,#{userPassword} ,#{userEmail} ,#{userInfo} ,#{headImg,jdbcType=BLOB},
+            #{createTime,jdbcType=TIMESTAMP}
+         );
+
+        <!--
+            order 属性的设置和使用的数据库有关。在MySQL数据库中，order属性设置的值是AFTER，因为当前记录的主键值在
+            insert语句执行成功后才能获取到，在Oracle数据库中，order值设置为BEFORE，Oracle中更需要先从序列获取值，
+            然后将值作为主键插入到数据库中
+        -->
+         <selectKey keyColumn="id" resultType="long" keyProperty="id" order="AFTER" >
+             select LAST_INSERT_ID()
+         </selectKey>
+    </insert>
+
+    <update id="updateById" >
+        update sys_user
+        set user_name = #{userName} ,
+            user_password = #{userPassword} ,
+            user_email = #{userEmail} ,
+            user_info = #{userInfo} ,
+            head_img = #{headImg,jdbcType=BLOB},
+            create_time = #{createTime,jdbcType=TIMESTAMP}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" >
+        delete from sys_user where id = #{id}
+    </delete>
 
 
 </mapper>
