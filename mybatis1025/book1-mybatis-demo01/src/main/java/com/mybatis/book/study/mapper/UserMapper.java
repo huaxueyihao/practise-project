@@ -3,8 +3,8 @@ package com.mybatis.book.study.mapper;
 import com.mybatis.book.study.model.SysRole;
 import com.mybatis.book.study.model.SysRoleExtend;
 import com.mybatis.book.study.model.SysUser;
-import com.sun.tracing.dtrace.ProviderAttributes;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
