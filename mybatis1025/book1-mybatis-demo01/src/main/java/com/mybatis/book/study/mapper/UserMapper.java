@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserMapper {
 
@@ -111,5 +112,80 @@ public interface UserMapper {
      * @return
      */
     List<SysRole> selectRolesByUserAndRole(@Param("user") SysUser user, @Param("role") SysRole role);
+
+
+    /**
+     * 根据动态条件查询用户信息
+     *
+     * @param sysUser
+     * @return
+     */
+    List<SysUser> selectByUser(SysUser sysUser);
+
+
+    /**
+     * 动态修改
+     *
+     * @param sysUser
+     * @return
+     */
+    int updateByIdSelective(SysUser sysUser);
+
+
+    /**
+     * 动态插入
+     *
+     * @param sysUser
+     * @return
+     */
+    int insertSelective(SysUser sysUser);
+
+
+    /**
+     * 根据用户id或用户名查询
+     *
+     * @param sysUser
+     * @return
+     */
+    SysUser selectByIdOrUserName(SysUser sysUser);
+
+    /**
+     * 根据用户id集合查询
+     *
+     * @param idList
+     * @return
+     */
+    List<SysUser> selectByIdList(List<Long> idList);
+
+
+    /**
+     * 根据用户id数组查询
+     *
+     * @param idList
+     * @return
+     */
+    List<SysUser> selectByIdList(Long[] idList);
+
+
+    /**
+     * 批量插入用户信息
+     *
+     * @param userList
+     * @return
+     */
+    int insertList(List<SysUser> userList);
+
+
+    /**
+     * 通过Map更新列
+     *
+     * @param map
+     * @return
+     */
+    int updateByMap(Map<String,Object> map);
+
+
+
+
 
 }

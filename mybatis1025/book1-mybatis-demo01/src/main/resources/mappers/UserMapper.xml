@@ -76,7 +76,6 @@
     </select>
 
 
-
     <select id="selectRolesByUserIdExtend" resultType="com.mybatis.book.study.model.SysRoleExtend">
         select
             r.id,
@@ -149,22 +148,22 @@
     -->
     <insert id="insert3">
         insert into sys_user (user_name,user_password,user_email,user_info,head_img,create_time)
-         values (
-            #{userName} ,#{userPassword} ,#{userEmail} ,#{userInfo} ,#{headImg,jdbcType=BLOB},
-            #{createTime,jdbcType=TIMESTAMP}
-         );
+        values (
+        #{userName} ,#{userPassword} ,#{userEmail} ,#{userInfo} ,#{headImg,jdbcType=BLOB},
+        #{createTime,jdbcType=TIMESTAMP}
+        );
 
         <!--
             order 属性的设置和使用的数据库有关。在MySQL数据库中，order属性设置的值是AFTER，因为当前记录的主键值在
             insert语句执行成功后才能获取到，在Oracle数据库中，order值设置为BEFORE，Oracle中更需要先从序列获取值，
             然后将值作为主键插入到数据库中
         -->
-         <selectKey keyColumn="id" resultType="long" keyProperty="id" order="AFTER" >
-             select LAST_INSERT_ID()
-         </selectKey>
+        <selectKey keyColumn="id" resultType="long" keyProperty="id" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
     </insert>
 
-    <update id="updateById" >
+    <update id="updateById">
         update sys_user
         set user_name = #{userName} ,
             user_password = #{userPassword} ,
@@ -175,9 +174,205 @@
         where id = #{id}
     </update>
 
-    <delete id="deleteById" >
+    <delete id="deleteById">
         delete from sys_user where id = #{id}
     </delete>
 
 
+
+    <select id="selectByUser" databaseId="mysql" resultType="com.mybatis.book.study.model.SysUser">
+        select id,
+        user_name userName,
+        user_password userPassword,
+        user_email userEmail,
+        user_info userInfo,
+        head_img headImg,
+        create_time createTime
+        from sys_user
+        <where>
+            <if test="userName !=null and userName != ''">
+                and user_name like concat('%',#{userName},'%')
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                and user_email = #{userEmail}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectByUser" databaseId="oracle" resultType="com.mybatis.book.study.model.SysUser">
+        select id,
+        user_name userName,
+        user_password userPassword,
+        user_email userEmail,
+        user_info userInfo,
+        head_img headImg,
+        create_time createTime
+        from sys_user
+        <where>
+            <if test="userName !=null and userName != ''">
+                and user_name like '%'||#{userName}||'%'
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                and user_email = #{userEmail}
+            </if>
+        </where>
+    </select>
+
+
+<!--    这种使用方式避免了 重复-->
+    <select id="selectByUser"  resultType="com.mybatis.book.study.model.SysUser">
+        select id,
+        user_name userName,
+        user_password userPassword,
+        user_email userEmail,
+        user_info userInfo,
+        head_img headImg,
+        create_time createTime
+        from sys_user
+        <where>
+            <if test="userName !=null and userName != ''">
+                <if test="_databaseId == 'mysql'">
+                    and user_name like concat('%',#{userName},'%')
+                </if>
+                <if test="_databaseId == 'oracle'">
+                    and user_name like '%'||#{userName}||'%'
+                </if>
+
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                and user_email = #{userEmail}
+            </if>
+        </where>
+    </select>
+
+
+
+
+    <!--    注意逗号和id=#{id}:全部为空时，至少id不是空
+            <set>标签解决而了逗号问题，不必担心多了个逗号
+    -->
+    <update id="updateByIdSelective">
+        update sys_user
+        <set>
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="userPassword != null and userPassword != ''">
+                user_password = #{userPassword},
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                user_email = #{userEmail},
+            </if>
+            <if test="headImg != null">
+                head_img = #{headImg},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            id = #{id},
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_user (
+        user_name,user_password,
+        <if test="userEmail != null and userEmail != ''">
+            user_email,
+        </if>
+        user_info,head_img,create_time)
+        values (
+        #{userName} ,#{userPassword} ,
+        <if test="userEmail != null and userEmail != ''">
+            #{userEmail} ,
+        </if>
+
+        #{userInfo} ,#{headImg,jdbcType=BLOB},
+        #{createTime,jdbcType=TIMESTAMP}
+        );
+    </insert>
+
+
+    <select id="selectByIdOrUserName" resultType="com.mybatis.book.study.model.SysUser">
+        select id,
+        user_name userName,
+        user_password userPassword,
+        user_email userEmail,
+        user_info userInfo,
+        head_img headImg,
+        create_time createTime
+        from sys_user
+        where 1 = 1
+        <choose>
+            <when test="id != null">
+                and id = #{id}
+            </when>
+             <when test="userName != null and userName != ''">
+                 and user_name = #{userName}
+             </when>
+             <otherwise>
+                 and 1 = 2
+             </otherwise>
+        </choose>
+    </select>
+
+
+
+    <!--
+        foreach属性：
+        collection：必填，值为要迭代循环的属性名。
+        item：变量名，值为从迭代对象中取出的每一个值
+        index：索引的属性名
+        open：真个循环内容开头的字符串。
+        close：整个循环内容结尾的字符串
+        separator：每次循环的分隔符
+    -->
+    <select id="selectByIdList" resultType="com.mybatis.book.study.model.SysUser">
+        select id,
+        user_name userName,
+        user_password userPassword,
+        user_email userEmail,
+        user_info userInfo,
+        head_img headImg,
+        create_time createTime
+        from sys_user
+        where id in
+        <foreach collection="list" open="(" close=")" separator="," item="id" index="i">
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="insertList" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_user (
+            user_name,user_password,user_email,
+            user_info,head_img,create_time
+        ) values
+        <foreach collection="list" item="user" separator=",">
+            (
+                #{user.userName,jdbcType=VARCHAR} ,
+                #{user.userPassword} ,
+                #{user.userEmail} ,
+                #{user.userInfo,jdbcType=VARCHAR} ,
+                #{user.headImg,jdbcType=BLOB} ,
+                #{user.createTime,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <!--
+        没有添加@Param注解指定参数名，则默认是_parameter
+    -->
+    <update id="updateByMap" >
+        update sys_user
+        set
+        <foreach collection="_parameter" item="val" index="key" separator=",">
+            ${key} = #{val}
+        </foreach>
+         where id = #{id}
+    </update>
+
+
 </mapper>
+

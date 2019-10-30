@@ -13,6 +13,17 @@
         <!--        实体对应的包-->
         <package name="com.mybatis.book.study.model"/>
     </typeAliases>
+    
+    <databaseIdProvider type="DB_VENDOR">
+        <property name="SQL" value="sqlserver"/>
+        <property name="DB2" value="db2"/>
+        <property name="Oracle" value="oracle"/>
+        <property name="MySQL" value="mysql"/>
+        <property name="PostgreSQL" value="postgresql"/>
+        <property name="Derby" value="derby"/>
+        <property name="HSQL" value="hsqldb"/>
+        <property name="H2" value="h2"/>
+    </databaseIdProvider>
 
     <!--    数据源配置-->
     <environments default="development">

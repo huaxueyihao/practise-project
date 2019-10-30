@@ -8,8 +8,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -196,7 +195,7 @@ public class UserMapperTest extends BaseMapperTest {
             SysUser user1 = userMapper.selectById(1L);
             assertNotNull(user1);
 
-            assertEquals(1,userMapper.deleteById(1L));
+            assertEquals(1, userMapper.deleteById(1L));
             assertNull(userMapper.selectById(1L));
 
 
@@ -240,6 +239,175 @@ public class UserMapperTest extends BaseMapperTest {
 
         } finally {
             sqlSession.close();
+        }
+    }
+
+
+    @Test
+    public void testSelectByUser() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            SysUser query = new SysUser();
+            query.setUserName("ad");
+
+            List<SysUser> userList = userMapper.selectByUser(query);
+            assertTrue(userList.size() > 0);
+
+            query = new SysUser();
+            query.setUserEmail("test@mybatis.tk");
+            userList = userMapper.selectByUser(query);
+            assertTrue(userList.size() > 0);
+
+            query = new SysUser();
+            query.setUserName("ad");
+            query.setUserEmail("test@mybatis.tk");
+
+            userList = userMapper.selectByUser(query);
+            assertTrue(userList.size() == 0);
+
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+
+    @Test
+    public void testUpdateByIdSelective() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            SysUser user = new SysUser();
+            user.setId(1L);
+
+            user.setUserEmail("test@mybatis.tk");
+            int result = userMapper.updateByIdSelective(user);
+            assertEquals(1, result);
+
+            user = userMapper.selectById(1L);
+
+            assertEquals("admin", user.getUserName());
+            assertEquals("test@mybatis.tk", user.getUserEmail());
+
+        } finally {
+            sqlSession.rollback();
+            sqlSession.close();
+        }
+    }
+
+
+    @Test
+    public void testInsertSelective() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+
+            SysUser user = new SysUser();
+            user.setUserName("test-selective");
+            user.setUserPassword("123456");
+            user.setUserInfo("test info");
+            user.setUserEmail("test@mybatis.tk");
+            user.setCreateTime(new Date());
+
+            userMapper.insertSelective(user);
+            user = userMapper.selectById(user.getId());
+            assertEquals("test@mybatis.tk", user.getUserEmail());
+
+        } finally {
+            sqlSession.rollback();
+            sqlSession.close();
+        }
+    }
+
+    @Test
+    public void testSelectByIdOrUserName() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+
+            SysUser query = new SysUser();
+            query.setId(1L);
+            query.setUserName("admin");
+
+            SysUser user = userMapper.selectByIdOrUserName(query);
+            assertNotNull(user);
+
+            query.setId(null);
+            user = userMapper.selectByIdOrUserName(query);
+            assertNotNull(user);
+
+            query.setUserName(null);
+            user = userMapper.selectByIdOrUserName(query);
+            assertNull(user);
+
+        } finally {
+            sqlSession.rollback();
+            sqlSession.close();
+        }
+    }
+
+    @Test
+    public void testSelectByIdList() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            List<Long> idList = new ArrayList<>();
+
+            idList.add(1L);
+            idList.add(1001L);
+
+            List<SysUser> userList = userMapper.selectByIdList(idList);
+            assertEquals(2, userList.size());
+
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+    @Test
+    public void testInsertList() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            List<SysUser> userList = new ArrayList<>();
+            for (int i = 0; i < 2; i++) {
+                SysUser user = new SysUser();
+
+                user.setUserName("test"+i);
+                user.setUserPassword("123456");
+                user.setUserEmail("test@mybatis.tk");
+                userList.add(user);
+            }
+            int result = userMapper.insertList(userList);
+            assertEquals(2,result);
+            for (SysUser user : userList) {
+                System.out.println(user.getId());
+            }
+        } finally {
+            sqlSession.rollback();
+            sqlSession.close();
+        }
+    }
+
+    @Test
+    public void testUpldateByMap(){
+        SqlSession sqlSession = getSqlSession();
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+
+            Map<String,Object> map = new HashMap<>();
+            map.put("id",1L);
+            map.put("user_email","test@mybatis.tk");
+            map.put("user_password","123456");
+
+            userMapper.updateByMap(map);
+
+            SysUser user = userMapper.selectById(1L);
+            assertEquals("test@mybatis.tk",user.getUserEmail());
+        }finally {
+            sqlSession.rollback();
+            sqlSession.close();
+
         }
     }
 
