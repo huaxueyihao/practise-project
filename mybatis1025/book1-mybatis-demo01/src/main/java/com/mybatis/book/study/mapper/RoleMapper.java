@@ -93,4 +93,14 @@ public interface RoleMapper {
     @Delete("delete from sys_role where id = #{id}")
     int deleteById(Long id);
 
+
+    /**
+     * 查询所有角色，以及角色对应的权限信息
+     *
+     * @return
+     */
+    List<SysRole> selectAllRoleAndPrivileges();
+
+
+
 }

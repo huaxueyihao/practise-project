@@ -1,6 +1,7 @@
 package com.mybatis.book.study.model;
 
 import java.util.Date;
+import java.util.List;
 
 public class SysUser {
 
@@ -11,6 +12,10 @@ public class SysUser {
     private String userInfo;
     private byte[] headImg;
     private Date createTime;
+
+    private SysRole role;
+
+    private List<SysRole> roleList;
 
     public Long getId() {
         return id;
@@ -67,4 +72,21 @@ public class SysUser {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+
+    public SysRole getRole() {
+        return role;
+    }
+
+    public void setRole(SysRole role) {
+        this.role = role;
+    }
+
+    public List<SysRole> getRoleList() {
+        return roleList;
+    }
+
+    public void setRoleList(List<SysRole> roleList) {
+        this.roleList = roleList;
+    }
+
 }

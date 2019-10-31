@@ -182,10 +182,67 @@ public interface UserMapper {
      * @param map
      * @return
      */
-    int updateByMap(Map<String,Object> map);
+    int updateByMap(Map<String, Object> map);
 
 
+    /**
+     * 根据用户id获取用户信息和用户的角色信息：根据(字段.字段：role.roleName)自动映射
+     *
+     * @param id
+     * @return
+     */
+    SysUser selectUserAndRoleById(Long id);
 
+
+    /**
+     * 根据用户id获取用户信息和用户的角色信息
+     *
+     * @param id
+     * @return
+     */
+    SysUser selectUserAndRoleById2(Long id);
+
+
+    /**
+     * 根据用户id获取用户信息和用户的角色信息：association
+     *
+     * @param id
+     * @return
+     */
+    SysUser selectUserAndRoleById3(Long id);
+
+
+    /**
+     * 根据id获取用户信息和角色信息：association嵌套查询
+     *
+     * @param id
+     * @return
+     */
+    SysUser selectUserAndRoleByIdSelect(Long id);
+
+
+    /**
+     * 获取所有的用户以及对应的所有角色
+     *
+     * @return
+     */
+    List<SysUser> selectAllUserAndRoles();
+
+
+    /**
+     * 获取所有的用户以及对应的所有角色,以及角色拥有的所有权限
+     *
+     * @return
+     */
+    List<SysUser> selectAllUserAndRolesAndPrivileges();
+
+    /**
+     * 通过嵌套查询获取指定用户的信息以及用户的角色和权限信息
+     *
+     * @param id
+     * @return
+     */
+    SysUser selectAllUserAndRolesSelect(Long id);
 
 
 }

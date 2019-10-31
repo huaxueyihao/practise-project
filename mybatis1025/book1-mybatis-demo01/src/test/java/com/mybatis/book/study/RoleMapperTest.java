@@ -1,6 +1,7 @@
 package com.mybatis.book.study;
 
 import com.mybatis.book.study.mapper.RoleMapper;
+import com.mybatis.book.study.model.SysPrivilege;
 import com.mybatis.book.study.model.SysRole;
 import com.sun.deploy.util.ArrayUtil;
 import com.sun.tools.javac.util.ArrayUtils;
@@ -120,6 +121,23 @@ public class RoleMapperTest extends BaseMapperTest {
             System.out.println(insert);
         } finally {
             sqlSession.rollback();
+            sqlSession.close();
+        }
+    }
+
+    @Test
+    public void testSelectAllRoleAndPrivileges() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            RoleMapper roleMapper = sqlSession.getMapper(RoleMapper.class);
+            List<SysRole> roles = roleMapper.selectAllRoleAndPrivileges();
+            for (SysRole role : roles) {
+                System.out.println("角色:" + role.getRoleName());
+                for (SysPrivilege privilege : role.getPrivilegeList()) {
+                    System.out.println("权限：" + privilege.getPrivilegeName());
+                }
+            }
+        } finally {
             sqlSession.close();
         }
     }

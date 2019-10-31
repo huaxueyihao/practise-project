@@ -7,23 +7,26 @@
         <setting name="logImpl" value="LOG4J"/>
         <!--       true 可以自动将以下划线方式命名的数据库列映射到Java对象的驼峰式命名属性中-->
         <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!--        是否延迟加载：false懒加载-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+
     </settings>
 
     <typeAliases>
         <!--        实体对应的包-->
         <package name="com.mybatis.book.study.model"/>
     </typeAliases>
-    
-    <databaseIdProvider type="DB_VENDOR">
-        <property name="SQL" value="sqlserver"/>
-        <property name="DB2" value="db2"/>
-        <property name="Oracle" value="oracle"/>
-        <property name="MySQL" value="mysql"/>
-        <property name="PostgreSQL" value="postgresql"/>
-        <property name="Derby" value="derby"/>
-        <property name="HSQL" value="hsqldb"/>
-        <property name="H2" value="h2"/>
-    </databaseIdProvider>
+
+    <!--    <databaseIdProvider type="DB_VENDOR">-->
+    <!--        <property name="SQL" value="sqlserver"/>-->
+    <!--        <property name="DB2" value="db2"/>-->
+    <!--        <property name="Oracle" value="oracle"/>-->
+    <!--        <property name="MySQL" value="mysql"/>-->
+    <!--        <property name="PostgreSQL" value="postgresql"/>-->
+    <!--        <property name="Derby" value="derby"/>-->
+    <!--        <property name="HSQL" value="hsqldb"/>-->
+    <!--        <property name="H2" value="h2"/>-->
+    <!--    </databaseIdProvider>-->
 
     <!--    数据源配置-->
     <environments default="development">

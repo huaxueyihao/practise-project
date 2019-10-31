@@ -14,6 +14,78 @@
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
+    <resultMap id="userRoleMap" type="com.mybatis.book.study.model.SysUser" extends="userMap">
+        <!--        extends 继承userMap-->
+
+        <!--        <id property="id" column="id"/>-->
+        <!--        <result property="userName" column="user_name"/>-->
+        <!--        <result property="userPassword" column="user_password"/>-->
+        <!--        <result property="userEmail" column="user_email"/>-->
+        <!--        <result property="userInfo" column="user_info"/>-->
+        <!--        <result property="headImg" column="head_img" jdbcType="BLOB"/>-->
+        <!--        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>-->
+
+        <!--        role相关属性-->
+        <!--        <result property="role.id" column="role_id"/>-->
+        <!--        <result property="role.roleName" column="role_name"/>-->
+        <!--        <result property="role.enabled" column="enabled"/>-->
+        <!--        <result property="role.createBy" column="create_by"/>-->
+        <!--        <result property="role.createTime" column="role_create_time" jdbcType="TIMESTAMP"/>-->
+
+
+        <!--
+            property：对应实体类中的属性名，必填
+            javaType：属性对应的Java类型
+            resultMap：可以直接使用现有的resultMap，而不需要在这里配置
+            columnPrefix：查询列的前缀，配置前缀后，在子标签配置result的column可以省略前缀
+
+        -->
+        <!--        <association property="role" columnPrefix="role_" javaType="com.mybatis.book.study.model.SysRole">-->
+        <!--            <result property="id" column="id"/>-->
+        <!--            <result property="roleName" column="role_name"/>-->
+        <!--            <result property="enabled" column="enabled"/>-->
+        <!--            <result property="createBy" column="create_by"/>-->
+        <!--            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>-->
+        <!--        </association>-->
+
+        <association property="role" columnPrefix="role_" resultMap="com.mybatis.book.study.mapper.RoleMapper.roleMap"/>
+
+    </resultMap>
+
+
+    <resultMap id="userRoleMapSelect" type="com.mybatis.book.study.model.SysUser" extends="userMap">
+        <association property="role" fetchType="lazy" column="{id=role_id}"
+                     select="com.mybatis.book.study.mapper.RoleMapper.selectRoleById"></association>
+    </resultMap>
+
+    <resultMap id="userRoleListMap" extends="userMap" type="com.mybatis.book.study.model.SysUser">
+        <!--        <id property="id" column="id"/>-->
+        <!--        <result property="userName" column="user_name"/>-->
+        <!--        <result property="userPassword" column="user_password"/>-->
+        <!--        <result property="userEmail" column="user_email"/>-->
+        <!--        <result property="userInfo" column="user_info"/>-->
+        <!--        <result property="headImg" column="head_img" jdbcType="BLOB"/>-->
+        <!--        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>-->
+
+        <!--        <collection property="roleList" columnPrefix="role_" javaType="com.mybatis.book.study.model.SysRole">-->
+        <!--            <id property="id" column="id"/>-->
+        <!--            <result property="roleName" column="role_name"/>-->
+        <!--            <result property="enabled" column="enabled"/>-->
+        <!--            <result property="createBy" column="create_by"/>-->
+        <!--            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>-->
+        <!--        </collection>-->
+
+        <collection property="roleList" columnPrefix="role_"
+                    resultMap="com.mybatis.book.study.mapper.RoleMapper.rolePrivilegeListMap"/>
+
+    </resultMap>
+
+
+    <resultMap id="userRoleListMapSelect" extends="userMap" type="com.mybatis.book.study.model.SysUser">
+        <collection property="roleList" fetchType="lazy" select="com.mybatis.book.study.mapper.RoleMapper.selectRoleByUserId"
+                    column="{userId=id}"/>
+    </resultMap>
+
 
     <select id="selectById" resultMap="userMap">
         select * from sys_user where id = #{id}
@@ -179,7 +251,6 @@
     </delete>
 
 
-
     <select id="selectByUser" databaseId="mysql" resultType="com.mybatis.book.study.model.SysUser">
         select id,
         user_name userName,
@@ -220,8 +291,8 @@
     </select>
 
 
-<!--    这种使用方式避免了 重复-->
-    <select id="selectByUser"  resultType="com.mybatis.book.study.model.SysUser">
+    <!--    这种使用方式避免了 重复-->
+    <select id="selectByUser" resultType="com.mybatis.book.study.model.SysUser">
         select id,
         user_name userName,
         user_password userPassword,
@@ -245,8 +316,6 @@
             </if>
         </where>
     </select>
-
-
 
 
     <!--    注意逗号和id=#{id}:全部为空时，至少id不是空
@@ -309,15 +378,14 @@
             <when test="id != null">
                 and id = #{id}
             </when>
-             <when test="userName != null and userName != ''">
-                 and user_name = #{userName}
-             </when>
-             <otherwise>
-                 and 1 = 2
-             </otherwise>
+            <when test="userName != null and userName != ''">
+                and user_name = #{userName}
+            </when>
+            <otherwise>
+                and 1 = 2
+            </otherwise>
         </choose>
     </select>
-
 
 
     <!--
@@ -346,17 +414,17 @@
 
     <insert id="insertList" useGeneratedKeys="true" keyProperty="id">
         insert into sys_user (
-            user_name,user_password,user_email,
-            user_info,head_img,create_time
+        user_name,user_password,user_email,
+        user_info,head_img,create_time
         ) values
         <foreach collection="list" item="user" separator=",">
             (
-                #{user.userName,jdbcType=VARCHAR} ,
-                #{user.userPassword} ,
-                #{user.userEmail} ,
-                #{user.userInfo,jdbcType=VARCHAR} ,
-                #{user.headImg,jdbcType=BLOB} ,
-                #{user.createTime,jdbcType=TIMESTAMP}
+            #{user.userName,jdbcType=VARCHAR} ,
+            #{user.userPassword} ,
+            #{user.userEmail} ,
+            #{user.userInfo,jdbcType=VARCHAR} ,
+            #{user.headImg,jdbcType=BLOB} ,
+            #{user.createTime,jdbcType=TIMESTAMP}
             )
         </foreach>
     </insert>
@@ -364,14 +432,158 @@
     <!--
         没有添加@Param注解指定参数名，则默认是_parameter
     -->
-    <update id="updateByMap" >
+    <update id="updateByMap">
         update sys_user
         set
         <foreach collection="_parameter" item="val" index="key" separator=",">
             ${key} = #{val}
         </foreach>
-         where id = #{id}
+        where id = #{id}
     </update>
+
+
+    <select id="selectUserAndRoleById" resultType="com.mybatis.book.study.model.SysUser">
+        select
+        u.id,
+        u.user_name userName,
+        u.user_password userPassword,
+        u.user_email userEmail,
+        u.user_info userInfo,
+        u.head_img headImg,
+        u.create_time createTime,
+        r.id "role.id",
+        r.role_name "role.roleName",
+        r.enabled "role.enabled",
+        r.create_by "role.createBy",
+        r.create_time "role.createTime"
+        from sys_user u
+        inner join sys_user_role  ur on u.id = ur.user_id
+        inner join sys_role r on ur.role_id = r.id
+        where u.id = #{id}
+    </select>
+
+
+    <select id="selectUserAndRoleById2" resultMap="userRoleMap">
+        select
+        u.id,
+        u.user_name userName,
+        u.user_password userPassword,
+        u.user_email userEmail,
+        u.user_info userInfo,
+        u.head_img headImg,
+        u.create_time createTime,
+        r.id role_id,
+        r.role_name ,
+        r.enabled ,
+        r.create_by,
+        r.create_time role_create_time
+        from sys_user u
+        inner join sys_user_role  ur on u.id = ur.user_id
+        inner join sys_role r on ur.role_id = r.id
+        where u.id = #{id}
+    </select>
+
+    <!--
+        userRoleMap: association标签 配置columnPrefix="role_"前缀，所以列别名需要加role_前缀
+    -->
+    <select id="selectUserAndRoleById3" resultMap="userRoleMap">
+        select
+        u.id,
+        u.user_name userName,
+        u.user_password userPassword,
+        u.user_email userEmail,
+        u.user_info userInfo,
+        u.head_img headImg,
+        u.create_time createTime,
+        r.id role_id,
+        r.role_name role_role_name,
+        r.enabled role_enabled,
+        r.create_by role_create_by,
+        r.create_time role_create_time
+        from sys_user u
+        inner join sys_user_role  ur on u.id = ur.user_id
+        inner join sys_role r on ur.role_id = r.id
+        where u.id = #{id}
+    </select>
+
+
+    <select id="selectUserAndRoleByIdSelect" resultMap="userRoleMapSelect">
+        select
+        u.id,
+        u.user_name userName,
+        u.user_password userPassword,
+        u.user_email userEmail,
+        u.user_info userInfo,
+        u.head_img headImg,
+        u.create_time createTime,
+        ur.role_id
+        from sys_user u
+        inner join sys_user_role  ur on u.id = ur.user_id
+        where u.id = #{id}
+    </select>
+
+
+    <select id="selectAllUserAndRoles" resultMap="userRoleListMap">
+        select
+        u.id,
+        u.user_name ,
+        u.user_password ,
+        u.user_email ,
+        u.user_info ,
+        u.head_img ,
+        u.create_time ,
+        r.id role_id,
+        r.role_name role_role_name,
+        r.enabled role_enabled,
+        r.create_by role_create_by,
+        r.create_time role_create_time
+        from sys_user u
+        inner join sys_user_role  ur on u.id = ur.user_id
+        inner join sys_role r on ur.role_id = r.id
+    </select>
+
+
+    <select id="selectAllUserAndRolesAndPrivileges" resultMap="userRoleListMap">
+        select
+        u.id,
+        u.user_name ,
+        u.user_password ,
+        u.user_email ,
+        u.user_info ,
+        u.head_img ,
+        u.create_time ,
+        r.id role_id,
+        r.role_name role_role_name,
+        r.enabled role_enabled,
+        r.create_by role_create_by,
+        r.create_time role_create_time,
+        p.id role_privilege_id,
+        p.privilege_name role_privilege_privilege_name,
+        p.privilege_url role_privilege_privilege_url
+        from sys_user u
+        inner join sys_user_role  ur on u.id = ur.user_id
+        inner join sys_role r on ur.role_id = r.id
+        inner join sys_role_privilege rp on rp.role_id = r.id
+        inner join sys_privilege p on p.id = rp.privilege_id
+    </select>
+
+
+    <select id="selectAllUserAndRolesSelect" resultMap="userRoleListMapSelect">
+        select
+        u.id,
+        u.user_name,
+        u.user_password,
+        u.user_email,
+        u.user_info,
+        u.head_img,
+        u.create_time
+        from sys_user u
+        where u.id = #{id}
+    </select>
+
+
+
+
 
 
 </mapper>

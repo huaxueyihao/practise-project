@@ -1,6 +1,7 @@
 package com.mybatis.book.study;
 
 import com.mybatis.book.study.mapper.UserMapper;
+import com.mybatis.book.study.model.SysPrivilege;
 import com.mybatis.book.study.model.SysRole;
 import com.mybatis.book.study.model.SysRoleExtend;
 import com.mybatis.book.study.model.SysUser;
@@ -373,13 +374,13 @@ public class UserMapperTest extends BaseMapperTest {
             for (int i = 0; i < 2; i++) {
                 SysUser user = new SysUser();
 
-                user.setUserName("test"+i);
+                user.setUserName("test" + i);
                 user.setUserPassword("123456");
                 user.setUserEmail("test@mybatis.tk");
                 userList.add(user);
             }
             int result = userMapper.insertList(userList);
-            assertEquals(2,result);
+            assertEquals(2, result);
             for (SysUser user : userList) {
                 System.out.println(user.getId());
             }
@@ -390,24 +391,183 @@ public class UserMapperTest extends BaseMapperTest {
     }
 
     @Test
-    public void testUpldateByMap(){
+    public void testUpldateByMap() {
         SqlSession sqlSession = getSqlSession();
         try {
             UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
 
-            Map<String,Object> map = new HashMap<>();
-            map.put("id",1L);
-            map.put("user_email","test@mybatis.tk");
-            map.put("user_password","123456");
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", 1L);
+            map.put("user_email", "test@mybatis.tk");
+            map.put("user_password", "123456");
 
             userMapper.updateByMap(map);
 
             SysUser user = userMapper.selectById(1L);
-            assertEquals("test@mybatis.tk",user.getUserEmail());
-        }finally {
+            assertEquals("test@mybatis.tk", user.getUserEmail());
+        } finally {
             sqlSession.rollback();
             sqlSession.close();
 
+        }
+    }
+
+    @Test
+    public void testSelectUserAndRoleById() {
+        SqlSession sqlSession = getSqlSession();
+
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            SysUser user = userMapper.selectUserAndRoleById(1001L);
+
+            assertNotNull(user);
+            assertNotNull(user.getRole());
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+    @Test
+    public void testSelectUserAndRoleById2() {
+        SqlSession sqlSession = getSqlSession();
+
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            SysUser user = userMapper.selectUserAndRoleById2(1001L);
+
+            assertNotNull(user);
+            assertNotNull(user.getRole());
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+
+    @Test
+    public void testSelectUserAndRoleById3() {
+        SqlSession sqlSession = getSqlSession();
+
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            SysUser user = userMapper.selectUserAndRoleById3(1001L);
+
+            assertNotNull(user);
+            assertNotNull(user.getRole());
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+
+    @Test
+    public void testSelectUserAndRoleByIdSelect() {
+        SqlSession sqlSession = getSqlSession();
+
+        try {
+            // 查询了两次，分别先是userMapper.selectById 后是roleMapper.selectRoleById
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            SysUser user = userMapper.selectUserAndRoleByIdSelect(1001L);
+
+            /**
+             * 当在mybatis-config.xml中配置拦截在时，<setting name="aggressiveLazyLoading" value="false"/> ，
+             * 且resultMap的association标签配置fetchType="Lazy"时，会使用懒加载，即user.getRole()时，才会发送sql去查询role信息
+             *
+             */
+//            assertNotNull(user);
+            /**
+             * 懒加载配置的情况下：调用equals,clone,hashCode,toString方法，也会触发积极加载，
+             * 通过lazyLoadTriggerMethods可以配置方法。
+             */
+            System.out.println(user.toString());
+//            assertNotNull(user.getRole());
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+
+    @Test
+    public void testSelectAllUserAndRoles() {
+        SqlSession sqlSession = getSqlSession();
+
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            List<SysUser> userList = userMapper.selectAllUserAndRoles();
+
+            System.out.println("用户数：" + userList.size());
+
+            for (SysUser user : userList) {
+                System.out.println("用户名：" + user.getUserName());
+                for (SysRole sysRole : user.getRoleList()) {
+                    System.out.println("角色名：" + sysRole.getRoleName());
+                }
+            }
+            /**
+             * DEBUG [main] - ==>  Preparing: select u.id, u.user_name , u.user_password , u.user_email , u.user_info , u.head_img , u.create_time , r.id role_id, r.role_name role_role_name, r.enabled role_enabled, r.create_by role_create_by, r.create_time role_create_time from sys_user u inner join sys_user_role ur on u.id = ur.user_id inner join sys_role r on ur.role_id = r.id
+             * DEBUG [main] - ==> Parameters:
+             * TRACE [main] - <==    Columns: id, user_name, user_password, user_email, user_info, head_img, create_time, role_id, role_role_name, role_enabled, role_create_by, role_create_time
+             * TRACE [main] - <==        Row: 1, admin, 123456, admin@mybatis.tk, <<BLOB>>, <<BLOB>>, 2019-10-25 16:00:00.0, 1, 管理员, 1, 1, 2019-10-25 16:00:00.0
+             * TRACE [main] - <==        Row: 1, admin, 123456, admin@mybatis.tk, <<BLOB>>, <<BLOB>>, 2019-10-25 16:00:00.0, 2, 普通用户, 1, 1, 2019-10-25 16:00:00.0
+             * TRACE [main] - <==        Row: 1001, test, 123456, test@mybatis.tk, <<BLOB>>, <<BLOB>>, 2019-10-25 16:00:00.0, 2, 普通用户, 1, 1, 2019-10-25 16:00:00.0
+             * DEBUG [main] - <==      Total: 3
+             * 用户数：2
+             * 用户名：admin
+             * 角色名：管理员
+             * 角色名：普通用户
+             * 用户名：test
+             * 角色名：普通用户
+             *
+             *
+             * 查询出来  Total: 3 是3条，但是 输出结果是2条，原因是mybatis会根据主键进行合并操作，主键相同的则进行合并
+             *
+             */
+
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+
+    @Test
+    public void testSelectAllUserAndRolesAndPrivileges() {
+        SqlSession sqlSession = getSqlSession();
+
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            List<SysUser> userList = userMapper.selectAllUserAndRolesAndPrivileges();
+
+            System.out.println("用户数：" + userList.size());
+            for (SysUser user : userList) {
+                System.out.println("用户名：" + user.getUserName());
+                for (SysRole sysRole : user.getRoleList()) {
+                    System.out.println("角色名：" + sysRole.getRoleName());
+                    for (SysPrivilege sysPrivilege : sysRole.getPrivilegeList()) {
+                        System.out.println("权限名：" + sysPrivilege.getPrivilegeName());
+                    }
+                }
+            }
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+
+    @Test
+    public void testSelectAllUserAndRolesSelect() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            SysUser user = userMapper.selectAllUserAndRolesSelect(1L);
+
+            System.out.println("用户名：" + user.getUserName());
+            for (SysRole role : user.getRoleList()) {
+                System.out.println("角色名：" + role.getRoleName());
+                for (SysPrivilege privilege : role.getPrivilegeList()) {
+                    System.out.println("权限名：" + privilege.getPrivilegeName());
+                }
+            }
+        } finally {
+            sqlSession.close();
         }
     }
 
