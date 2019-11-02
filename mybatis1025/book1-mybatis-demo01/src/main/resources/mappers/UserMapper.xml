@@ -88,7 +88,10 @@
     </resultMap>
 
 
-    <select id="selectById" resultMap="userMap">
+    <!--
+            flushCache：每次查询时，清空一级缓存(sqlSession)，
+    -->
+    <select id="selectById" flushCache="true" resultMap="userMap">
         select * from sys_user where id = #{id}
     </select>
 

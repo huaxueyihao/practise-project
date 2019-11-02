@@ -1,11 +1,30 @@
 package com.mybatis.book.study.mapper;
 
 import com.mybatis.book.study.model.SysRole;
-import com.mybatis.book.study.model.SysUser;
 import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.cache.decorators.FifoCache;
 
 import java.util.List;
 
+
+/**
+ *
+ *
+ * readWrite和select标签中的readOnly属性一样
+ * 这里true为读写，false为只读
+ */
+//@CacheNamespace(
+//        eviction = FifoCache.class,
+//        flushInterval = 60000,
+//        size = 512,
+//        readWrite = true
+//)
+
+/**
+ *
+ * 参照缓存
+ */
+@CacheNamespaceRef(RoleMapper.class)
 public interface RoleMapper {
 
     /**

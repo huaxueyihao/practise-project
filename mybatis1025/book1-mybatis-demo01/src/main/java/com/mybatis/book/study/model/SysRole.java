@@ -1,10 +1,13 @@
 package com.mybatis.book.study.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
-public class SysRole {
+public class SysRole implements Serializable {
 
+    private static final long serialVersionUID = -257709890466747509L;
     private Long id;
     private String roleName;
 //    private Integer enabled;
@@ -82,5 +85,22 @@ public class SysRole {
 
     public void setCreateInfo(CreateInfo createInfo) {
         this.createInfo = createInfo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SysRole role = (SysRole) o;
+        return Objects.equals(id, role.id) &&
+                Objects.equals(roleName, role.roleName) &&
+                enabled == role.enabled &&
+                Objects.equals(createBy, role.createBy) &&
+                Objects.equals(createTime, role.createTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, roleName, enabled, createBy, createTime);
     }
 }

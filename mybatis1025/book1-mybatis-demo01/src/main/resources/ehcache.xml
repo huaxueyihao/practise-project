@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+         updateCheck="true" monitoring="autodetect"
+         dynamicConfig="true">
+
+    <diskStore path="/Users/amao/Documents/cache"/>
+
+
+    <!--
+        copyOnRead的含义：判断从缓存中读取数据时是返回对象的引用还是复制一个对象返回。
+        默认情况下是false，即返回数据的引用，这种情况下返回的都是相同的对象，
+        和MyBatis默认缓存中的只读对象是相同的。如果设置为true，那就是可以读写缓存，
+        每次读取缓存时，都会复制一个新的实例。
+        copyOnWrite的含义是，判断写入缓存时是直接缓存对象的引用还是复制一个对象然后缓存。
+        默认也是false。如果想使用可读写缓存，就需要将这两个属性配置为true，如果使用只读缓存，
+        可以不配置这两个属性，使用默认值false即可。
+    -->
+    <defaultCache
+            maxElementsInMemory="3000"
+            eternal="false"
+            copyOnRead="true"
+            copyOnWrite="true"
+            timeToIdleSeconds="3600"
+            timeToLiveSeconds="3600"
+            overflowToDisk="true"
+            diskPersistent="true"
+    />
+
+
+    <!--    如果想针对某一个命名空间进行配置，需要在ehcache.xml中添加一个和映射文件命名空间一致的缓存配置，例如针对RoleMapper-->
+
+    <cache
+            name="com.mybatis.book.study.mapper.RoleMapper"
+            maxElementsInMemory="3000"
+            eternal="false"
+            copyOnRead="true"
+            copyOnWrite="true"
+            timeToIdleSeconds="3600"
+            timeToLiveSeconds="3600"
+            overflowToDisk="true"
+            diskPersistent="true"
+    ></cache>
+
+
+</ehcache>
