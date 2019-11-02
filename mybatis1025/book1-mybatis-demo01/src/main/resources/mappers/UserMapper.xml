@@ -82,7 +82,8 @@
 
 
     <resultMap id="userRoleListMapSelect" extends="userMap" type="com.mybatis.book.study.model.SysUser">
-        <collection property="roleList" fetchType="lazy" select="com.mybatis.book.study.mapper.RoleMapper.selectRoleByUserId"
+        <collection property="roleList" fetchType="lazy"
+                    select="com.mybatis.book.study.mapper.RoleMapper.selectRoleByUserId"
                     column="{userId=id}"/>
     </resultMap>
 
@@ -582,8 +583,56 @@
     </select>
 
 
+    <!--
+        selectUserById:在使用select标签调用存储过程时，由于存储过程不支持MyBatis的二级缓存(后面章节会介绍)，
+        因此为了避免缓存配置出错，直接将select标签的useCache属性设置为false。
+
+        mode: 可选值IN, OUT, INOUT 三种。入参使用IN，出餐使用OUT，输入输出INOUT
 
 
+
+    -->
+    <select id="selectUserById" statementType="CALLABLE" useCache="false">
+        { call select_user_by_id (
+            #{id,mode=IN},
+            #{userName,mode=OUT,jdbcType=VARCHAR},
+            #{userPassword,mode=OUT,jdbcType=VARCHAR},
+            #{userEmail,mode=OUT,jdbcType=VARCHAR},
+            #{userInfo,mode=OUT,jdbcType=VARCHAR},
+            #{headImg,mode=OUT,jdbcType=BLOB,javaType=byte[]},
+            #{createTime,mode=OUT,jdbcType=TIMESTAMP}
+            )
+        }
+    </select>
+
+    <select id="selectUserPage" statementType="CALLABLE" useCache="false" resultMap="userMap">
+        {call select_user_page (
+            #{userName,mode=IN},
+            #{offset,mode=IN},
+            #{limit,mode=IN},
+            #{total,mode=OUT,jdbcType=BIGINT}
+        )}
+    </select>
+
+
+    <select id="insertUserAndRoles" statementType="CALLABLE">
+        {call insert_user_and_roles(
+            #{user.id,mode=OUT,jdbcType=BIGINT},
+            #{user.userName,mode=IN},
+            #{user.userPassword,mode=IN},
+            #{user.userEmail,mode=IN},
+            #{user.userInfo,mode=IN},
+            #{user.headImg,mode=IN,jdbcType=BLOB},
+            #{user.createTime,mode=OUT,jdbcType=TIMESTAMP},
+            #{roleIds,mode=IN}
+        )}
+    </select>
+
+    <delete id="deleteUserById" statementType="CALLABLE">
+        {call delete_user_by_id (
+            #{id,mode=IN}
+        )}
+    </delete>
 
 
 </mapper>

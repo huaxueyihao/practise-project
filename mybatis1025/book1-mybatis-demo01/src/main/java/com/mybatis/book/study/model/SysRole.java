@@ -7,7 +7,8 @@ public class SysRole {
 
     private Long id;
     private String roleName;
-    private Integer enabled;
+//    private Integer enabled;
+    private Enabled enabled;
     private Long createBy;
     private Date createTime;
 
@@ -35,11 +36,11 @@ public class SysRole {
         this.roleName = roleName;
     }
 
-    public Integer getEnabled() {
+    public Enabled getEnabled() {
         return enabled;
     }
 
-    public void setEnabled(Integer enabled) {
+    public void setEnabled(Enabled enabled) {
         this.enabled = enabled;
     }
 

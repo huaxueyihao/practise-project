@@ -28,6 +28,12 @@
                     select="com.mybatis.book.study.mapper.PrivilegeMapper.selectPrivilegeByRoleId"/>
     </resultMap>
 
+    <resultMap id="rolePrivilegeListMapChoose" type="com.mybatis.book.study.model.SysRole">
+        <discriminator column="enabled" javaType="int">
+            <case value="1" resultMap="rolePrivilegeListMapSelect"></case>
+            <case value="0" resultMap="roleMap"/>
+        </discriminator>
+    </resultMap>
 
     <select id="selectAllRoleAndPrivileges" resultMap="rolePrivilegeListMap">
         select
@@ -52,6 +58,19 @@
 
 
     <select id="selectRoleByUserId" resultMap="rolePrivilegeListMapSelect">
+        select
+        r.id,
+        r.role_name,
+        r.enabled,
+        r.create_by,
+        r.create_time
+        from sys_role r
+        inner join sys_user_role ur on ur.role_id = r.id
+        where ur.user_id = #{userId}
+    </select>
+
+
+    <select id="selectRoleUserIdChoose" resultMap="rolePrivilegeListMapChoose">
         select
         r.id,
         r.role_name,

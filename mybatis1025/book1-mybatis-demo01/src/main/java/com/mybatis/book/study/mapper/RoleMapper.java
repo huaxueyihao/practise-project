@@ -1,6 +1,7 @@
 package com.mybatis.book.study.mapper;
 
 import com.mybatis.book.study.model.SysRole;
+import com.mybatis.book.study.model.SysUser;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -101,6 +102,13 @@ public interface RoleMapper {
      */
     List<SysRole> selectAllRoleAndPrivileges();
 
+    /**
+     * 根据 用户Id获取用户的角色信息
+     *
+     * @param userId
+     * @return
+     */
+    List<SysRole> selectRoleUserIdChoose(Long userId);
 
 
 }

@@ -12,10 +12,21 @@
 
     </settings>
 
+
     <typeAliases>
         <!--        实体对应的包-->
         <package name="com.mybatis.book.study.model"/>
     </typeAliases>
+
+
+    <!--    这些配置还有顺序，注意typeHandlers的位置不要放在typeAliases前面-->
+    <typeHandlers>
+<!--        <typeHandler javaType="com.mybatis.book.study.model.Enabled"-->
+<!--                     handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"/>-->
+
+        <typeHandler javaType="com.mybatis.book.study.model.Enabled"
+                     handler="com.mybatis.book.study.type.EnabledTypeHandler"/>
+    </typeHandlers>
 
     <!--    <databaseIdProvider type="DB_VENDOR">-->
     <!--        <property name="SQL" value="sqlserver"/>-->

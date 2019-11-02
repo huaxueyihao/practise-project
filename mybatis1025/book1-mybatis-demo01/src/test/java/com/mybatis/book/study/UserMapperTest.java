@@ -5,6 +5,7 @@ import com.mybatis.book.study.model.SysPrivilege;
 import com.mybatis.book.study.model.SysRole;
 import com.mybatis.book.study.model.SysRoleExtend;
 import com.mybatis.book.study.model.SysUser;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Assert;
 import org.junit.Test;
@@ -233,7 +234,7 @@ public class UserMapperTest extends BaseMapperTest {
             SysUser user = new SysUser();
             user.setId(1L);
             SysRole sysRole = new SysRole();
-            sysRole.setEnabled(1);
+//            sysRole.setEnabled(1);
             List<SysRole> roleList = userMapper.selectRolesByUserAndRole(user, sysRole);
             assertNotNull(roleList);
             assertTrue(roleList.size() > 0);
@@ -571,5 +572,75 @@ public class UserMapperTest extends BaseMapperTest {
         }
     }
 
+
+    @Test
+    public void testSelectUserById() {
+        SqlSession sqlSession = getSqlSession();
+
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            SysUser user = new SysUser();
+            user.setId(1L);
+            userMapper.selectUserById(user);
+
+            assertNotNull(user.getUserName());
+            System.out.println("用户名：" + user.getUserName());
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+
+    @Test
+    public void testSelectUserPage() {
+        SqlSession sqlSession = getSqlSession();
+
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            Map<String, Object> params = new HashMap<>();
+            params.put("userName", "ad");
+            params.put("offset", 0);
+            params.put("limit", 10);
+
+            List<SysUser> userList = userMapper.selectUserPage(params);
+            Long total = (Long) params.get("total");
+
+            System.out.println("总数：" + total);
+            for (SysUser user : userList) {
+                System.out.println("用户名：" + user.getUserName());
+            }
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+
+    @Test
+    public void testInsertAndDelete() {
+        SqlSession sqlSession = getSqlSession();
+
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+
+            SysUser user = new SysUser();
+            user.setUserName("test1");
+            user.setUserPassword("123456");
+            user.setUserEmail("test@mybatis.tk");
+            user.setUserInfo("test info");
+
+            user.setHeadImg(new byte[]{1, 2, 3});
+
+            userMapper.insertUserAndRoles(user, "1,2");
+            assertNotNull(user.getId());
+            assertNotNull(user.getCreateTime());
+
+//            sqlSession.commit();
+            // 测试删除刚刚插入的数据
+            userMapper.deleteById(user.getId());
+
+        } finally {
+            sqlSession.close();
+        }
+    }
 
 }
