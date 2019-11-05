@@ -20,9 +20,10 @@
     http://www.springframework.org/schema/util
     http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <bean id="myTestBean" class="com.spring.book.study.chapter02.MyTestBean">
-        <meta key="testStr" value="aaaaa"/>
+    <bean id="getBeanTest" class="com.spring.book.study.chapter03.GetBeanTest">
+        <lookup-method name="getBean" bean="student"/>
     </bean>
 
-
-</beans>    
+    <bean id="teacher" class="com.spring.book.study.chapter03.Teacher"/>
+    <bean id="student" class="com.spring.book.study.chapter03.Student"/>
+</beans>
