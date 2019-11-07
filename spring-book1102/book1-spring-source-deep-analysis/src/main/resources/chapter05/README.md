@@ -1069,8 +1069,585 @@ addSingletonFactory(beanName, new ObjectFactory<Object>() {
   对于"singleton"作用域bean，可以通过"setAllowCircularReferences(false)"来禁用循环引用
 
 
-
 ## 5.7 创建bean
+
+> 经过resolveBeforeInstantiation方法后，程序有两个选择，如果创建了代理或者说重写了InstantiationAwareBeanPostProcessor的
+  postProcessBeforeInstantiation方法并在方法postProcessBeforeInstantiation中改变了bean。
+
+```
+
+# AbstractAutowireCapableBeanFactory.java
+protected Object doCreateBean(final String beanName, final RootBeanDefinition mbd, final Object[] args) {
+    // Instantiate the bean.
+    BeanWrapper instanceWrapper = null;
+    if (mbd.isSingleton()) {
+        instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
+    }
+    if (instanceWrapper == null) {
+        // 根据指定bean使用对应的策略创建新的实例，如：工厂方法、构造函数自动注入，简单初始化
+        instanceWrapper = createBeanInstance(beanName, mbd, args);
+    }
+    final Object bean = (instanceWrapper != null ? instanceWrapper.getWrappedInstance() : null);
+    Class<?> beanType = (instanceWrapper != null ? instanceWrapper.getWrappedClass() : null);
+
+    // Allow post-processors to modify the merged bean definition.
+    synchronized (mbd.postProcessingLock) {
+        if (!mbd.postProcessed) {
+            // 应用MergeBeanDefinitionPostProcessor
+            applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
+            mbd.postProcessed = true;
+        }
+    }
+
+    // Eagerly cache singletons to be able to resolve circular references
+    // even when triggered by lifecycle interfaces like BeanFactoryAware.
+    /**
+      * 是否需要提早曝光：单例&允许循环依赖&当前bean正在创建中，检测循环依赖
+      */
+    boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
+            isSingletonCurrentlyInCreation(beanName));
+    if (earlySingletonExposure) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Eagerly caching bean '" + beanName +
+                    "' to allow for resolving potential circular references");
+        }
+        // 为避免后期循环依赖，可以在bean初始化完成前将创建实例的ObjectFactory加入工厂
+        addSingletonFactory(beanName, new ObjectFactory<Object>() {
+            @Override
+            public Object getObject() throws BeansException {
+                // 对bean再一次依赖引用，主要应用SmartInstantiationAware BeanPostProcessor
+                // 其中我们熟知的AOP在这里将advice动态织入bean中，若没有则直接返回bean，不做任何处理
+                return getEarlyBeanReference(beanName, mbd, bean);
+            }
+        });
+    }
+
+    // Initialize the bean instance.
+    Object exposedObject = bean;
+    try {
+        // 对bean进行填充，将各个属性值注入，其中，可能存在依赖于其他bean的属性，则会递归初始依赖bean
+        populateBean(beanName, mbd, instanceWrapper);
+        if (exposedObject != null) {
+            // 调用初始化方法，比如init-method
+            exposedObject = initializeBean(beanName, exposedObject, mbd);
+        }
+    }
+    catch (Throwable ex) {
+        if (ex instanceof BeanCreationException && beanName.equals(((BeanCreationException) ex).getBeanName())) {
+            throw (BeanCreationException) ex;
+        }
+        else {
+            throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Initialization of bean failed", ex);
+        }
+    }
+    
+    if (earlySingletonExposure) {
+        Object earlySingletonReference = getSingleton(beanName, false);
+        // earlySingletonReference 只有在检测到有循环依赖的情况下才会不为空
+        if (earlySingletonReference != null) {
+            if (exposedObject == bean) {
+                exposedObject = earlySingletonReference;
+            }
+            else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
+                String[] dependentBeans = getDependentBeans(beanName);
+                Set<String> actualDependentBeans = new LinkedHashSet<String>(dependentBeans.length);
+                for (String dependentBean : dependentBeans) {
+                    // 检测依赖
+                    if (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) {
+                        actualDependentBeans.add(dependentBean);
+                    }
+                }
+                /*
+                 * 因为bean创建后其锁依赖的bean一定是已经创建的
+                 * actualDependentBeans 不为空则表示当前bean创建后期依赖的bean却没有没全部创建完，也就是说存在循环依赖
+                 * 
+                 */
+                if (!actualDependentBeans.isEmpty()) {
+                    throw new BeanCurrentlyInCreationException(beanName,
+                            "Bean with name '" + beanName + "' has been injected into other beans [" +
+                            StringUtils.collectionToCommaDelimitedString(actualDependentBeans) +
+                            "] in its raw version as part of a circular reference, but has eventually been " +
+                            "wrapped. This means that said other beans do not use the final version of the " +
+                            "bean. This is often the result of over-eager type matching - consider using " +
+                            "'getBeanNamesOfType' with the 'allowEagerInit' flag turned off, for example.");
+                }
+            }
+        }
+    }
+
+    // Register bean as disposable.
+    try {
+        // 根据scope注册bean
+        registerDisposableBeanIfNecessary(beanName, bean, mbd);
+    }
+    catch (BeanDefinitionValidationException ex) {
+        throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Invalid destruction signature", ex);
+    }
+
+    return exposedObject;
+}
+
+```
+
+> 1.如果是单例则需要首先清除缓存
+  2.实例化bean，将BeanDefinition转换为BeanWrapper
+    如果存在工厂方法则使用工厂方法进行初始化。
+    一个类有多个构造函数，每个构造函数都有不同的参数，所以需要根据参数锁定构造函数并进行初始化
+    如果既不存在工厂方法也不存在带有参数的构造函数，则使用默认的构造函数进行bean的实例化
+  3.MergedBeanDefinitionPostProcessor的应用
+    bean合并后的处理，Autowired注解正是通过此方法实现注入类型的预解析。
+  4.依赖处理
+    通过放入缓存中的ObjectFactory来创建实例，这样就解决了循环依赖的问题
+  5.属性填充。将所有属性填充至bean的实例中
+  6.循环依赖检查。
+    Spring中解决循环依赖只对单例有效，而对于prototype的bean，Spring没有好的解决办法，唯一做的
+    就是抛出异常。在这个步骤里面会检测已经加载的bean是否已经出现了依赖循环，并判断是否需要抛出异常  
+  7.注册DisposableBean。
+    如果配置了destroy-method，这里需要注册以便于在销毁时调用  
+  8.完成创建并返回。
+
+### 5.7.1 创建bean的实例
+  
+  
+```
+protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition mbd, Object[] args) {
+    // Make sure bean class is actually resolved at this point.
+    // 解析class
+    Class<?> beanClass = resolveBeanClass(mbd, beanName);
+
+    if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !mbd.isNonPublicAccessAllowed()) {
+        throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+                "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
+    }
+    
+    // 如果工厂方法不为空则使用工厂方法初始化策略
+    if (mbd.getFactoryMethodName() != null)  {
+        // 
+        return instantiateUsingFactoryMethod(beanName, mbd, args);
+    }
+
+    // Shortcut when re-creating the same bean...
+    boolean resolved = false;
+    boolean autowireNecessary = false;
+    if (args == null) {
+        synchronized (mbd.constructorArgumentLock) {
+            // 一个类有多个构造函数，每个构造函数都有不同的参数，所以调用前需要先根据参数锁定构造函数或对应的工厂方法
+            if (mbd.resolvedConstructorOrFactoryMethod != null) {
+                resolved = true;
+                autowireNecessary = mbd.constructorArgumentsResolved;
+            }
+        }
+    }
+    // 如果已经解析过则使用解析好的构造函数方法不需要再次锁定
+    if (resolved) {
+        if (autowireNecessary) {
+            // 构造函数自动注入
+            return autowireConstructor(beanName, mbd, null, null);
+        }
+        else {
+            // 使用默认构造函数构造
+            return instantiateBean(beanName, mbd);
+        }
+    }
+
+    // Need to determine the constructor...
+    // 需要根据参数解析构造函数
+    Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
+    if (ctors != null ||
+            mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_CONSTRUCTOR ||
+            mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args))  {
+        // 构造函数自动注入
+        return autowireConstructor(beanName, mbd, ctors, args);
+    }
+
+    // No special handling: simply use no-arg constructor.
+    // 使用默认构造
+    return instantiateBean(beanName, mbd);
+}
+
+``` 
+
+> 1.如果在RootBeanDefinition中存在factoryMethodName属性，或者说在配置文件中配置了factory-method，那么Spring会尝试使用
+  instantiateUnsingFactoryMethod(beanName,mbd,args)方法根据RootBeanDefinition中的配置生成bean的实例
+> 2.解析构造函数并进行构造函数的实例化。因为一个bean对应的类中可能会有多个构造函数，而每个构造函数的参数不同，Spring在根据参数及类型
+  去判断最终会使用哪个构造函数进行实例化，但是，判断的过程是个比较消耗性能的步骤，所以采用缓存机制，如果已经解析过则不需要重复解析而是
+  直接从RootBeanDefinition中的属性resolvedConstructorOrFactoryMethod缓存的值去取，否则需要再次解析，并将解析的结果添加至
+  RootBeanDefinition中的属性reesolvedConstructOrFactoryMethod中。
+
+
+  
+```
+1.autowireConstructor
+#对于实力的创建Spring中分成了两种情况，一种是通用的实例化，另一种是带有参数的实例化。带有参数的实例化过程相当复杂。
+public BeanWrapper autowireConstructor(final String beanName, final RootBeanDefinition mbd,
+			Constructor<?>[] chosenCtors, final Object[] explicitArgs) {
+
+    BeanWrapperImpl bw = new BeanWrapperImpl();
+    this.beanFactory.initBeanWrapper(bw);
+
+    Constructor<?> constructorToUse = null;
+    ArgumentsHolder argsHolderToUse = null;
+    Object[] argsToUse = null;
+    
+    // explicitArgs 方法调用的时候指定方法参数那么直接使用
+    if (explicitArgs != null) {
+        argsToUse = explicitArgs;
+    }
+    else {
+        // 如果在getBean方法时候没有指定则尝试从配置文件中解析
+        Object[] argsToResolve = null;
+        // 尝试在getBean方法时候没有指定则尝试从配置文件中解析
+        synchronized (mbd.constructorArgumentLock) {
+            constructorToUse = (Constructor<?>) mbd.resolvedConstructorOrFactoryMethod;
+            if (constructorToUse != null && mbd.constructorArgumentsResolved) {
+                // Found a cached constructor...
+                // 从缓存中取
+                argsToUse = mbd.resolvedConstructorArguments;
+                if (argsToUse == null) {
+                    // 配置的构造函数参数
+                    argsToResolve = mbd.preparedConstructorArguments;
+                }
+            }
+        }
+        // 如果缓存中存在
+        if (argsToResolve != null) {
+            // 解析参数类型，如给定方法的构造函数A(int,int)则通过此方法后就会把配置中的("1","1")装换为(1,1)
+            // 缓存中的值可能是原始值也可能是最终值
+            argsToUse = resolvePreparedArguments(beanName, mbd, bw, constructorToUse, argsToResolve);
+        }
+    }
+
+    // 没有被缓存
+    if (constructorToUse == null) {
+        // Need to resolve the constructor.
+        boolean autowiring = (chosenCtors != null ||
+                mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_CONSTRUCTOR);
+        ConstructorArgumentValues resolvedValues = null;
+
+        int minNrOfArgs;
+        if (explicitArgs != null) {
+            minNrOfArgs = explicitArgs.length;
+        }
+        else {
+            // 提取配置文件中的配置的构造函数参数
+            ConstructorArgumentValues cargs = mbd.getConstructorArgumentValues();
+            // 用于承载解析后的构造函数参数的值
+            resolvedValues = new ConstructorArgumentValues();
+            // 能解析到的参数个数
+            minNrOfArgs = resolveConstructorArguments(beanName, mbd, bw, cargs, resolvedValues);
+        }
+
+        // Take specified constructors, if any.
+        Constructor<?>[] candidates = chosenCtors;
+        if (candidates == null) {
+            Class<?> beanClass = mbd.getBeanClass();
+            try {
+                candidates = (mbd.isNonPublicAccessAllowed() ?
+                        beanClass.getDeclaredConstructors() : beanClass.getConstructors());
+            }
+            catch (Throwable ex) {
+                throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+                        "Resolution of declared constructors on bean Class [" + beanClass.getName() +
+                                "] from ClassLoader [" + beanClass.getClassLoader() + "] failed", ex);
+            }
+        }
+        // 排序给定的构造函数，public构造函数优先参数数量降序、非public构造函数参数数量降序
+        AutowireUtils.sortConstructors(candidates);
+        int minTypeDiffWeight = Integer.MAX_VALUE;
+        Set<Constructor<?>> ambiguousConstructors = null;
+        LinkedList<UnsatisfiedDependencyException> causes = null;
+
+        for (int i = 0; i < candidates.length; i++) {
+            Constructor<?> candidate = candidates[i];
+            Class<?>[] paramTypes = candidate.getParameterTypes();
+
+            if (constructorToUse != null && argsToUse.length > paramTypes.length) {
+                // Already found greedy constructor that can be satisfied ->
+                // do not look any further, there are only less greedy constructors left.
+                // 如果已经找到选用的构造函数或者需要的参数个数小鱼当前的构造函数参数个数则终止，
+                // 因为已经按照参数个数降序排列
+                break;
+            }
+            if (paramTypes.length < minNrOfArgs) {
+                // 参数个数不相等
+                continue;
+            }
+
+            ArgumentsHolder argsHolder;
+            if (resolvedValues != null) {
+                // 有参数则根据值构造对应参数类型的参数
+                try {
+                    // 注释上获取参数名称
+                    String[] paramNames = ConstructorPropertiesChecker.evaluate(candidate, paramTypes.length);
+                    if (paramNames == null) {
+                        // 获取参数名称探索器
+                        ParameterNameDiscoverer pnd = this.beanFactory.getParameterNameDiscoverer();
+                        if (pnd != null) {
+                            // 获取指定构造函数的参数名称
+                            paramNames = pnd.getParameterNames(candidate);
+                        }
+                    }
+                    // 根据名称和数据类型创建参数持有者
+                    argsHolder = createArgumentArray(
+                            beanName, mbd, resolvedValues, bw, paramTypes, paramNames, candidate, autowiring);
+                }
+                catch (UnsatisfiedDependencyException ex) {
+                    if (this.beanFactory.logger.isTraceEnabled()) {
+                        this.beanFactory.logger.trace(
+                                "Ignoring constructor [" + candidate + "] of bean '" + beanName + "': " + ex);
+                    }
+                    // Swallow and try next constructor.
+                    if (causes == null) {
+                        causes = new LinkedList<UnsatisfiedDependencyException>();
+                    }
+                    causes.add(ex);
+                    continue;
+                }
+            }
+            else {
+                // Explicit arguments given -> arguments length must match exactly.
+                if (paramTypes.length != explicitArgs.length) {
+                    continue;
+                }
+                // 构造函数没有参数的情况
+                argsHolder = new ArgumentsHolder(explicitArgs);
+            }
+            
+            // 探测是否有不确定性的构造函数存在，例如不同构造函数的参数为父子关系
+            int typeDiffWeight = (mbd.isLenientConstructorResolution() ?
+                    argsHolder.getTypeDifferenceWeight(paramTypes) : argsHolder.getAssignabilityWeight(paramTypes));
+            // Choose this constructor if it represents the closest match.
+            // 如果它代表着当前最接近的匹配则选择作为构造函数
+            if (typeDiffWeight < minTypeDiffWeight) {
+                constructorToUse = candidate;
+                argsHolderToUse = argsHolder;
+                argsToUse = argsHolder.arguments;
+                minTypeDiffWeight = typeDiffWeight;
+                ambiguousConstructors = null;
+            }
+            else if (constructorToUse != null && typeDiffWeight == minTypeDiffWeight) {
+                if (ambiguousConstructors == null) {
+                    ambiguousConstructors = new LinkedHashSet<Constructor<?>>();
+                    ambiguousConstructors.add(constructorToUse);
+                }
+                ambiguousConstructors.add(candidate);
+            }
+        }
+
+        if (constructorToUse == null) {
+            if (causes != null) {
+                UnsatisfiedDependencyException ex = causes.removeLast();
+                for (Exception cause : causes) {
+                    this.beanFactory.onSuppressedException(cause);
+                }
+                throw ex;
+            }
+            throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+                    "Could not resolve matching constructor " +
+                    "(hint: specify index/type/name arguments for simple parameters to avoid type ambiguities)");
+        }
+        else if (ambiguousConstructors != null && !mbd.isLenientConstructorResolution()) {
+            throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+                    "Ambiguous constructor matches found in bean '" + beanName + "' " +
+                    "(hint: specify index/type/name arguments for simple parameters to avoid type ambiguities): " +
+                    ambiguousConstructors);
+        }
+
+        if (explicitArgs == null) {
+            // 将解析的构造函数加入缓存
+            argsHolderToUse.storeCache(mbd, constructorToUse);
+        }
+    }
+
+    try {
+        Object beanInstance;
+
+        if (System.getSecurityManager() != null) {
+            final Constructor<?> ctorToUse = constructorToUse;
+            final Object[] argumentsToUse = argsToUse;
+            beanInstance = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                @Override
+                public Object run() {
+                    return beanFactory.getInstantiationStrategy().instantiate(
+                            mbd, beanName, beanFactory, ctorToUse, argumentsToUse);
+                }
+            }, beanFactory.getAccessControlContext());
+        }
+        else {
+            beanInstance = this.beanFactory.getInstantiationStrategy().instantiate(
+                    mbd, beanName, this.beanFactory, constructorToUse, argsToUse);
+        }
+        
+        // 将构建的实例加入BeanWrapper
+        bw.setWrappedInstance(beanInstance);
+        return bw;
+    }
+    catch (Throwable ex) {
+        throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+                "Bean instantiation via constructor failed", ex);
+    }
+}
+
+上述过程实现的功能考虑：
+1.构造函数参数的确定
+>根据explicitArgs参数判断
+ 如果explicitArgs不为空，那边可以直接确定参数，因为explicitArgs参数是在调用Bean的时候用户指定的
+ 在BeanFacotory有方法：Object getBean(String name,Object... args) throws BeanException;
+>缓存中获取
+>配置文件获取 
+ 不能根据传入的参数explicitArgs确定构造函数的参数也无法再缓存中得到先关信息。那么只能从配置文件分析了
+ Spring中配置文件中的信息经过装换都会通过BeanDefinition实例承载，也就是参数mbd中包含，那么可以通过
+ 调用mbd.getConstructorArgumentValues()来获取配置的构造函数信息。
+2.构造函数的确定
+ 根虎参数个数匹配。
+3.根据确定的构造函数转换对应的参数类型
+4.构造函数不确定性的验证
+5.根据实例化策略以及得到的构造函数参数实例化Bean
+
+
+
+
+2. instantiateBean
+
+
+protected BeanWrapper instantiateBean(final String beanName, final RootBeanDefinition mbd) {
+    try {
+        Object beanInstance;
+        final BeanFactory parent = this;
+        if (System.getSecurityManager() != null) {
+            beanInstance = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                @Override
+                public Object run() {
+                    // 实例化策略
+                    return getInstantiationStrategy().instantiate(mbd, beanName, parent);
+                }
+            }, getAccessControlContext());
+        }
+        else {
+            beanInstance = getInstantiationStrategy().instantiate(mbd, beanName, parent);
+        }
+        BeanWrapper bw = new BeanWrapperImpl(beanInstance);
+        initBeanWrapper(bw);
+        return bw;
+    }
+    catch (Throwable ex) {
+        throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Instantiation of bean failed", ex);
+    }
+}
+
+
+3. 实例化策略
+
+# SimpleInstantiationStrategy.java
+public Object instantiate(RootBeanDefinition bd, String beanName, BeanFactory owner) {
+    // Don't override the class with CGLIB if no overrides.
+    // 如果有需要覆盖或者动态替换的方法则当然需要使用cglib进行动态代理，因为可以子啊创建代理的同时
+    // 将动态方法织入类中
+    // 但是如果没有需要动态改变的方法，为了方便直接反射就可以了
+    if (bd.getMethodOverrides().isEmpty()) {
+        Constructor<?> constructorToUse;
+        synchronized (bd.constructorArgumentLock) {
+            constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
+            if (constructorToUse == null) {
+                final Class<?> clazz = bd.getBeanClass();
+                if (clazz.isInterface()) {
+                    throw new BeanInstantiationException(clazz, "Specified class is an interface");
+                }
+                try {
+                    if (System.getSecurityManager() != null) {
+                        constructorToUse = AccessController.doPrivileged(new PrivilegedExceptionAction<Constructor<?>>() {
+                            @Override
+                            public Constructor<?> run() throws Exception {
+                                return clazz.getDeclaredConstructor((Class[]) null);
+                            }
+                        });
+                    }
+                    else {
+                        constructorToUse =	clazz.getDeclaredConstructor((Class[]) null);
+                    }
+                    bd.resolvedConstructorOrFactoryMethod = constructorToUse;
+                }
+                catch (Exception ex) {
+                    throw new BeanInstantiationException(clazz, "No default constructor found", ex);
+                }
+            }
+        }
+        return BeanUtils.instantiateClass(constructorToUse);
+    }
+    else {
+        // Must generate CGLIB subclass.
+        return instantiateWithMethodInjection(bd, beanName, owner);
+    }
+}
+
+
+# CglibSubclassingInstantiationStrategy.java
+public Object instantiate(Constructor<?> ctor, Object... args) {
+    Class<?> subclass = createEnhancedSubclass(this.beanDefinition);
+    Object instance;
+    if (ctor == null) {
+        instance = BeanUtils.instantiate(subclass);
+    }
+    else {
+        try {
+            Constructor<?> enhancedSubclassConstructor = subclass.getConstructor(ctor.getParameterTypes());
+            instance = enhancedSubclassConstructor.newInstance(args);
+        }
+        catch (Exception ex) {
+            throw new BeanInstantiationException(this.beanDefinition.getBeanClass(),
+                    "Failed to invoke constructor for CGLIB enhanced subclass [" + subclass.getName() + "]", ex);
+        }
+    }
+    // SPR-10785: set callbacks directly on the instance instead of in the
+    // enhanced class (via the Enhancer) in order to avoid memory leaks.
+    Factory factory = (Factory) instance;
+    factory.setCallbacks(new Callback[] {NoOp.INSTANCE,
+            new LookupOverrideMethodInterceptor(this.beanDefinition, this.owner),
+            new ReplaceOverrideMethodInterceptor(this.beanDefinition, this.owner)});
+    return instance;
+}
+
+
+
+```  
+
+### 5.7.2 记录中创建bean的ObjectFactory
+
+
+```
+boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
+            isSingletonCurrentlyInCreation(beanName));
+if (earlySingletonExposure) {
+    if (logger.isDebugEnabled()) {
+        logger.debug("Eagerly caching bean '" + beanName +
+                "' to allow for resolving potential circular references");
+    }
+    // 为避免后期循环依赖，可以在bean初始化完成前将创建实例的ObjectFactory加入工厂
+    addSingletonFactory(beanName, new ObjectFactory<Object>() {
+        @Override
+        public Object getObject() throws BeansException {
+            // 对bean再一次依赖引用，主要应用SmartInstantiationAware BeanPostProcessor
+            // 其中我们熟知的AOP在这里将advice动态织入bean中，若没有则直接返回bean，不做任何处理
+            return getEarlyBeanReference(beanName, mbd, bean);
+        }
+    });
+}
+
+> earlySingletonExposure：从字面的意思理解就是提早曝光的单例，我们暂不定义它的学名叫什么
+> mbd.isSingleton():此RootBeanDefinition代表是否是单例。
+> this.allowCircularReferences:是否允许循环依赖，暂未找到在配置文件中如何配置，但是在AbstractRefreshableApplicationContext中提供了设置函数
+  可以通过硬编码的方式进行设置或者可以通过自定义命名空间进行配置，其中硬编码的方式如下。
+  ClassPathXmlApplicationContext bf = new ClassPathXmlApplicationContext("aspectTest.xml");
+  bf.setAllowBeanDefinitionOverriding(false);
+> isSingletonCurrentlyInCreation(beanName):该bean是否在创建中。在Spring中，或有个专门的属性默认为DefaultSingletonBeanRegistry的singletonsCurrentInCreation
+  来记录bean的加载加载状态，在bean开始创建前会将beanName记录在属性中，在bean开始创建前会将beanName记录在属性中，在bean创建结束后会将beanName从属性中移除。
+
+
+```
+
+
+### 5.7.3 属性注入
+
 
 
 
