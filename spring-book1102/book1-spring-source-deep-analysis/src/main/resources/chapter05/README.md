@@ -699,6 +699,382 @@ sharedInstance = getSingleton(beanName, new ObjectFactory<Object>() {
 
 ```
 
+## 5.5 准备创建bean
+
+> 一个真正的干活的函数其实是以do开头的，比如doGetObjectFromFactoryBean。而给我们错觉的函数，比如getObjectFromFactoryBean
+  其实只是从全局的角度去做一些统筹的工作。这个规则对于createBean也比例外。
+  
+```
+# AbstractAutowireCapableBeanFactory.java
+
+protected Object createBean(final String beanName, final RootBeanDefinition mbd, final Object[] args)
+			throws BeanCreationException {
+    
+    
+    if (logger.isDebugEnabled()) {
+        logger.debug("Creating instance of bean '" + beanName + "'");
+    }
+    // Make sure bean class is actually resolved at this point.
+    // 锁定class，根据设置的class属性或者根据className来解析Class
+    resolveBeanClass(mbd, beanName);
+
+    // Prepare method overrides.
+    // 验证及准备覆盖的方法
+    try {
+        mbd.prepareMethodOverrides();
+    }
+    catch (BeanDefinitionValidationException ex) {
+        throw new BeanDefinitionStoreException(mbd.getResourceDescription(),
+                beanName, "Validation of method overrides failed", ex);
+    }
+
+    try {
+        // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+        // 给BeanPostProcessors一个机会来返回代理来替代真正的实例
+        Object bean = resolveBeforeInstantiation(beanName, mbd);
+        if (bean != null) {
+            return bean;
+        }
+    }
+    catch (Throwable ex) {
+        throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+                "BeanPostProcessor before instantiation of bean failed", ex);
+    }
+    
+    // 真正干活的方法
+    Object beanInstance = doCreateBean(beanName, mbd, args);
+    if (logger.isDebugEnabled()) {
+        logger.debug("Finished creating instance of bean '" + beanName + "'");
+    }
+    return beanInstance;
+}
+
+上述代码的步骤：
+1.根据设置的class属性或者根据ClassName来解析Class
+2.对override属性进行标记及验证。
+  在Spring中没有override-method这样的配置，存在lookup-method和replace-method的，而这两个配置的加载其实就
+  是讲配置统一存放在BeanDefinition中的methodOverrides属性里，而这个函数的操作其实也就是针对于这两个配置的
+3.应用初始化前的后处理器，解指定bean是否存在初始化前的短路操作。
+4.创建bean。
+
+
+```
+
+### 5.5.1 处理override属性
+
+```
+# AbstractBeanDefinition.java
+public void prepareMethodOverrides() throws BeanDefinitionValidationException {
+    // Check that lookup methods exists.
+    MethodOverrides methodOverrides = getMethodOverrides();
+    if (!methodOverrides.isEmpty()) {
+        for (MethodOverride mo : methodOverrides.getOverrides()) {
+            prepareMethodOverride(mo);
+        }
+    }
+}
+
+
+protected void prepareMethodOverride(MethodOverride mo) throws BeanDefinitionValidationException {
+    //获取对应类中对饮方法名的个数
+    int count = ClassUtils.getMethodCountForName(getBeanClass(), mo.getMethodName());
+    if (count == 0) {
+        throw new BeanDefinitionValidationException(
+                "Invalid method override: no method with name '" + mo.getMethodName() +
+                "' on class [" + getBeanClassName() + "]");
+    }
+    else if (count == 1) {
+        // Mark override as not overloaded, to avoid the overhead of arg type checking.
+        // 编辑MethodOverride暂未被覆盖，避免参数类型检查的开销
+        mo.setOverloaded(false);
+    }
+}
+
+```
+
+> 在Spring配置中存在lookup-method和replace-method两个配置功能，而这两个配置的加载其实就是将配置统一存放在
+  BeanDefinition中的methodOverrides属性里，这两个功能实现原理其实是在bean实例化的时候如果检测到存在
+  methodOverrides属性里，这两个功能实现原理其实是在bean实例化的时候如果检测到存在methodOverrides属性，会动态
+  地位当前bean生成代理并使用对应的拦截器为bean做增强处理，相关逻辑是现在bean的实例化不封详细介绍
+  
+### 5.5.2 实例化的前置处理
+
+> 在真正调用doCreate方法创建bean的实例前使用了这样一个方法resolveBeforeInstantiation对BeanDefinition中属性
+  做些前置处理。
+  
+```
+
+# AbstractAutowireCapableBeanFactory.java
+# createBean方法中的前置处理
+Object bean = resolveBeforeInstantiation(beanName, mbd);
+# 短路判断，前置处理后返回的结果如果不为空，那么会直接略过后续的bean的创建而直接返回结果
+if (bean != null) {
+    return bean;
+}
+
+protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) {
+    Object bean = null;
+    // 如果尚未被解析
+    if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
+        // Make sure bean class is actually resolved at this point.
+        if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+            Class<?> targetType = determineTargetType(beanName, mbd);
+            if (targetType != null) {
+                bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
+                if (bean != null) {
+                    bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
+                }
+            }
+        }
+        mbd.beforeInstantiationResolved = (bean != null);
+    }
+    return bean;
+}
+
+
+
+
+```  
+
+**1.实例化前的后处理器应用**
+
+> bean的实例化前调用，也就是将AbstractBeanDefinition转换为BeanWrapper前的处理。给子类一个修改BeanDefinition的机会
+  也就是说当程序经过这个方法后，可能不是我们认为的bean了，或许是处理过的代理bean，可能是cglib生成的，也可能是通过其他技术生成的 
+  
+```
+
+# AbstractAutowireCapableBeanFactory.java
+
+public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
+			throws BeansException {
+
+    Object result = existingBean;
+    for (BeanPostProcessor beanProcessor : getBeanPostProcessors()) {
+        result = beanProcessor.postProcessAfterInitialization(result, beanName);
+        if (result == null) {
+            return result;
+        }
+    }
+    return result;
+}
+
+```
+
+**2.实例化后的后处理器应用**
+
+> Spring中的规则是在bean的初始化后尽可能保证将注册的后处理器的postProcessAfterInitialization
+  方法应用到该bean中，因为如果返回的bean不为空，那么便不会再次经历普通bean的创建过程。
+  
+```
+# AbstractAutowireCapableBeanFactory.java
+
+public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
+			throws BeansException {
+
+    Object result = existingBean;
+    for (BeanPostProcessor beanProcessor : getBeanPostProcessors()) {
+        result = beanProcessor.postProcessAfterInitialization(result, beanName);
+        if (result == null) {
+            return result;
+        }
+    }
+    return result;
+}
+
+
+```
+
+## 5.6 循环依赖
+
+### 5.6.1 什么是循环依赖
+
+> 循环依赖就是循环引用，就是两个或多个bean相互之间的持有对方，比如CircleA引用CircleB，CircleB引用CircleC，CircleC引用CircleA，则它们最终反映为一个环。
+
+![avatar](images/02_circle_dependence.jpg)
+
+### 5.6.2 Spring如何解决循环依赖
+
+> Spring容器循环依赖包括构造器循环依赖和setter循环依赖。
+  在Spring中将循环一开的处理分成3种情况
+  
+
+```
+
+在com.spring.book.study.chapter05 创建TestA，TestB，TestC。
+
+package com.spring.book.study.chapter05;
+public class TestA {
+
+    private TestB testB;
+
+    public void a(){
+        testB.b();
+    }
+
+    public TestB getTestB() {
+        return testB;
+    }
+
+    public void setTestB(TestB testB) {
+        this.testB = testB;
+    }
+}
+
+package com.spring.book.study.chapter05;
+
+public class TestB {
+
+    private TestC testC;
+
+    public void b(){
+        testC.c();
+    }
+
+    public TestC getTestC() {
+        return testC;
+    }
+
+    public void setTestC(TestC testC) {
+        this.testC = testC;
+    }
+}
+
+package com.spring.book.study.chapter05;
+
+public class TestC {
+
+    private TestA testA;
+
+    public void c() {
+        testA.a();
+    }
+
+    public TestA getTestA() {
+        return testA;
+    }
+
+    public void setTestA(TestA testA) {
+        this.testA = testA;
+    }
+}
+
+
+```
+
+**1.构造器循环依赖**
+> 表示通过构造器注入构成的循环依赖，此依赖是无法解决的，只能抛出BeanCurrentlyInCreationException异常表示循环依赖。
+  创建TestA，需要构建TestB，创建TestB，需要构建TestC，创建TestC，需要TestA，从而形成一个环，没办法创建。
+  Spring容器将每一个正在创建的bean标识符放在一个"当前创建bean池"中，bean表示符在创建过程中将一致保持在这个池子中，因此如果在
+  创建bean过程中发现自己已经在"当前创建bean池"里时，将抛出BeanCurrentlyInCreationException异常表示循环依赖；而对于创建完毕的
+  bean将从"当前创建的bean池"中清除掉
+
+```
+# 1.创建配置文件constructorCircleTest.xml。
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="testA" class="com.spring.book.study.chapter05.TestA">
+        <constructor-arg index="0" ref="testB" />
+    </bean>
+
+    <bean id="testB" class="com.spring.book.study.chapter05.TestB">
+        <constructor-arg index="0" ref="testC" />
+    </bean>
+
+    <bean id="testC" class="com.spring.book.study.chapter05.TestC">
+        <constructor-arg index="0" ref="testA" />
+    </bean>
+
+</beans>
+
+# 测试类
+package com.spring.book.study.chapter05;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class Main {
+
+    private static ApplicationContext ap;
+
+    public static void main(String[] args) throws Exception {
+        // Caused by: org.springframework.beans.factory.BeanCurrentlyInCreationException:
+        testConstructorCirleDepend();
+
+    }
+
+    private static void testConstructorCirleDepend() throws Exception {
+        ap = new ClassPathXmlApplicationContext("constructorCircleTest.xml");
+    }
+
+    public static void testFactBean() {
+        ap = new ClassPathXmlApplicationContext("factoryBeanTest.xml");
+        Car car = (Car) ap.getBean("car");
+        // Car{maxSpeed=400, brand='超级跑车', price=400.0}
+        System.out.println(car);
+
+        Object carFactoryBean = ap.getBean("&car");
+        // class com.spring.book.study.chapter05.CarFactoryBean
+        System.out.println(carFactoryBean.getClass());
+    }
+
+}
+
+测试结果抛出异常：
+ Error creating bean with name 'testA': Requested bean is currently in creation: Is there an unresolvable circular reference?
+
+
+```  
+
+> Spring容器创建"testA"bean，首先去"当前创建bean池"查找是否当前bean正在创建，如果发现，则继续准备器需要的构造器参数"testB"，并将"testA"表示符放到"当前创建bean池"
+  Spring容器创建"testB"bean，首先去"当前创建bean池"查找是否当前bean正在创建，如果发现，则继续准备器需要的构造器参数"testC"，并将"testB"表示符放到"当前创建bean池"
+  Spring容器创建"testC"bean，首先去"当前创建bean池"查找是否当前bean正在创建，如果发现，则继续准备器需要的构造器参数"testA"，并将"testC"表示符放到"当前创建bean池"
+  Spring容器创建"testA"bean，发现该bean标识符在"当前创建bean池"中，因为表示循环依赖，抛出BeanCurrentlyInCreationException
+  
+**2.setter循环依赖**
+
+> 对于setter注入造成的依赖是通过Spring容器提前暴露刚完成构造器注入但为完成其他步骤(setter注入)的bean来完成的，而且只能解决单例作用域的bean循环依赖，
+  通过提前暴露一个单例工厂的方法，从而使其他bean能引用到该bean。
+
+```
+
+
+#AbstractAutowireCapableBeanFactory.java
+addSingletonFactory(beanName, new ObjectFactory<Object>() {
+    @Override
+    public Object getObject() throws BeansException {
+        return getEarlyBeanReference(beanName, mbd, bean);
+    }
+});
+
+
+```
+
+> 1.Spring容器创建单例"testA"bean，首先根据无参构造器创建bean并暴露一个"ObjectFactory"用于返回一个提前暴露一个创建中的bean，
+  并将"testA"标识符放到"当前创建bean池"，然后进行setter注入"testB"
+  2.Spring容器创建单例"testB"bean，首先根据无参构造器创建bean，并暴露一个"ObjectFactory"用于返回一个提前暴露一个创建中的bean，
+  并将"testB"标识符放到"当前创建bean池"，然后进行setter注入"circle"
+  3.Spring容器创建单例"testC"bean，首先根据无参构造器创建bean，并暴露一个"ObjectFactory"用于返回一个提前暴露一个创建中的bean，
+  并将"testC"标识符放到"当前创建bean池"，然后进行setter注入"testA"。进行注入"testA"时由于提前暴露了"ObjectFactory"工厂，从而使
+  它返回提前暴露一个创建中的bean。
+  4.最后在依赖注入"testB"和"testA"，完成setter注入。
+  
+**3.prototype**
+> 对于"prototype"作用域bean，Spring容器无法完成依赖注入，因为Spring容器不进行缓存"prototype"作用域的bean。
+  对于"singleton"作用域bean，可以通过"setAllowCircularReferences(false)"来禁用循环引用
+
+
+
+## 5.7 创建bean
+
+
+
+  
 
 
 
