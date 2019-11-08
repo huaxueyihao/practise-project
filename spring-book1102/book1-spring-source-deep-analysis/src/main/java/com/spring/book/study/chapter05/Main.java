@@ -8,7 +8,16 @@ public class Main {
     private static ApplicationContext ap;
 
     public static void main(String[] args) throws Exception {
-        testSetterCircleDepend();
+
+        testBeanFactoryAware();
+
+    }
+
+    private static void testBeanFactoryAware() {
+        ap = new ClassPathXmlApplicationContext("applicationContext.xml");
+        Test test = (Test) ap.getBean("test");
+        test.testAware();
+
     }
 
     private static void testSetterCircleDepend() {
