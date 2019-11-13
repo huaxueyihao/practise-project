@@ -1702,29 +1702,31 @@ private Callback[] getCallbacks(Class<?> rootClass) throws Exception {
 }
 
 
+```
+
+## 7.4 静态AOP使用示例
+
+> 加载时织入(Load-Time Weaving, LTW) 指的是在虚拟机加入字节码文件时动态织入AspectJ切面。
+> 从动态代理的方式改为静态代理的方式需要做如下改动。
+
+```
+1. Spring全局配置文件的修改，加LWT开关。
+
+
 
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 7.4 静态AOP使用示例
 
 
 ## 7.5 创建AOP静态代理
 
 
 
+### 7.5.1 Instrumentation 使用
 
 
+### 7.5.2 自定义标签
+
+
+### 7.5.3 织入
 

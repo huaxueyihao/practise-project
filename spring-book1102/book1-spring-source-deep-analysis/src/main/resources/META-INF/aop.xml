@@ -1,0 +1,11 @@
+<!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "http://www.idea.org/aspectj/dtd/aspectj.dtd">
+
+<aspectj>
+    <!--    主要是告诉AspectJ需要对那些包进行织入，并使用那些增强器-->
+    <weaver>
+        <include within="com.spring.book.study.chapter07.*"/>
+    </weaver>
+    <weaver>
+        <aspect name="com.spring.book.study.chapter07.AspectJTest"></aspect>
+    </weaver>
+</aspectj>
