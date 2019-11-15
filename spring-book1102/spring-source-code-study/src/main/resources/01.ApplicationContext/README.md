@@ -594,7 +594,7 @@ public final ConfigurableListableBeanFactory getBeanFactory() {
 
 #### 2.1.3 AbstractApplicationContext.prepareBeanFactory(ConfigurableListableBeanFactory beanFactory)方法
 
-> 为beanFactory做一些必要的准备，都是些设置工作
+> 为beanFactory做一些必要的准备，都是些设置工作，后续分每个专题一一分析，这里到此为止
 
 ```
 
@@ -643,7 +643,96 @@ protected void prepareBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 }
 
 
+```
+
+#### 2.1.4 AbstractApplicationContext.postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)方法
+
+> 对beanFactory添加自定义的processor，
+  在prepareBeanFactory(ConfigurableListableBeanFactory beanFactory)方法中就有注册processor,
+  beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+  这个方法需要自己重写，添加自定义的processor
+
+```
+/**
+ * Modify the application context's internal bean factory after its standard
+ * 在标准初始化后，修改应用上下文的内部beanFactory
+ * initialization. All bean definitions will have been loaded, but no beans
+ * 所有beanDefinition(这个是配置的标签解析后的bean定义信息都这这个对象中)已经被加载
+ * will have been instantiated yet. This allows for registering special
+ * 没有bean可以被初始化了。该方法允许注册特殊的bean处理器等在某些应用上下文的实现中
+ * BeanPostProcessors etc in certain ApplicationContext implementations.
+ * @param beanFactory the bean factory used by the application context
+ */
+protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+}
+```
+
+#### 2.1.5 AbstractApplicationContext.invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory)方法
+
+
+> 对注册的BeanFactoryPostProcessor进行调用，对beanFactory进行处理，这个和上一个BeanPostProcessor不是同一个东东
+  BeanFactoryPostProcessor看名称是作用于beanFactory，
+  BeanPostProcessor看名称是作用于bean的，
+  且该方法在postProcessBeanFactory在之后，这也说明了beanFactory在bean之前(先有工厂后生产bean)，
+  工行先拿到工厂的processor，才能给bean分配processor
+
+```
+/**
+ * Instantiate and invoke all registered BeanFactoryPostProcessor beans,
+ * 按照明确给定的顺序，实例化和调用所有的已注册的BeanFactoryPostProcessor bean
+ * respecting explicit order if given.
+ * <p>Must be called before singleton instantiation.
+ */
+protected void invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+    // delegate:代理
+    PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, getBeanFactoryPostProcessors());
+}
 
 
 
 ```
+
+
+#### 2.1.6 AbstractApplicationContext.registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory)方法
+
+```
+/**
+ * Instantiate and invoke all registered BeanPostProcessor beans,
+ * 按照明确给定的顺序，实例化和调用所有的BeanPostProcessor bean
+ * respecting explicit order if given.
+ * <p>Must be called before any instantiation of application beans.
+ */
+protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+    PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
+}
+
+```
+
+
+
+## 3 总结
+ 
+> 1.bean加载、解析、添加processor等操作都在抽象类AbstractApplicationContext中定义或实现
+  2.真正的加载解析的方法是在AbstractXmlApplicationContext中实现的
+
+```
+
+ApplicationContext (org.springframework.context)
+    ConfigurableApplicationContext (org.springframework.context)                                            # 可以配置的应用上下文
+        AbstractApplicationContext (org.springframework.context.support)                                    # 抽象应用上下文
+            AbstractRefreshableApplicationContext (org.springframework.context.support)                     # 抽象可重刷新应用上下文
+                AbstractRefreshableConfigApplicationContext (org.springframework.context.support)           # 抽象可重刷新配置应用上下文
+                    AbstractXmlApplicationContext (org.springframework.context.support)                     # 抽象的xml应用上下文
+                        FileSystemXmlApplicationContext (org.springframework.context.support)
+                        ClassPathXmlApplicationContext (org.springframework.context.support)                # 以上抽象类和接口的具体实现ClassPath
+            GenericApplicationContext (org.springframework.context.support)
+                GenericXmlApplicationContext (org.springframework.context.support)
+                StaticApplicationContext (org.springframework.context.support)
+                ResourceAdapterApplicationContext (org.springframework.jca.context)
+                GenericGroovyApplicationContext (org.springframework.context.support)
+                AnnotationConfigApplicationContext (org.springframework.context.annotation)
+    
+
+```
+
+
