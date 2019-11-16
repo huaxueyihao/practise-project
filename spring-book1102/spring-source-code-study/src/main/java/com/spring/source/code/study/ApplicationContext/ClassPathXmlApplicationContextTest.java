@@ -17,7 +17,7 @@ public class ClassPathXmlApplicationContextTest {
 
     @Test
     public void testClassPathXmlApplicationContextTest() {
-        ClassPathXmlApplicationContext app = new ClassPathXmlApplicationContext("01.ApplicationContext/${HELLO}.xml");
+        ClassPathXmlApplicationContext app = new ClassPathXmlApplicationContext("01.ApplicationContext/parentApplicationContext.xml");
 
     }
 

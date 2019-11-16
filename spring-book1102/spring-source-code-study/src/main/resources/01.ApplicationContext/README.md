@@ -542,7 +542,7 @@ protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throw
     beanDefinitionReader.setEnvironment(this.getEnvironment());
     // 资源加载器
     beanDefinitionReader.setResourceLoader(this);
-    // 实体解析器
+    // 这个外部实体解析器
     beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
     // Allow a subclass to provide custom initialization of the reader,
