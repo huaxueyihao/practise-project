@@ -85,7 +85,7 @@ protected int detectValidationMode(Resource resource) {
 ```
 
 
-### 2.XmlValidationModeDetectordetectValidationMode(InputStream inputStream)方法
+### 2.XmlValidationModeDetector.detectValidationMode(InputStream inputStream)方法
 
 ```
 

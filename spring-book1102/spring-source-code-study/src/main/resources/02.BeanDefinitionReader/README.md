@@ -324,6 +324,8 @@ protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
         throws BeanDefinitionStoreException {
     try {
         // 将配置文件解析为Document(文档)
+        // 这里的inputSource起始也是resource的输入流用InputSource封装了
+        // inputSource是用于sax解析为Document对象用的，resource是为了验正文件是XSD还是DTD用的
         Document doc = doLoadDocument(inputSource, resource);
         // 进行注册BeanDefinition
         return registerBeanDefinitions(doc, resource);
