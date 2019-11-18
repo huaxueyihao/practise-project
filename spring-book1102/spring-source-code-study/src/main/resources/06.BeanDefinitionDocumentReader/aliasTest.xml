@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="testA" class="com.spring.source.code.study.BeanDefinitionDocumentReader.TestA"/>
+    <alias name="testA" alias="testA1"></alias>
+    <alias name="testA" alias="testA2"></alias>
+</beans>
