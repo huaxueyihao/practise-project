@@ -1,0 +1,3 @@
+NamespaceHandlerResolver
+
+> 在NamespaceHandler章节中已经叙述过，基本就是那些功能
