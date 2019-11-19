@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.demo.com/schema/demo"
+        xmlns:tns="http://www.demo.com/schema/demo"
+        elementFormDefault="qualified">
+    <!--targetNamespace就是命名空间，是个地址，表示目标文件在这个地址的远程服务器上-->
+    <element name="demo">
+        <complexType>
+            <attribute name="id" type="string"/>
+            <attribute name="demoName" type="string"/>
+            <attribute name="demoDesc" type="string"/>
+        </complexType>
+    </element>
+
+</schema>
