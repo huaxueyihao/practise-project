@@ -173,7 +173,7 @@
         form.on('submit(login)', function (data) {
             console.log(data.field);
             data = data.field;
-            if (data.userName == '') {
+            if (data.username == '') {
                 layer.msg('用户名不能为空');
                 return false;
             }
@@ -187,7 +187,7 @@
             // }
 
             $.ajax({
-                url: '/login',
+                url: '/auth/login',
                 data: JSON.stringify(data),
                 contentType: 'application/json;charset=UTF-8',
                 type: "POST",
@@ -198,6 +198,8 @@
                         layer.msg("登陆成功", {
                             icon: 6
                         });
+                        console.log(result);
+                        localStorage.setItem("user", result.data)
                         window.location.href = '/index';
                     } else {
                         layer.msg(result.msg);
@@ -206,6 +208,15 @@
                 error: function (res) {
                 }
             });
+
+            // $.post("/auth/mylogin", data, function (result) {
+            //     console.log(result);
+            //     if (result.success) {
+            //         window.location.href = '/index';
+            //     }else{
+            //         layer.msg(result.msg);
+            //     }
+            // });
             return false;
         });
     });

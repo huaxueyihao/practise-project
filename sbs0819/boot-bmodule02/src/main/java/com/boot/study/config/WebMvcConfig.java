@@ -1,10 +1,7 @@
 package com.boot.study.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 
 /**
  * spring的资源访问控制的配置类
@@ -13,6 +10,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     public final static String SESSION_KEY = "user";
+
+    private final long MAX_AGE_SECS = 3600;
 
     /**
      * controller请求拦截器
@@ -36,6 +35,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
         registry.addResourceHandler("/templates/**").addResourceLocations("classpath:/templates/");
     }
+
+
 
 
     /**
@@ -68,5 +69,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addViewController("/plan/dayExecutionPage2").setViewName("plan/dayExecutionPage2");
 
 
+    }
+
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("*")
+                .allowedMethods("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE")
+                .maxAge(MAX_AGE_SECS);
     }
 }

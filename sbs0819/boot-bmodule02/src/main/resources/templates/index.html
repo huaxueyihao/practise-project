@@ -26,10 +26,10 @@
 
     <div class="layui-header header">
         <div class="layui-logo">
-<!--            <a href="">-->
-<!--                <img src="layuimini/images/time_02.png" alt="logo">-->
-<!--                <h1>TIME FLIES</h1>-->
-<!--            </a>-->
+            <!--            <a href="">-->
+            <!--                <img src="layuimini/images/time_02.png" alt="logo">-->
+            <!--                <h1>TIME FLIES</h1>-->
+            <!--            </a>-->
             <h1>TIME FLIES</h1>
         </div>
         <a>
@@ -118,7 +118,7 @@
     layui.use(['element', 'layer', 'layuimini'], function () {
         var $ = layui.jquery,
             element = layui.element,
-        layer = layui.layer;
+            layer = layui.layer;
 
         layuimini.init('layuimini/api/init.json');
 
@@ -145,8 +145,9 @@
 
 
         $('.login-out').on("click", function () {
-            $.getJSON('/logout', function (data, status) {
+            $.getJSON('auth/logout', function (data, status) {
                 layer.msg('退出登录成功');
+                localStorage.setItem("user", null);
                 window.location = '/loginPage';
             }).fail(function () {
                 layuimini.msg_error('菜单接口有误');

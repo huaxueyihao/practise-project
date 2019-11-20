@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 
@@ -20,6 +21,9 @@ public class MyUserDetailsService implements UserDetailsService {
     @Autowired
     private SysUserMapper sysUserMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 
@@ -27,7 +31,8 @@ public class MyUserDetailsService implements UserDetailsService {
         if(sysUser == null){
             throw new BusinessException(100,"该用户不存在");
         }
-
+//        System.out.println(passwordEncoder.encode(sysUser.getPassword()));
+//        sysUser.setPassword(passwordEncoder.encode(sysUser.getPassword()));
         return new JwtUser(sysUser);
     }
 }
