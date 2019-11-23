@@ -89,7 +89,7 @@ protected void processAliasRegistration(Element ele) {
     if (valid) {
         try {
             // 在注册其中将别名注册到别名的aliasMap中
-            // aliasMap的key是别名testA1,testA,值是testA，也就是别名和bean的id是多对一的
+            // aliasMap的key是别名testA1,值是testA，也就是别名和bean的id是多对一的
             // 在获取bean的时候，若是有别名，先用别名获得id，然后根据id获得bean实例
             getReaderContext().getRegistry().registerAlias(name, alias);
         }
