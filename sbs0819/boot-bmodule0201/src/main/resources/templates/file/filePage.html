@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>增加用户</title>
+    <link rel="stylesheet" href="../layuimini/lib/layui-v2.5.4/css/layui.css" media="all">
+    <link rel="stylesheet" href="../layuimini/css/public.css" media="all">
+    <link rel="stylesheet" href="../layuimini/lib/jq-module/zyupload/zyupload-1.0.0.min.css" media="all">
+    <style>
+        .layui-btn:not(.layui-btn-lg ):not(.layui-btn-sm):not(.layui-btn-xs) {
+            height: 34px;
+            line-height: 34px;
+            padding: 0 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <div class="layui-upload">
+            <button type="button" class="layui-btn" id="test2">多图片上传</button>
+            <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 10px;">
+                预览图：
+                <div class="layui-upload-list" id="demo2"></div>
+            </blockquote>
+        </div>
+        <hr/>
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-primary" id="close" lay-filter="close">
+                关闭
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="../layuimini/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script src="../layuimini/lib/layui-v2.5.4/layui.js" charset="utf-8"></script>
+<script src="../layuimini/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script src="../layuimini/lib/jq-module/zyupload/zyupload-1.0.0.min.js" charset="utf-8"></script>
+<script>
+    //JavaScript代码区域
+    layui.use(['form', 'layedit', 'upload'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.jquery,
+            upload = layui.upload
+
+
+        //多图片上传
+        upload.render({
+            elem: '#test2'
+            , url: '/file/upload/'
+            , multiple: true
+            , before: function (obj) {
+                //预读本地文件示例，不支持ie8
+                obj.preview(function (index, file, result) {
+                    $('#demo2').append('<img style="width: 150px; height: 100px;" src="' + result + '" alt="' + file.name + '" class="layui-upload-img">')
+                    console.log(index);
+                    console.log(file);
+                });
+            }
+            , done: function (res) {
+                //上传完毕
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.layui.table.reload('file-table');
+            }
+        });
+
+
+        // 提交
+        form.on('submit(save)', function (data) {
+            var url = data.field.id ? '/user/update' : '/user/add';
+            var tips = data.field.id ? '编辑' : '新增';
+            $.ajax({
+                url: url,
+                data: JSON.stringify(data.field),
+                contentType: 'application/json;charset=UTF-8',
+                cache: false,
+                async: false,
+                type: "POST",
+                dataType: 'json',
+                success: function (result) {
+                    console.log(result);
+                    if (result.success) {
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layui.table.reload('user-table', {page: {curr: 1}}); //主页代码，第一个参数为： 父页面的表格属性 id名
+                        parent.layer.close(index); //成功再执行关闭
+                        parent.layer.msg(tips + "成功", {
+                            icon: 6
+                        });
+                    } else {
+                        layer.msg(result.msg);
+
+                    }
+                },
+                error: function (res) {
+                }
+            });
+            return false;
+        });
+
+        // 关闭
+        $('#close').click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index); //成功再执行关闭
+        })
+
+
+        var userId = $("#userId").val();
+        if (userId) {
+            console.log('userId=' + userId);
+            $.ajax({
+                url: '/user/detail/' + userId,
+                method: 'get',
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.success) {
+                        // parent.closeIframe(res.msg);
+                        console.log(res);
+                        form.val('example', {
+                            "userName": res.data.userName
+                            , "password": res.data.password
+                            , "sex": res.data.sex
+                            , "age": res.data.age
+                        })
+                    } else
+                        layer.msg(res.msg);
+                },
+                error: function (data) {
+                }
+            });
+        }
+
+    });
+
+
+</script>
+</body>
+</html>

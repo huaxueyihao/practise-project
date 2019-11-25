@@ -1,0 +1,87 @@
+spring:
+  application:
+    name: springboot-layui-demo01
+  ############### H2 Begin ################
+#  datasource:
+#    driver-class-name: org.h2.Driver
+#      # default dbc:h2:mem:testdbsa
+##    url: jdbc:h2:mem:testdbsa?characterEncoding=utf-8 # 在内存中创建表和数据库
+#    #    jdbc:h2:file:C:/data/test # 绝对路径
+#    url: jdbc:h2:./testdbsa?characterEncoding=utf-8
+#    username: sa
+#    # default null
+#    password:
+#    # db schema
+#    schema: classpath:db/schema.sql
+#    # db data
+#    data: classpath:db/data.sql
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: mysql
+    url: jdbc:mysql://localhost:3306/time_manager_demo01?useUnicode=true&characterEncoding=UTF8&autoReconnect=true&failOverReadOnly=false
+#  h2:
+#    console:
+#      settings:
+#        web-allow-others: true #remote visit
+#        trace: true
+#      path: /h2-console # console url
+#      enabled: true
+    ############### static resources begin ################
+  resources:
+    static-locations: classpath:static/,classpath:templates/
+
+  ############### static resources end ################
+  #  thymeleaf:
+  #    mode: HTML5
+  #    encoding: UTF-8
+  #    cache: false
+  #    prefix: classpath:/templates
+  #    suffix: .html
+  #    servlet:
+  #      content-type: text/html; charset=utf-8
+  freemarker:
+    suffix: .html
+
+
+
+
+
+############### H2 End ################
+
+############### Mybatis Begin ################
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.boot.study.model
+  configuration:
+    map-underscore-io-camel-core: true
+############### Mybatis end ################
+
+############### Log Begin################
+logging:
+  level:
+    com.boot.study.mapper: TRACE
+#    org:
+#      hibernate: DEBUG
+#  config: classpath:logback-boot.xml
+############### Log End ################
+
+
+############### Port Begin ################
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+############### Port End ################
+
+
+############### fdfs Begin ################
+fdfs:
+  server:
+    ip: 172.16.144.144:80
+  tracker:
+    conf:
+      path: /fdfs/tracker.conf
+
+############### fdfs End ################

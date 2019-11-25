@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.study.mapper.SysUserMapper">
+
+    <resultMap id="BaseResultMap" type="com.boot.study.model.SysUser">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="VARCHAR"/>
+        <result column="age" property="age" jdbcType="INTEGER"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectByUserName" resultMap="BaseResultMap">
+        select t.* from sys_user t where t.user_name = #{userName}
+    </select>
+
+    <insert id="insertUserRole">
+        insert sys_user_role (user_id,role_id) values (#{userId},#{roleId})
+    </insert>
+
+
+
+    <insert id="batchInsertUserRole">
+        insert sys_user_role (user_id,role_id) values
+
+        <foreach collection="roleIdList" item="roleId" separator=",">
+            (#{userId},#{roleId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteUserRole">
+        delete  from sys_user_role  where user_id = #{userId} and role_id = #{roleId}
+    </delete>
+</mapper>
