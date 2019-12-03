@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!--    被代理对象-->
+    <bean id="human" class="com.spring.source.code.study.Aop.Human"></bean>
+
+    <!--    织入的对象-->
+    <bean id="sleepHelper" class="com.spring.source.code.study.Aop.SleepHelper"></bean>
+
+    <!--    切点表达式-->
+    <bean id="sleepPointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut">
+        <property name="pattern" value=".*sleep"></property>
+    </bean>
+
+    <!--    通知-->
+    <bean id="sleepHelperAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+        <property name="advice" ref="sleepHelper"></property>
+        <property name="pointcut" ref="sleepPointcut"></property>
+    </bean>
+
+    <!--    代理对象-->
+    <bean id="proxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="target" ref="human"></property>
+        <property name="interceptorNames" value="sleepHelperAdvisor"></property>
+        <property name="proxyInterfaces" value="com.spring.source.code.study.Aop.Sleepable"></property>
+    </bean>
+
+    <!--    对象-->
+<!--    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>-->
+
+
+</beans>
