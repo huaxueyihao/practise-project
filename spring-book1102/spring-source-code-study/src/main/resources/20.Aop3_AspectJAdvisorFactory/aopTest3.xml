@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+    <aop:aspectj-autoproxy/>
+    <!--    被代理对象-->
+    <bean id="human" class="com.spring.source.code.study.Aop.Human"></bean>
+
+    <bean id="sleepHelperThree" class="com.spring.source.code.study.Aop.SleepHelperThree"/>
+
+    <aop:config>
+        <aop:aspect ref="sleepHelperThree">
+            <aop:before method="beforeSleep" pointcut="execution( * *.sleep(..))"/>
+            <aop:before method="afterSleep" pointcut="execution( * *.sleep(..))"/>
+        </aop:aspect>
+    </aop:config>
+
+
+<!--    <aop:config>-->
+<!--        <aop:aspect ref="sleepHelperThree">-->
+<!--            <aop:pointcut id="pointcut" expression="execution( * *.sleep(..))"/>-->
+<!--            <aop:before method="beforeSleep" pointcut-ref="pointcut"/>-->
+<!--            <aop:before method="afterSleep" pointcut-ref="pointcut"/>-->
+<!--        </aop:aspect>-->
+<!--    </aop:config>-->
+
+
+</beans>
