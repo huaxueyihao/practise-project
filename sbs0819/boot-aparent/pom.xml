@@ -27,7 +27,7 @@
         <tk.mapper.version>4.0.3</tk.mapper.version>
         <pagerhelper.version>5.1.8</pagerhelper.version>
         <commons.lang3.version>3.8.1</commons.lang3.version>
-        <commons.io.version>2.6</commons.io.version>
+        <commons.io.version>2.7</commons.io.version>
         <fastdfs.client.version>1.0-SNAPSHOT</fastdfs.client.version>
 
         <spring.security.version>5.1.5.RELEASE</spring.security.version>
