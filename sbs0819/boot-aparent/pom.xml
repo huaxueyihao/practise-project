@@ -21,7 +21,7 @@
         <lombok.version>1.18.2</lombok.version>
         <slf4j.api.version>1.7.26</slf4j.api.version>
 
-        <h2.version>1.4.199</h2.version>
+        <h2.version>2.1.210</h2.version>
         <mybatis.spring.version>2.1.0</mybatis.spring.version>
         <tk.mybatis.version>2.1.5</tk.mybatis.version>
         <tk.mapper.version>4.0.3</tk.mapper.version>
