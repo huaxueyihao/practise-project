@@ -19,7 +19,7 @@
 
     <properties>
         <fastjosn.version>1.2.47</fastjosn.version>
-        <dubbo.version>2.6.0</dubbo.version>
+        <dubbo.version>2.6.12</dubbo.version>
         <zkclient.version>0.10</zkclient.version>
         <spring.dubbo.version>1.0.10</spring.dubbo.version>
         <spring.mybatis.version>2.0.1</spring.mybatis.version>
